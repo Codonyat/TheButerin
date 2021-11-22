@@ -19,7 +19,7 @@ async function main() {
 
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
-  const Token = await ethers.getContractFactory("Token");
+  const Token = await ethers.getContractFactory("JPEGminer");
   const token = await Token.deploy();
   await token.deployed();
 
