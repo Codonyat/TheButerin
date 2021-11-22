@@ -1,8 +1,8 @@
-const utils = require("../scripts/functions.js");
-
 // This is a script for deploying your contracts. You can adapt it to deploy
 // yours, or create new ones.
 async function main() {
+    const utils = require("./functions.js");
+
     // This is just a convenience check
     if (network.name === "hardhat") {
         console.warn(
@@ -26,6 +26,7 @@ async function main() {
 
     // Convert scans to B64
     const scansB64 = utils.convertScansToB64(scans);
+    const imageScans = scansB64.JpegScansB64;
 
     // Compute hashes
     const hashes = utils.hashScans(scansB64.JpegScansB64);
@@ -38,12 +39,19 @@ async function main() {
     console.log("JPEGminer address:", jpegMiner.address);
 
     // We also save the contract's artifacts and address in the frontend directory
-    saveFrontendFiles(jpegMiner);
+    saveFrontendFiles(imageScans, jpegMiner);
 }
 
-function saveFrontendFiles(jpegMiner) {
+function saveFrontendFiles(imageScans, jpegMiner) {
     const fs = require("fs");
     const contractsDir = __dirname + "/../frontend/src/contracts";
+    const dataDir = __dirname + "/../frontend/src/imageData";
+
+    if (!fs.existsSync(dataDir)) {
+        fs.mkdirSync(dataDir);
+    }
+
+    fs.writeFileSync(contractsDir + "/imageScans.json", JSON.stringify(imageScans, undefined, 2));
 
     if (!fs.existsSync(contractsDir)) {
         fs.mkdirSync(contractsDir);
