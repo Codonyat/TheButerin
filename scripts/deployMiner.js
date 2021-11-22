@@ -1,3 +1,5 @@
+const utils = require("../scripts/functions.js");
+
 // This is a script for deploying your contracts. You can adapt it to deploy
 // yours, or create new ones.
 async function main() {
@@ -16,17 +18,30 @@ async function main() {
 
     console.log("Account balance:", (await deployer.getBalance()).toString());
 
-    const Token = await ethers.getContractFactory("Token");
-    const token = await Token.deploy();
-    await token.deployed();
+    // Compress image to progressive JPEG
+    utils.toProgressiveJPEG("Logan_3000x1000", "test");
 
-    console.log("Token address:", token.address);
+    // Open JPEG in binary
+    const scans = utils.getScans("test");
+
+    // Convert scans to B64
+    const scansB64 = utils.convertScansToB64(scans);
+
+    // Compute hashes
+    const hashes = utils.hashScans(scansB64.JpegScansB64);
+
+    // Deploy JPEG Miner
+    const JPEGminer = await ethers.getContractFactory("JPEGminer");
+    const jpegMiner = await JPEGminer.deploy(scansB64.JpegHeaderB64, hashes);
+    await jpegMiner.deployed();
+
+    console.log("JPEGminer address:", jpegMiner.address);
 
     // We also save the contract's artifacts and address in the frontend directory
-    saveFrontendFiles(token);
+    saveFrontendFiles(jpegMiner);
 }
 
-function saveFrontendFiles(token) {
+function saveFrontendFiles(jpegMiner) {
     const fs = require("fs");
     const contractsDir = __dirname + "/../frontend/src/contracts";
 
@@ -34,11 +49,14 @@ function saveFrontendFiles(token) {
         fs.mkdirSync(contractsDir);
     }
 
-    fs.writeFileSync(contractsDir + "/contract-address.json", JSON.stringify({ Token: token.address }, undefined, 2));
+    fs.writeFileSync(
+        contractsDir + "/contract-address.json",
+        JSON.stringify({ JPEGminer: jpegMiner.address }, undefined, 2)
+    );
 
-    const TokenArtifact = artifacts.readArtifactSync("Token");
+    const TokenArtifact = artifacts.readArtifactSync("JPEGminer");
 
-    fs.writeFileSync(contractsDir + "/Token.json", JSON.stringify(TokenArtifact, null, 2));
+    fs.writeFileSync(contractsDir + "/JPEGminer.json", JSON.stringify(TokenArtifact, null, 2));
 }
 
 main()

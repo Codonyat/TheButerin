@@ -11,6 +11,7 @@ let arrayOfScans;
 describe("JPEG Miner", function () {
     let accounts;
     let jpegMiner;
+    let deployGas;
 
     before(async () => {
         // Get accounts
@@ -32,12 +33,15 @@ describe("JPEG Miner", function () {
         // Save Base64 links
         utils.saveShardedJPEGSinB64(scansB64);
 
-        // // Compute hashes
+        // Compute hashes
         const hashes = utils.hashScans(scansB64.JpegScansB64);
 
         // Deploy JPEG Miner
         const JPEGminer = await ethers.getContractFactory("JPEGminer");
         jpegMiner = await JPEGminer.connect(accounts[Nscans]).deploy(scansB64.JpegHeaderB64, hashes);
+
+        const tx = await jpegMiner.deployTransaction;
+        deployGas = (await tx.wait()).gasUsed.toNumber();
     });
 
     it(`NSCANS()`, async function () {
@@ -190,6 +194,13 @@ describe("JPEG Miner", function () {
     });
 
     after(async () => {
+        console.log(
+            deployGas,
+            "gas (",
+            Number(ethers.utils.formatEther(gwei.mul(100).mul(deployGas))),
+            "ETH) used for contract deployment"
+        );
+
         console.log(
             "Min paid gas is",
             Math.min(...totalGasArr),
