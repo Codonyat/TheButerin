@@ -51,7 +51,7 @@ function saveFrontendFiles(imageScans, jpegMiner) {
         fs.mkdirSync(dataDir);
     }
 
-    fs.writeFileSync(contractsDir + "/imageScans.json", JSON.stringify(imageScans, undefined, 2));
+    fs.writeFileSync(dataDir + "/imageScans.json", JSON.stringify(imageScans, undefined, 2));
 
     if (!fs.existsSync(contractsDir)) {
         fs.mkdirSync(contractsDir);

@@ -33,7 +33,7 @@ const ERROR_CODE_TX_REJECTED_BY_USER = 4001;
 //   4. Mines NFT
 //   5. Renders the whole application
 //
-export class Dapp extends React.Component {
+export class DappMiner extends React.Component {
     constructor(props) {
         super(props);
 
@@ -85,9 +85,7 @@ export class Dapp extends React.Component {
             <div className="container p-4">
                 <div className="row">
                     <div className="col-12">
-                        <h1>
-                            {this.state.tokenData.name} ({this.state.tokenData.symbol})
-                        </h1>
+                        <h1>JPEG Miner</h1>
                         <p>
                             Welcome <b>{this.state.selectedAddress}</b>.
                         </p>
@@ -150,7 +148,7 @@ export class Dapp extends React.Component {
 
         // To connect to the user's wallet, we have to run this method.
         // It returns a promise that will resolve to the user's address.
-        const [selectedAddress] = await window.ethereum.enable();
+        const [selectedAddress] = await window.ethereum.request({ method: "eth_requestAccounts" });
 
         // Once we have the address, we can initialize the application.
 
@@ -176,7 +174,7 @@ export class Dapp extends React.Component {
         });
 
         // We reset the dapp state if the network is changed
-        window.ethereum.on("networkChanged", ([networkId]) => {
+        window.ethereum.on("chainChanged ", ([chainId]) => {
             this._stopPollingData();
             this._resetState();
         });
@@ -202,7 +200,7 @@ export class Dapp extends React.Component {
         // We first initialize ethers by creating a provider using window.ethereum
         this._provider = new ethers.providers.Web3Provider(window.ethereum);
 
-        // When, we initialize the contract using that provider and the token's
+        // When, we initialize the contract using that provider and the JPEG miner
         // artifact. You can do this same thing with your contracts.
         this._jpegMiner = new ethers.Contract(
             contractAddress.JPEGminer,
@@ -235,7 +233,7 @@ export class Dapp extends React.Component {
     async _updateMinerStatus() {
         const Ncopies = await this._jpegMiner.balanceOf(this.state.selectedAddress);
         const nextScan = await this._jpegMiner.totalSupply();
-        this.setState({ canMine: Ncopies === 0, nextScan });
+        this.setState({ canMine: Ncopies.toNumber() === 0, nextScan: nextScan.toNumber() });
     }
 
     // This method sends an ethereum transaction to transfer tokens.
@@ -269,8 +267,10 @@ export class Dapp extends React.Component {
 
             // We send the transaction, and save its hash in the Dapp's state. This
             // way we can indicate that we are waiting for it to be mined.
-            const tx = await this._jpegMiner.mine(this.state.imageScan[this.state.nextScan], {
-                value: amount // IMPLEMENT CASE WHERE AMOUNT IS NOT PROVIDED
+            const expectedGas = ethers.BigNumber.from(70707).mul(this.state.nextScan).add(3000000);
+            const tx = await this._jpegMiner.mine(this.state.imageScans[this.state.nextScan], {
+                value: ethers.constants.WeiPerEther.mul(amount), // IMPLEMENT CASE WHERE AMOUNT IS NOT PROVIDED
+                gasLimit: expectedGas.mul(11).div(10)
             });
             this.setState({ txBeingSent: tx.hash });
 

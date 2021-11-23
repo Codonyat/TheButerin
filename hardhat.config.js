@@ -16,8 +16,9 @@ module.exports = {
         hardhat: {
             gasPrice: 1e11, // 100 gwei
             accounts: {
-                count: 200
-            }
+                count: 101
+            },
+            chainId: 1337
         },
         rinkeby: {
             gasPrice: 1000000008, // 1 gwei
