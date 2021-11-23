@@ -4,6 +4,7 @@ const utils = require("../scripts/functions.js");
 const _ = require("lodash");
 const fs = require("fs");
 const gasPrice = ethers.BigNumber.from(require("../hardhat.config.js").networks.hardhat.gasPrice);
+const { mean } = require("mathjs");
 
 const gwei = ethers.BigNumber.from(10).pow(9);
 const Nscans = 100;
@@ -89,7 +90,7 @@ describe("JPEG Miner", function () {
             });
 
             // Right mining tests
-            const expectedGas = ethers.BigNumber.from(75758).mul(i).add(2500000);
+            const expectedGas = ethers.BigNumber.from(70707).mul(i).add(3000000);
             it(`succeeds`, async function () {
                 const initialBalance = await waffle.provider.getBalance(accounts[i].address);
 
@@ -106,7 +107,7 @@ describe("JPEG Miner", function () {
                 const finalBalance = await waffle.provider.getBalance(accounts[i].address);
 
                 totalGasArr.push(initialBalance.sub(finalBalance).div(gasPrice).toNumber());
-                console.log(Math.round((totalGasArr[i] / gasSpent[i] - 1) * 100), "% gas premium paid");
+                console.log("      ", Math.round((totalGasArr[i] / gasSpent[i] - 1) * 100), "% gas premium paid");
 
                 const feeGas = effectiveGasPrice.mul(gasUsed);
                 const feeMint = initialBalance.sub(finalBalance).sub(feeGas);
