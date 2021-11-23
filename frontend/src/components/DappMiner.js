@@ -14,11 +14,9 @@ import imageScans from "../imageData/imageScans.json";
 // logic. They just render HTML.
 import { NoWalletDetected } from "./NoWalletDetected";
 import { ConnectWallet } from "./ConnectWallet";
-import { Loading } from "./Loading";
-import { Transfer } from "./Transfer";
+import { Mine } from "./Mine";
 import { TransactionErrorMessage } from "./TransactionErrorMessage";
 import { WaitingForTransactionMessage } from "./WaitingForTransactionMessage";
-import { NoTokensMessage } from "./NoTokensMessage";
 
 // This is the Hardhat Network id, you might change it in the hardhat.config.js
 // Here's a list of network ids https://docs.metamask.io/guide/ethereum-provider.html#properties
@@ -31,13 +29,10 @@ const ERROR_CODE_TX_REJECTED_BY_USER = 4001;
 // This component is in charge of doing these things:
 //   1. It connects to the user's wallet
 //   2. Initializes ethers and the JPEGminer contract
-//   3. Polls the user balance to keep it updated.
-//   4. Transfers tokens by sending transactions
+//   3. Polls the user state in JPEGminer
+//   4. Mines NFT
 //   5. Renders the whole application
 //
-// Note that (3) and (4) are specific of this sample application, but they show
-// you how to keep your Dapp and contract's state in sync,  and how to send a
-// transaction.
 export class Dapp extends React.Component {
     constructor(props) {
         super(props);
@@ -50,9 +45,8 @@ export class Dapp extends React.Component {
             // Mining data
             imageScans: undefined,
             nextScan: undefined,
-            // The user's address and balance
+            // The user's address
             selectedAddress: undefined,
-            balance: undefined,
             // The ID about transactions being sent, and any possible error with them
             txBeingSent: undefined,
             transactionError: undefined,
@@ -86,12 +80,6 @@ export class Dapp extends React.Component {
             );
         }
 
-        // If the token data or the user's balance hasn't loaded yet, we show
-        // a loading component.
-        if (!this.state.tokenData || !this.state.balance) {
-            return <Loading />;
-        }
-
         // If everything is loaded, we render the application.
         return (
             <div className="container p-4">
@@ -101,11 +89,7 @@ export class Dapp extends React.Component {
                             {this.state.tokenData.name} ({this.state.tokenData.symbol})
                         </h1>
                         <p>
-                            Welcome <b>{this.state.selectedAddress}</b>, you have{" "}
-                            <b>
-                                {this.state.balance.toString()} {this.state.tokenData.symbol}
-                            </b>
-                            .
+                            Welcome <b>{this.state.selectedAddress}</b>.
                         </p>
                     </div>
                 </div>
@@ -115,16 +99,16 @@ export class Dapp extends React.Component {
                 <div className="row">
                     <div className="col-12">
                         {/* 
-              Sending a transaction isn't an immidiate action. You have to wait
-              for it to be mined.
-              If we are waiting for one, we show a message here.
-            */}
+                            Sending a transaction isn't an immidiate action. You have to wait
+                            for it to be mined.
+                            If we are waiting for one, we show a message here.
+                        */}
                         {this.state.txBeingSent && <WaitingForTransactionMessage txHash={this.state.txBeingSent} />}
 
                         {/* 
-              Sending a transaction can fail in multiple ways. 
-              If that happened, we show a message here.
-            */}
+                            Sending a transaction can fail in multiple ways. 
+                            If that happened, we show a message here.
+                        */}
                         {this.state.transactionError && (
                             <TransactionErrorMessage
                                 message={this._getRpcErrorMessage(this.state.transactionError)}
@@ -137,22 +121,17 @@ export class Dapp extends React.Component {
                 <div className="row">
                     <div className="col-12">
                         {/*
-              If the user has no tokens, we don't show the Tranfer form
-            */}
-                        {this.state.balance.eq(0) && <NoTokensMessage selectedAddress={this.state.selectedAddress} />}
+                            If the user has no tokens, we don't show the Tranfer form
+                        */}
+                        {!this.state.canMine && <p>You cannot mine if you own 1 or more already.</p>}
 
                         {/*
-              This component displays a form that the user can use to send a 
-              transaction and transfer some tokens.
-              The component doesn't have logic, it just calls the transferTokens
-              callback.
-            */}
-                        {this.state.balance.gt(0) && (
-                            <Transfer
-                                transferTokens={(to, amount) => this._mine(amount)}
-                                tokenSymbol={this.state.tokenData.symbol}
-                            />
-                        )}
+                            This component displays a form that the user can use to send a 
+                            transaction and transfer some tokens.
+                            The component doesn't have logic, it just calls the transferTokens
+                            callback.
+                        */}
+                        {this.state.canMine && <Mine mineFunc={(amount) => this._mine(amount)} />}
                     </div>
                 </div>
             </div>
@@ -160,7 +139,7 @@ export class Dapp extends React.Component {
     }
 
     componentWillUnmount() {
-        // We poll the user's balance, so we have to stop doing that when Dapp
+        // We poll the user's state
         // gets unmounted
         this._stopPollingData();
     }
@@ -211,11 +190,9 @@ export class Dapp extends React.Component {
             selectedAddress: userAddress
         });
 
-        // Then, we initialize ethers, fetch the token's data, and start polling
-        // for the user's balance.
+        // Then, we initialize ethers, fetch user's state
 
-        // Fetching the token data and the user's balance are specific to this
-        // sample project, but you can reuse the same initialization pattern.
+        // Fetching the user's data
         this._intializeEthers();
         this._intializeData();
         this._startPollingData();
@@ -240,32 +217,19 @@ export class Dapp extends React.Component {
         });
     }
 
-    // The next two methods are needed to start and stop polling data. While
-    // the data being polled here is specific to this example, you can use this
-    // pattern to read any data from your contracts.
-    //
-    // Note that if you don't need it to update in near real time, you probably
-    // don't need to poll it. If that's the case, you can just fetch it when you
-    // initialize the app, as we do with the token data.
+    // The next two methods are needed to start and stop polling data.
     _startPollingData() {
         this._pollDataInterval = setInterval(() => {
-            this._updateBalance();
             this._updateMinerStatus();
         }, 1000);
 
         // We run it once immediately so we don't have to wait for it
-        this._updateBalance();
         this._updateMinerStatus();
     }
 
     _stopPollingData() {
         clearInterval(this._pollDataInterval);
         this._pollDataInterval = undefined;
-    }
-
-    async _updateBalance() {
-        const balance = await this._provider.getBalance(this.state.selectedAddress);
-        this.setState({ balance });
     }
 
     async _updateMinerStatus() {
@@ -322,8 +286,7 @@ export class Dapp extends React.Component {
             }
 
             // If we got here, the transaction was successful, so you may want to
-            // update your state. Here, we update the user's balance.
-            await this._updateBalance();
+            // update your state.
             await this._updateMinerStatus();
         } catch (error) {
             // We check the error code to see if this error was produced because the
