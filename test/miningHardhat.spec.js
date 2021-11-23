@@ -3,6 +3,11 @@ const { ethers, waffle } = hre;
 const utils = require("../scripts/functions.js");
 const _ = require("lodash");
 const fs = require("fs");
+const {
+    networks: {
+        hardhat: { gasPrice }
+    }
+} = require("../hardhat.config.js");
 
 const gwei = ethers.BigNumber.from(10).pow(9);
 const Nscans = 100;
@@ -93,7 +98,7 @@ describe("JPEG Miner", function () {
                 const initialBalance = await waffle.provider.getBalance(accounts[i].address);
 
                 const txResp = jpegMiner.connect(accounts[i]).mine(arrayOfScans[i], {
-                    value: expectedGas.mul(gwei.mul(100)),
+                    value: expectedGas.mul(gasPrice),
                     gasLimit: expectedGas
                 });
                 await expect(txResp).to.emit(jpegMiner, "Mined");
@@ -104,7 +109,7 @@ describe("JPEG Miner", function () {
 
                 const finalBalance = await waffle.provider.getBalance(accounts[i].address);
 
-                totalGasArr.push(initialBalance.sub(finalBalance).div(gwei.mul(100)).toNumber());
+                totalGasArr.push(initialBalance.sub(finalBalance).div(gasPrice).toNumber());
 
                 const feeGas = effectiveGasPrice.mul(gasUsed);
                 const feeMint = initialBalance.sub(finalBalance).sub(feeGas);
@@ -184,7 +189,7 @@ describe("JPEG Miner", function () {
         //             gasLimit: 100e6
         //         })
         //     ).toNumber();
-        //     expect(gasTokenURI).to.be.lessThanOrEqual(10 * 30e6);
+        //     expect(gasTokenURI).to.be.at.most(10 * 30e6);
         //     console.log("Gas spent on eth_call of tokenURI() when full image is uploaded is", gasTokenURI);
         // }).timeout(1000000);
 
@@ -197,7 +202,7 @@ describe("JPEG Miner", function () {
         console.log(
             deployGas,
             "gas (",
-            Number(ethers.utils.formatEther(gwei.mul(100).mul(deployGas))),
+            Number(ethers.utils.formatEther(gasPrice.mul(deployGas))),
             "ETH) used for contract deployment"
         );
 
@@ -205,22 +210,18 @@ describe("JPEG Miner", function () {
             "Min paid gas is",
             Math.min(...totalGasArr),
             "which @ price of 100 gwei is",
-            Number(ethers.utils.formatEther(gwei.mul(100).mul(Math.min(...totalGasArr)))),
+            Number(ethers.utils.formatEther(gasPrice.mul(Math.min(...totalGasArr)))),
             "ETH"
         );
         console.log(
             "Max paid gas is",
             Math.max(...totalGasArr),
             "which @ price of 100 gwei is",
-            Number(ethers.utils.formatEther(gwei.mul(100).mul(Math.max(...totalGasArr)))),
+            Number(ethers.utils.formatEther(gasPrice.mul(Math.max(...totalGasArr)))),
             "ETH"
         );
 
         console.log("Total gas per mining is", totalGasArr);
-
-        // gasSpent.forEach((gas, i) => {
-        //     console.log(gas, "gas minting", i + 1, `/${Nscans}`);
-        // });
     });
 
     describe("Withdrawal", function () {
