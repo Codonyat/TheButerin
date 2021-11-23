@@ -3,11 +3,7 @@ const { ethers, waffle } = hre;
 const utils = require("../scripts/functions.js");
 const _ = require("lodash");
 const fs = require("fs");
-const {
-    networks: {
-        hardhat: { gasPrice }
-    }
-} = require("../hardhat.config.js");
+const gasPrice = ethers.BigNumber.from(require("../hardhat.config.js").networks.hardhat.gasPrice);
 
 const gwei = ethers.BigNumber.from(10).pow(9);
 const Nscans = 100;
@@ -93,13 +89,13 @@ describe("JPEG Miner", function () {
             });
 
             // Right mining tests
-            const expectedGas = ethers.BigNumber.from(177551).mul(i).add(2422449);
+            const expectedGas = ethers.BigNumber.from(75758).mul(i).add(2500000);
             it(`succeeds`, async function () {
                 const initialBalance = await waffle.provider.getBalance(accounts[i].address);
 
                 const txResp = jpegMiner.connect(accounts[i]).mine(arrayOfScans[i], {
                     value: expectedGas.mul(gasPrice),
-                    gasLimit: expectedGas
+                    gasLimit: expectedGas.mul(11).div(10)
                 });
                 await expect(txResp).to.emit(jpegMiner, "Mined");
 
@@ -110,6 +106,7 @@ describe("JPEG Miner", function () {
                 const finalBalance = await waffle.provider.getBalance(accounts[i].address);
 
                 totalGasArr.push(initialBalance.sub(finalBalance).div(gasPrice).toNumber());
+                console.log(Math.round((totalGasArr[i] / gasSpent[i] - 1) * 100), "% gas premium paid");
 
                 const feeGas = effectiveGasPrice.mul(gasUsed);
                 const feeMint = initialBalance.sub(finalBalance).sub(feeGas);
