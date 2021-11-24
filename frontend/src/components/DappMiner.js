@@ -6,8 +6,7 @@ import { ethers } from "ethers";
 // We import the contract's artifacts and address here, as we are going to be
 // using them with ethers
 import JPEGminerArtifact from "../contracts/JPEGminer.json";
-import contractAddress from "../contracts/contract-address.json";
-import imageScans from "../imageData/imageScans.json";
+import contractAddress from "../contracts/contractData.json";
 
 // All the logic of this dapp is contained in the Dapp component.
 // These other components are just presentational ones: they don't have any
@@ -216,7 +215,7 @@ export class DappMiner extends React.Component {
 
     async _intializeData() {
         this.setState({
-            imageScans: imageScans
+            imageScans: contractAddress.imageScans
         });
     }
 
