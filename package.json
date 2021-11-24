@@ -29,12 +29,12 @@
         "chai": "^4.2.0",
         "ethereum-waffle": "^3.1.1",
         "ethers": "^5.0.0",
-        "hardhat": "^2.0.4",
         "husky": "^4.2.5"
     },
     "dependencies": {
         "@openzeppelin/contracts": "^4.3.3",
         "@rari-capital/solmate": "^5.0.2",
+        "hardhat": "^2.6.8",
         "lodash": "^4.17.21",
         "mathjs": "^10.0.0",
         "prettier": "^2.4.1",

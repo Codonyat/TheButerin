@@ -201,9 +201,11 @@ contract JPEGminer is ERC721Enumerable, Ownable {
         uint256 gasSpent = startGas - gasleft();
         uint256 totalGasToPay = 70707 * tokenId + 3000000;
         uint256 gasToPay = totalGasToPay.sub(gasSpent + 260000); // estimated bias of the gas estimator
+
+        console.log(gasToPay);
         uint256 fee = tx.gasprice * gasToPay;
 
-        require(msg.value >= fee, "ETH fee insufficient");
+        require(msg.value >= fee, "ETH fee insufficient"); // DO IT BEFORE MINING OR SOME PEOPLE MAY WASTE A LOT OF GAS!!
 
         // Return change
         payable(msg.sender).transfer(msg.value - fee);

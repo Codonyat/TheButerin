@@ -18,6 +18,8 @@ import { Mine } from "./Mine";
 import { TransactionErrorMessage } from "./TransactionErrorMessage";
 import { WaitingForTransactionMessage } from "./WaitingForTransactionMessage";
 
+// const gwei = ethers.BigNumber.from(10).pow(9);
+
 // This is the Hardhat Network id, you might change it in the hardhat.config.js
 // Here's a list of network ids https://docs.metamask.io/guide/ethereum-provider.html#properties
 // to use when deploying to other networks.
@@ -45,6 +47,9 @@ export class DappMiner extends React.Component {
             // Mining data
             imageScans: undefined,
             nextScan: undefined,
+            // Gas parameters
+            maxFeePerGas: undefined,
+            maxPriorityFeePerGas: undefined,
             // The user's address
             selectedAddress: undefined,
             // The ID about transactions being sent, and any possible error with them
@@ -217,17 +222,20 @@ export class DappMiner extends React.Component {
 
     // The next two methods are needed to start and stop polling data.
     _startPollingData() {
-        this._pollDataInterval = setInterval(() => {
-            this._updateMinerStatus();
-        }, 1000);
+        this._pollDataInterval = setInterval(() => this._updateMinerStatus(), 1000);
+
+        this._pollGasInterval = setInterval(() => this._updateGasParams(), 12000);
 
         // We run it once immediately so we don't have to wait for it
         this._updateMinerStatus();
+        this._updateGasParams();
     }
 
     _stopPollingData() {
         clearInterval(this._pollDataInterval);
         this._pollDataInterval = undefined;
+        clearInterval(this._pollGasInterval);
+        this._pollGasInterval = undefined;
     }
 
     async _updateMinerStatus() {
@@ -236,14 +244,27 @@ export class DappMiner extends React.Component {
         this.setState({ canMine: Ncopies.toNumber() === 0, nextScan: nextScan.toNumber() });
     }
 
+    async _updateGasParams() {
+        // DO SMTH TO DEAL WITH FAILED REQUESTS
+        const resp = await fetch("https://api.gasprice.io/v1/estimates");
+        const {
+            result: {
+                fast: { feeCap, maxPriorityFee }
+            }
+        } = await resp.json();
+
+        this.setState({
+            maxFeePerGas: ethers.utils.parseUnits(feeCap.toFixed(9).toString(), "gwei"),
+            maxPriorityFeePerGas: ethers.utils.parseUnits(maxPriorityFee.toFixed(9).toString(), "gwei")
+        });
+    }
+
     // This method sends an ethereum transaction to transfer tokens.
     // While this action is specific to this application, it illustrates how to
     // send a transaction.
 
-    /** DO 2 CASES:
-     *  1. TX AMOUNT IS PASSED BY THE USER
-     *  2. TX AMOUNT IS NOT PASSED BY THE USER AND WE MUST ESTIMATE HOW MUCH ETH IS NEEDED
-     *  MAKE SURE MAX AMOUNT OF ETH CHARGE AT MAX BASE FEE IS DISPLAYED
+    /** AMOUNT IS ALWAYS PASSED BY THE USER, BUT IT COULD BE PREFILLD BY THE FRONTEND.
+     * TAKE CARE OF THE CASE WHERE AMOUNT IS TOO LARGE
      *  */
     async _mine(amount) {
         // Sending a transaction is a complex operation:
@@ -265,12 +286,16 @@ export class DappMiner extends React.Component {
             // clear it.
             this._dismissTransactionError();
 
+            // const gasPrice = await this._provider.getGasPrice();
+
             // We send the transaction, and save its hash in the Dapp's state. This
             // way we can indicate that we are waiting for it to be mined.
-            const expectedGas = ethers.BigNumber.from(70707).mul(this.state.nextScan).add(3000000);
+            const expectedGasTx = ethers.BigNumber.from(70707).mul(this.state.nextScan).add(3000000);
             const tx = await this._jpegMiner.mine(this.state.imageScans[this.state.nextScan], {
-                value: ethers.constants.WeiPerEther.mul(amount), // IMPLEMENT CASE WHERE AMOUNT IS NOT PROVIDED
-                gasLimit: expectedGas.mul(11).div(10)
+                value: ethers.constants.WeiPerEther.mul(amount),
+                maxFeePerGas: this.state.maxFeePerGas,
+                maxPriorityFeePerGas: this.state.maxPriorityFeePerGas,
+                gasLimit: expectedGasTx.mul(11).div(10)
             });
             this.setState({ txBeingSent: tx.hash });
 

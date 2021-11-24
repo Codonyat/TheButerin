@@ -1,5 +1,7 @@
 require("@nomiclabs/hardhat-waffle");
 
+require("./tasks/faucet");
+
 module.exports = {
     solidity: {
         compilers: [
@@ -16,9 +18,10 @@ module.exports = {
         hardhat: {
             gasPrice: 1e11, // 100 gwei
             accounts: {
-                count: 101
-            },
-            chainId: 1337
+                count: 101,
+                mnemonic: "test test test test test test test test test test test junk"
+            }
+            // chainId: 1337
         },
         rinkeby: {
             gasPrice: 1000000008, // 1 gwei
