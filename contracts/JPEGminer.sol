@@ -32,7 +32,6 @@ contract JPEGminer is ERC721Enumerable, Ownable {
     event Mined(
         // Also include the phase it was mined on
         address minerAddress,
-        uint256 indexed gasSpent,
         string indexed phase
     );
 
@@ -53,13 +52,21 @@ contract JPEGminer is ERC721Enumerable, Ownable {
         "Art by Logan Turner. Idea and code by Xatarrer.";
 
     // Replace the hashes before deployment
+    address private immutable _mintingGasFeesPointer;
     address private immutable _imageHashesPointer;
     address private immutable _imageHeaderPointer;
     address[] private _imageScansPointers;
     string private constant _imageFooterB64 = "/9k=";
 
-    constructor(string memory imageHeaderB64, bytes32[] memory imageHashes) ERC721("JPEG Miner", "JM") {
+    constructor(
+        string memory imageHeaderB64,
+        bytes32[] memory imageHashes,
+        uint256[] memory mintingGasFees
+    ) ERC721("JPEG Miner", "JM") {
         require(imageHashes.length == NSCANS);
+
+        // Store minting gas fees
+        _mintingGasFeesPointer = SSTORE2.write(abi.encodePacked(mintingGasFees));
 
         // Store header
         _imageHeaderPointer = SSTORE2.write(bytes(imageHeaderB64));
@@ -166,6 +173,18 @@ contract JPEGminer is ERC721Enumerable, Ownable {
         else return "Resolution";
     }
 
+    function getMintingGasFee(uint256 tokenId) public view returns (uint256) {
+        require(tokenId < NSCANS);
+
+        bytes memory hashBytes = SSTORE2.read(_mintingGasFeesPointer, tokenId * 32, (tokenId + 1) * 32);
+
+        bytes32 out;
+        for (uint256 i = 0; i < 32; i++) {
+            out |= bytes32(hashBytes[i] & 0xFF) >> (i * 8);
+        }
+        return uint256(out);
+    }
+
     function getHash(uint256 tokenId) public view returns (bytes32) {
         require(tokenId < NSCANS);
 
@@ -180,12 +199,15 @@ contract JPEGminer is ERC721Enumerable, Ownable {
 
     /// @param imageScanB64 Piece of image data in base64
     function mine(string calldata imageScanB64) external payable {
-        uint256 startGas = gasleft();
-
         // Checks
         require(msg.sender == tx.origin, "Only EA's can mine");
         require(balanceOf(msg.sender) == 0, "Cannot mine more than once");
         require(totalSupply() < NSCANS, "Mining is over");
+
+        // Check gas minting fee
+        console.log(getMintingGasFee(totalSupply()));
+        uint256 mintingFee = tx.gasprice.mul(getMintingGasFee(totalSupply()));
+        require(msg.value >= mintingFee, "ETH fee insufficient");
 
         // Check hash matches
         require(keccak256(bytes(imageScanB64)) == getHash(totalSupply()), "Wrong data");
@@ -193,24 +215,14 @@ contract JPEGminer is ERC721Enumerable, Ownable {
         // SSTORE2 scan
         _imageScansPointers[totalSupply()] = SSTORE2.write(bytes(imageScanB64));
 
+        // Return change
+        payable(msg.sender).transfer(msg.value - mintingFee);
+
         // Mint scan
         uint256 tokenId = totalSupply();
         _mint(msg.sender, tokenId);
 
-        // Charge gas fee
-        uint256 gasSpent = startGas - gasleft();
-        uint256 totalGasToPay = 70707 * tokenId + 3000000;
-        uint256 gasToPay = totalGasToPay.sub(gasSpent + 260000); // estimated bias of the gas estimator
-
-        console.log(gasToPay);
-        uint256 fee = tx.gasprice * gasToPay;
-
-        require(msg.value >= fee, "ETH fee insufficient"); // DO IT BEFORE MINING OR SOME PEOPLE MAY WASTE A LOT OF GAS!!
-
-        // Return change
-        payable(msg.sender).transfer(msg.value - fee);
-
-        emit Mined(msg.sender, totalGasToPay, getPhase(tokenId));
+        emit Mined(msg.sender, getPhase(tokenId));
     }
 
     function withdrawEth() external onlyOwner {

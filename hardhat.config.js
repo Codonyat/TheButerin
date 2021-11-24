@@ -6,11 +6,22 @@ module.exports = {
     solidity: {
         compilers: [
             {
-                version: "0.7.3"
+                version: "0.7.3",
+                settings: {
+                    optimizer: {
+                        enabled: true,
+                        runs: 200
+                    }
+                }
             },
             {
-                version: "0.8.4",
-                settings: {}
+                version: "0.8.4"
+                // settings: {
+                //     optimizer: {
+                //         enabled: true,
+                //         runs: 1
+                //     }
+                // }
             }
         ]
     },
@@ -18,7 +29,7 @@ module.exports = {
         hardhat: {
             gasPrice: 1e11, // 100 gwei
             accounts: {
-                count: 101,
+                count: 102,
                 mnemonic: "test test test test test test test test test test test junk"
             }
             // chainId: 1337
