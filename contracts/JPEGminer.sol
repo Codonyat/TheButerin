@@ -205,7 +205,7 @@ contract JPEGminer is ERC721Enumerable, Ownable {
         require(totalSupply() < NSCANS, "Mining is over");
 
         // Check gas minting fee
-        console.log(tx.gasprice);
+        // IMPORTANT TO CHECK IN RINKEBY THAT TX.GASPRICE = PRIORITY + BASE FEE
         uint256 mintingFee = tx.gasprice.mul(getMintingGasFee(totalSupply()));
         require(msg.value >= mintingFee, "ETH fee insufficient");
 

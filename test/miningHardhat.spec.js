@@ -228,7 +228,7 @@ describe("JPEG Miner", function () {
             "ETH"
         );
 
-        // console.log("Total gas per mining is", totalGasArr);
+        console.log("Total gas per mining is", totalGasArr);
 
         // console.log(
         //     "Minting gas is",
