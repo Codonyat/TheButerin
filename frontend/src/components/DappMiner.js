@@ -102,22 +102,18 @@ export class DappMiner extends React.Component {
                     </div>
                 </div>
 
-                <div className="container p-4 text-left">
-                    <p>Do you want to make history by helping to mint the largest JPEG on-chain on Ethereum?</p>
+                <div className="container p-4 text-start">
+                    {/* USE MINECRAFT FONT? */}
+                    <p>Goal: mint largest on-chain JPEG on Ehtereum</p>
+                    <p>1MB image split into 100 pieces uploaded by 100 miners</p>
                     <p>
-                        A 1MB image has been split into 100 pieces. Upon mining you will upload a piece of the image and
-                        in return you will get an NFT.
-                    </p>
-                    <p>
-                        Once upon a time when 56k modems were cutting edge tech for accessing the internet, progressive
-                        JPEGs where the state of the art in image loading. By leveraging this forgotten technology, the
-                        uploaded image is visible from the start and slowly gains resolution until the full image is
-                        minted.
-                    </p>
-                    <p>
-                        All NFTs are unique because they represent the image at the different stages of the uploading
-                        process. The first 11 units (#0 - 10) are only in black & white, the next 22 (#11 - 32)
-                        introduce color to the image, and the remainer (#33 - 99) improve the resolution.
+                        By the Progressive JPEG technology, each miner gets a unique NFT of the image with different
+                        quality:
+                        <ul>
+                            <li>#0 - #10 are only in black & white</li>
+                            <li>#11 - #32 introduce color to the image</li>
+                            <li>#33 - #99 improve the resolution</li>
+                        </ul>
                     </p>
                 </div>
 
