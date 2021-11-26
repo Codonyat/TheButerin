@@ -38,6 +38,8 @@ export class DappMiner extends React.Component {
     constructor(props) {
         super(props);
 
+        // ADD OUR OWN PROVIDER HERE SIMILAR TO this._provider = new ethers.providers.Web3Provider(window.ethereum);
+
         // We store multiple things in Dapp's state.
         // You don't need to follow this pattern, but it's an useful example.
         this.initialState = {
@@ -61,6 +63,9 @@ export class DappMiner extends React.Component {
     }
 
     render() {
+        // START UPDATING STATE OF CONTRACT WITH OUR OWN PROVIDER SO WE DO NOT NEED TO WAIT FOR SIGN INT
+        // this._pollDataInterval = setInterval(() => this._updateMiningState(), 1000);
+
         // Ethereum wallets inject the window.ethereum object. If it hasn't been
         // injected, we instruct the user to install MetaMask.
         if (window.ethereum === undefined) {
@@ -69,16 +74,14 @@ export class DappMiner extends React.Component {
 
         // If everything is loaded, we render the application.
         return (
-            <div className="container">
+            <div className="container p-4" style={{ "max-width": "720px" }}>
                 <ConnectWallet
                     connectWallet={() => this._connectWallet()}
                     selectedAddress={this.state.selectedAddress}
                 />
 
-                <hr />
-
-                <div className="row">
-                    <div className="col-12">
+                <div className="container p-4">
+                    <div className="col">
                         {/* 
                             Sending a transaction isn't an immidiate action. You have to wait
                             for it to be mined.
@@ -99,21 +102,31 @@ export class DappMiner extends React.Component {
                     </div>
                 </div>
 
-                <div className="row">
-                    <div className="col-12">
-                        {/*
-                            If the user has no tokens, we don't show the Tranfer form
-                        */}
-                        {!this.state.canMine && <p>You cannot mine if you own 1 or more already.</p>}
+                <div className="container p-4 text-left">
+                    <p>Do you want to make history by helping to mint the largest JPEG on-chain on Ethereum?</p>
+                    <p>
+                        A 1MB image has been split into 100 pieces. Upon mining you will upload a piece of the image and
+                        in return you will get an NFT.
+                    </p>
+                    <p>
+                        Once upon a time when 56k modems were cutting edge tech for accessing the internet, progressive
+                        JPEGs where the state of the art in image loading. By leveraging this forgotten technology, the
+                        uploaded image is visible from the start and slowly gains resolution until the full image is
+                        minted.
+                    </p>
+                    <p>
+                        All NFTs are unique because they represent the image at the different stages of the uploading
+                        process. The first 11 units (#0 - 10) are only in black & white, the next 22 (#11 - 32)
+                        introduce color to the image, and the remainer (#33 - 99) improve the resolution.
+                    </p>
+                </div>
 
-                        {/*
-                            This component displays a form that the user can use to send a 
-                            transaction and transfer some tokens.
-                            The component doesn't have logic, it just calls the transferTokens
-                            callback.
-                        */}
-                        {this.state.canMine && <Mine mineFunc={(amount) => this._mine(amount)} />}
-                    </div>
+                <div className="container p-4">
+                    {!this.state.canMine && this.state.selectedAddress && (
+                        <p>You cannot mine if you own 1 or more already.</p>
+                    )}
+
+                    <Mine mineFunc={(amount) => this._mine(amount)} next={this.state.nextScan} />
                 </div>
             </div>
         );
@@ -219,8 +232,13 @@ export class DappMiner extends React.Component {
     async _updateMinerStatus() {
         // HANDLE ERRORS SUCH AS INFURA DOES NOT REPLY!!
         const Ncopies = await this._jpegMiner.balanceOf(this.state.selectedAddress);
+        this.setState({ canMine: Ncopies.toNumber() === 0 });
+    }
+
+    async _updateMiningState() {
+        // HANDLE ERRORS SUCH AS INFURA DOES NOT REPLY!!
         const nextScan = await this._jpegMiner.totalSupply();
-        this.setState({ canMine: Ncopies.toNumber() === 0, nextScan: nextScan.toNumber() });
+        this.setState({ nextScan: nextScan.toNumber() });
     }
 
     async _updateGasParams() {
