@@ -67,34 +67,13 @@ export class DappMiner extends React.Component {
             return <NoWalletDetected />;
         }
 
-        // The next thing we need to do, is to ask the user to connect their wallet.
-        // When the wallet gets connected, we are going to save the users's address
-        // in the component's state. So, if it hasn't been saved yet, we have
-        // to show the ConnectWallet component.
-        //
-        // Note that we pass it a callback that is going to be called when the user
-        // clicks a button. This callback just calls the _connectWallet method.
-        if (!this.state.selectedAddress) {
-            return (
-                <ConnectWallet
-                    connectWallet={() => this._connectWallet()}
-                    networkError={this.state.networkError}
-                    dismiss={() => this._dismissNetworkError()}
-                />
-            );
-        }
-
         // If everything is loaded, we render the application.
         return (
-            <div className="container p-4">
-                <div className="row">
-                    <div className="col-12">
-                        <h1>JPEG Miner</h1>
-                        <p>
-                            Welcome <b>{this.state.selectedAddress}</b>.
-                        </p>
-                    </div>
-                </div>
+            <div className="container">
+                <ConnectWallet
+                    connectWallet={() => this._connectWallet()}
+                    selectedAddress={this.state.selectedAddress}
+                />
 
                 <hr />
 
@@ -238,6 +217,7 @@ export class DappMiner extends React.Component {
     }
 
     async _updateMinerStatus() {
+        // HANDLE ERRORS SUCH AS INFURA DOES NOT REPLY!!
         const Ncopies = await this._jpegMiner.balanceOf(this.state.selectedAddress);
         const nextScan = await this._jpegMiner.totalSupply();
         this.setState({ canMine: Ncopies.toNumber() === 0, nextScan: nextScan.toNumber() });
