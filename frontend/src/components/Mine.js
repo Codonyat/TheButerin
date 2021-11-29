@@ -17,7 +17,7 @@ export function Mine({ mineFunc, estimateETH, next }) {
                 }
             }}
         >
-            <div className="col-1">
+            <div className="col-2">
                 <label>ETH Amount</label>
                 <input className="form-control" type="number" step="1" name="amount" placeholder={estimateETH} />
                 {/* REPLACE PLACEHOLDER TEXT WITH REAL TIME ON THE ESTIMATED AMOUNT OF ETH TO MINE*/}

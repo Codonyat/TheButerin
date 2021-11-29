@@ -39,6 +39,7 @@ export class DappMiner extends React.Component {
         super(props);
 
         // ADD OUR OWN PROVIDER HERE SIMILAR TO this._provider = new ethers.providers.Web3Provider(window.ethereum);
+        // USE EVENT LISTENER TO UPDATE CONTRACT STATE!
 
         // We store multiple things in Dapp's state.
         // You don't need to follow this pattern, but it's an useful example.
@@ -102,19 +103,81 @@ export class DappMiner extends React.Component {
                     </div>
                 </div>
 
-                <div className="container p-4 text-start">
-                    {/* USE MINECRAFT FONT? */}
-                    <p>Goal: mint largest on-chain JPEG on Ehtereum</p>
-                    <p>1MB image split into 100 pieces uploaded by 100 miners</p>
+                <div className="container text-start">
+                    {/* USE MINECRAFT FONT?
+                        STYLE LIST
+                    */}
                     <p>
-                        By the Progressive JPEG technology, each miner gets a unique NFT of the image with different
-                        quality:
+                        <span style={{ "font-weight": "bold" }}>Goal:</span>{" "}
+                        <span style={{ "font-style": "italic" }}>JPEG-mine</span> largest on-chain JPEG on Ehtereum.
+                    </p>
+                    <p>
+                        <span style={{ "font-weight": "bold" }}>JPEG-Mining:</span> Like minting but user uploads a
+                        piece of the JPEG.
+                    </p>
+                    <p>
+                        Thanks to the forgotten{" "}
+                        <span style={{ "font-weight": "bold" }}>
+                            <a href="https://www.liquidweb.com/kb/what-is-a-progressive-jpeg/">Progressive JPEG</a>
+                        </span>{" "}
+                        used with 56k modems, the image's quality is improved as it is mined.
+                    </p>
+                    <p>
+                        The final JPEG occupies <span style={{ "font-weight": "bold" }}>1MB on Ethereum</span> and is
+                        split in 100 pieces. Each miner gets a unique variaton of the JPEG:
                         <ul>
-                            <li>#0 - #10 are only in black & white</li>
-                            <li>#11 - #32 introduce color to the image</li>
-                            <li>#33 - #99 improve the resolution</li>
+                            <li>
+                                #0 - #10 are in{" "}
+                                <span style={{ "font-weight": "bold", "background-color": "white", color: "black" }}>
+                                    black
+                                </span>
+                                &
+                                <span
+                                    style={{
+                                        "font-weight": "bold",
+                                        "background-color": "black",
+                                        color: "white"
+                                    }}
+                                >
+                                    white
+                                </span>
+                            </li>
+                            <li>
+                                #11 - #32 introduce{" "}
+                                <span
+                                    style={{
+                                        "font-weight": "bold",
+                                        background: "red",
+                                        background:
+                                            "-webkit-linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red)",
+                                        background:
+                                            "-o-linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red)",
+                                        background:
+                                            "-moz-linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red)",
+                                        background:
+                                            "linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red)",
+                                        "-webkit-background-clip": "text",
+                                        color: "transparent"
+                                    }}
+                                >
+                                    color
+                                </span>{" "}
+                                to the image
+                            </li>
+                            <li>
+                                #33 - #98 improve the{" "}
+                                <span style={{ "font-weight": "bold", "font-size": "large" }}>resolution</span>
+                            </li>
+                            <li>
+                                #99 gets the <span style={{ "font-weight": "bold" }}>final image</span>
+                            </li>
                         </ul>
                     </p>
+                    <p>
+                        The minting price (tx fee + minting fee) is denonimanted in gas and grows linearly. INTRODUCE
+                        CHART HERE!!
+                    </p>
+                    <p>Good luck & good mining</p>
                 </div>
 
                 <div className="container p-4">
