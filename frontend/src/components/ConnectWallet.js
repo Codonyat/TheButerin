@@ -1,7 +1,5 @@
 import React from "react";
 
-import { NetworkErrorMessage } from "./NetworkErrorMessage";
-
 export function ConnectWallet({ connectWallet, selectedAddress }) {
     return (
         <div className="clearfix">

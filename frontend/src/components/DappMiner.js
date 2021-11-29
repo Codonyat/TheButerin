@@ -14,15 +14,8 @@ import contractAddress from "../contracts/contractData.json";
 import { NoWalletDetected } from "./NoWalletDetected";
 import { ConnectWallet } from "./ConnectWallet";
 import { Mine } from "./Mine";
-import { TransactionErrorMessage } from "./TransactionErrorMessage";
-import { WaitingForTransactionMessage } from "./WaitingForTransactionMessage";
 
 // const gwei = ethers.BigNumber.from(10).pow(9);
-
-// This is the Hardhat Network id, you might change it in the hardhat.config.js
-// Here's a list of network ids https://docs.metamask.io/guide/ethereum-provider.html#properties
-// to use when deploying to other networks.
-const HARDHAT_NETWORK_ID = "31337";
 
 // This is an error code that indicates that the user canceled a transaction
 const ERROR_CODE_TX_REJECTED_BY_USER = 4001;
@@ -38,7 +31,7 @@ export class DappMiner extends React.Component {
     constructor(props) {
         super(props);
 
-        // ADD OUR OWN PROVIDER HERE SIMILAR TO this._provider = new ethers.providers.Web3Provider(window.ethereum);
+        // ADD OUR OWN PROVIDER HERE SIMILAR TO this._userProvider = new ethers.providers.Web3Provider(window.ethereum);
         // USE EVENT LISTENER TO UPDATE CONTRACT STATE!
 
         // We store multiple things in Dapp's state.
@@ -47,7 +40,7 @@ export class DappMiner extends React.Component {
             // Miner's data
             canMine: undefined,
             // Mining data
-            imageScans: undefined,
+            imageScans: contractAddress.imageScans,
             nextScan: undefined,
             // Gas parameters
             maxFeePerGas: undefined,
@@ -61,12 +54,39 @@ export class DappMiner extends React.Component {
         };
 
         this.state = this.initialState;
+
+        // Our own provider
+        if (contractAddress.chainId === 31337) {
+            this._provider = ethers.getDefaultProvider("http://localhost:8545");
+        } else if (contractAddress.chainId === 1 || contractAddress.chainId === 4) {
+            this._provider = ethers.getDefaultProvider(contractAddress.chainId, {
+                infura: {
+                    projectId: "2f6e2beaa8ff4621b832fa9ec113bd11",
+                    projectSecret: "c214e9dc47164d50837d1bd878bea3be"
+                }
+            });
+        } else {
+            throw new Error("Wrong network");
+        }
+
+        // Contract instance
+        this._jpegMiner = {
+            read: new ethers.Contract(contractAddress.JPEGminer, JPEGminerArtifact.abi, this._provider)
+        };
+
+        // Listen for mining events
+        this._jpegMiner.read.on(
+            {
+                address: contractAddress.JPEGminer,
+                topics: [ethers.utils.id("Mined(address,string)")]
+            },
+            (log, event) => {
+                console.log(log, event);
+            }
+        );
     }
 
     render() {
-        // START UPDATING STATE OF CONTRACT WITH OUR OWN PROVIDER SO WE DO NOT NEED TO WAIT FOR SIGN INT
-        // this._pollDataInterval = setInterval(() => this._updateMiningState(), 1000);
-
         // Ethereum wallets inject the window.ethereum object. If it hasn't been
         // injected, we instruct the user to install MetaMask.
         if (window.ethereum === undefined) {
@@ -75,116 +95,120 @@ export class DappMiner extends React.Component {
 
         // If everything is loaded, we render the application.
         return (
-            <div className="container p-4" style={{ "max-width": "720px" }}>
-                <ConnectWallet
-                    connectWallet={() => this._connectWallet()}
-                    selectedAddress={this.state.selectedAddress}
-                />
-
-                <div className="container p-4">
-                    <div className="col">
-                        {/* 
-                            Sending a transaction isn't an immidiate action. You have to wait
-                            for it to be mined.
-                            If we are waiting for one, we show a message here.
-                        */}
-                        {this.state.txBeingSent && <WaitingForTransactionMessage txHash={this.state.txBeingSent} />}
-
-                        {/* 
-                            Sending a transaction can fail in multiple ways. 
-                            If that happened, we show a message here.
-                        */}
-                        {this.state.transactionError && (
-                            <TransactionErrorMessage
-                                message={this._getRpcErrorMessage(this.state.transactionError)}
-                                dismiss={() => this._dismissTransactionError()}
-                            />
-                        )}
-                    </div>
+            <div
+                className="container p-4"
+                style={{
+                    maxWidth: "720px",
+                    backgroundImage: 'url("minecraft-diamond-pickaxe-cosplay-foam.jpg")',
+                    backgroundPosition: "center",
+                    backgroundRepeat: "no-repeat",
+                    height: "100%"
+                }}
+            >
+                <div className="container p-3">
+                    <ConnectWallet
+                        connectWallet={() => this._connectWallet()}
+                        selectedAddress={this.state.selectedAddress}
+                    />
                 </div>
 
-                <div className="container text-start">
+                <div className="container text-start p-3">
                     {/* USE MINECRAFT FONT?
                         STYLE LIST
                     */}
                     <p>
-                        <span style={{ "font-weight": "bold" }}>Goal:</span>{" "}
-                        <span style={{ "font-style": "italic" }}>JPEG-mine</span> largest on-chain JPEG on Ehtereum.
+                        Collective effort to <span style={{ fontStyle: "italic" }}>JPEG-mine</span> the largest on-chain
+                        image (<span style={{ fontWeight: "bold" }}>1 MB</span>) on Ethereum.
                     </p>
                     <p>
-                        <span style={{ "font-weight": "bold" }}>JPEG-Mining:</span> Like minting but user uploads a
-                        piece of the JPEG.
+                        <span style={{ fontWeight: "bold" }}>JPEG-miners</span> are NFT minters who upload a piece of
+                        JPEG data in the process of minting.
                     </p>
                     <p>
                         Thanks to the forgotten{" "}
-                        <span style={{ "font-weight": "bold" }}>
-                            <a href="https://www.liquidweb.com/kb/what-is-a-progressive-jpeg/">Progressive JPEG</a>
+                        <span style={{ fontWeight: "bold" }}>
+                            <a href="https://www.liquidweb.com/kb/what-is-a-progressive-jpeg/" className="text-reset">
+                                progressive JPEG
+                            </a>
                         </span>{" "}
-                        used with 56k modems, the image's quality is improved as it is mined.
+                        technology used in the era of 56k-modems, the image is viewable during the entire mining
+                        process.
                     </p>
                     <p>
-                        The final JPEG occupies <span style={{ "font-weight": "bold" }}>1MB on Ethereum</span> and is
-                        split in 100 pieces. Each miner gets a unique variaton of the JPEG:
-                        <ul>
-                            <li>
-                                #0 - #10 are in{" "}
-                                <span style={{ "font-weight": "bold", "background-color": "white", color: "black" }}>
-                                    black
-                                </span>
-                                &
-                                <span
-                                    style={{
-                                        "font-weight": "bold",
-                                        "background-color": "black",
-                                        color: "white"
-                                    }}
-                                >
-                                    white
-                                </span>
-                            </li>
-                            <li>
-                                #11 - #32 introduce{" "}
-                                <span
-                                    style={{
-                                        "font-weight": "bold",
-                                        background: "red",
-                                        background:
-                                            "-webkit-linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red)",
-                                        background:
-                                            "-o-linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red)",
-                                        background:
-                                            "-moz-linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red)",
-                                        background:
-                                            "linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red)",
-                                        "-webkit-background-clip": "text",
-                                        color: "transparent"
-                                    }}
-                                >
-                                    color
-                                </span>{" "}
-                                to the image
-                            </li>
-                            <li>
-                                #33 - #98 improve the{" "}
-                                <span style={{ "font-weight": "bold", "font-size": "large" }}>resolution</span>
-                            </li>
-                            <li>
-                                #99 gets the <span style={{ "font-weight": "bold" }}>final image</span>
-                            </li>
-                        </ul>
+                        The JPEG is split in <span style={{ fontWeight: "bold" }}>100 shards</span> of data and each
+                        miner gets a unique JPEG with different degrees of quality:
+                    </p>
+                    <ul>
+                        <li>
+                            #0 - #10 are in{" "}
+                            <span style={{ fontWeight: "bold", backgroundColor: "white", color: "black" }}>black</span>&
+                            <span
+                                style={{
+                                    fontWeight: "bold",
+                                    backgroundColor: "black",
+                                    color: "white"
+                                }}
+                            >
+                                white
+                            </span>
+                        </li>
+                        <li>
+                            #11 - #32 introduce{" "}
+                            <span
+                                style={{
+                                    fontWeight: "bold",
+                                    background: "red",
+                                    background:
+                                        "-webkit-linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red)",
+                                    background:
+                                        "-o-linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red)",
+                                    background:
+                                        "-moz-linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red)",
+                                    background:
+                                        "linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red)",
+                                    WebkitBackgroundClip: "text",
+                                    color: "transparent"
+                                }}
+                            >
+                                color
+                            </span>{" "}
+                            to the image
+                        </li>
+                        <li>
+                            #33 - #98 improve the{" "}
+                            <span style={{ fontWeight: "bold", fontSize: "large" }}>resolution</span>
+                        </li>
+                        <li>
+                            #99 gets the <span style={{ fontWeight: "bold" }}>final image</span>
+                        </li>
+                    </ul>
+                    <p>
+                        The total cost (tx fee + minting fee) is{" "}
+                        <span style={{ fontWeight: "bold" }}>denonimanted in gas</span>, and therefore it fluctuates
+                        with gas prices! (Trick: wait for low gas prices)
                     </p>
                     <p>
-                        The minting price (tx fee + minting fee) is denonimanted in gas and grows linearly. INTRODUCE
-                        CHART HERE!!
+                        Any <span style={{ fontWeight: "bold" }}>ETH paid in excess is returned back</span> so do not
+                        worry about overpaying.
                     </p>
+                    <p>
+                        Total <span style={{ fontWeight: "bold" }}>gas cost grows linearly</span> with each subsquent
+                        mining:
+                    </p>
+                    <ul>
+                        <li>Previous cost of mining: X gas</li>
+                        <li>Current cost of mining: Y gas</li>
+                        <li>Next cost of mining: Z gas</li>
+                    </ul>
                     <p>Good luck & good mining</p>
                 </div>
 
-                <div className="container p-4">
+                <div className="container p-3">
                     {!this.state.canMine && this.state.selectedAddress && (
                         <p>You cannot mine if you own 1 or more already.</p>
                     )}
 
+                    {/* ADD QUESTION MARK NEXT TO INPUT ETH AMOUNT THAT EXPLAINS THIS IS THE ESTIMATED MINTING FEE IN ADDITION TO THE TX FEE */}
                     <Mine mineFunc={(amount) => this._mine(amount)} next={this.state.nextScan} />
                 </div>
             </div>
@@ -212,7 +236,7 @@ export class DappMiner extends React.Component {
             return;
         }
 
-        this._initialize(selectedAddress);
+        this._initializeUser(selectedAddress);
 
         // We reinitialize it whenever the user changes their account.
         window.ethereum.on("accountsChanged", ([newAddress]) => {
@@ -225,7 +249,7 @@ export class DappMiner extends React.Component {
                 return this._resetState();
             }
 
-            this._initialize(newAddress);
+            this._initializeUser(newAddress);
         });
 
         // We reset the dapp state if the network is changed
@@ -235,7 +259,7 @@ export class DappMiner extends React.Component {
         });
     }
 
-    _initialize(userAddress) {
+    _initializeUser(userAddress) {
         // This method initializes the dapp
 
         // We first store the user's address in the component's state
@@ -246,31 +270,25 @@ export class DappMiner extends React.Component {
         // Then, we initialize ethers, fetch user's state
 
         // Fetching the user's data
-        this._intializeEthers();
-        this._intializeData();
+        this._intializeUseProvider();
         this._startPollingData();
     }
 
-    async _intializeEthers() {
+    async _intializeUseProvider() {
         // We first initialize ethers by creating a provider using window.ethereum
-        this._provider = new ethers.providers.Web3Provider(window.ethereum);
+        this._userProvider = new ethers.providers.Web3Provider(window.ethereum);
 
         // When, we initialize the contract using that provider and the JPEG miner
         // artifact. You can do this same thing with your contracts.
-        this._jpegMiner = new ethers.Contract(
+        this._jpegMiner.write = new ethers.Contract(
             contractAddress.JPEGminer,
             JPEGminerArtifact.abi,
-            this._provider.getSigner(0)
+            this._userProvider.getSigner(0)
         );
     }
 
-    async _intializeData() {
-        this.setState({
-            imageScans: contractAddress.imageScans
-        });
-    }
-
     // The next two methods are needed to start and stop polling data.
+    // CAN I USE A LISTENER?!?!
     _startPollingData() {
         this._pollDataInterval = setInterval(() => this._updateMinerStatus(), 1000);
 
@@ -290,13 +308,13 @@ export class DappMiner extends React.Component {
 
     async _updateMinerStatus() {
         // HANDLE ERRORS SUCH AS INFURA DOES NOT REPLY!!
-        const Ncopies = await this._jpegMiner.balanceOf(this.state.selectedAddress);
+        const Ncopies = await this._jpegMiner.read.balanceOf(this.state.selectedAddress);
         this.setState({ canMine: Ncopies.toNumber() === 0 });
     }
 
     async _updateMiningState() {
         // HANDLE ERRORS SUCH AS INFURA DOES NOT REPLY!!
-        const nextScan = await this._jpegMiner.totalSupply();
+        const nextScan = await this._jpegMiner.read.totalSupply();
         this.setState({ nextScan: nextScan.toNumber() });
     }
 
@@ -342,12 +360,12 @@ export class DappMiner extends React.Component {
             // clear it.
             this._dismissTransactionError();
 
-            // const gasPrice = await this._provider.getGasPrice();
+            // const gasPrice = await this._userProvider.getGasPrice();
 
             // We send the transaction, and save its hash in the Dapp's state. This
             // way we can indicate that we are waiting for it to be mined.
             const expectedGasTx = ethers.BigNumber.from(70707).mul(this.state.nextScan).add(3000000);
-            const tx = await this._jpegMiner.mine(this.state.imageScans[this.state.nextScan], {
+            const tx = await this._jpegMiner.write.mine(this.state.imageScans[this.state.nextScan], {
                 value: ethers.constants.WeiPerEther.mul(amount),
                 maxFeePerGas: this.state.maxFeePerGas,
                 maxPriorityFeePerGas: this.state.maxPriorityFeePerGas,
@@ -414,12 +432,12 @@ export class DappMiner extends React.Component {
 
     // This method checks if Metamask selected network is Localhost:8545
     _checkNetwork() {
-        if (window.ethereum.networkVersion === HARDHAT_NETWORK_ID) {
+        if (window.ethereum.networkVersion === contractAddress.chainId) {
             return true;
         }
 
         this.setState({
-            networkError: "Please connect Metamask to Localhost:8545"
+            networkError: `Please connect Metamask to ${contractAddress.chainId} network`
         });
 
         return false;

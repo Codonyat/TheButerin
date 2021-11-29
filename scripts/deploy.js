@@ -62,9 +62,24 @@ function saveFrontendFiles(imageScans, jpegMiner) {
         fs.mkdirSync(contractsDir);
     }
 
+    let chainId;
+    switch (network.name) {
+        case "localhost":
+            chainId = 31337;
+            break;
+        case "rinkeby":
+            chainId = 4;
+            break;
+        case "mainnet":
+            chainId = 1;
+            break;
+        default:
+            throw new Error("Incorrect network");
+    }
+
     fs.writeFileSync(
         contractsDir + "/contractData.json",
-        JSON.stringify({ JPEGminer: jpegMiner.address, imageScans }, undefined, 2)
+        JSON.stringify({ JPEGminer: jpegMiner.address, imageScans, chainId }, undefined, 2)
     );
 
     const TokenArtifact = artifacts.readArtifactSync("JPEGminer");
