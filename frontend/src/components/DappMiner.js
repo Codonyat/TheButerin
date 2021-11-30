@@ -37,6 +37,7 @@ export class DappMiner extends React.Component {
         // All state properties
         this.state = {
             nextScan: undefined,
+            maxFeeWeiNext: undefined,
             maxFeePerGas: undefined,
             maxPriorityFeePerGas: undefined,
             // Properties that depend on the user account
@@ -94,11 +95,11 @@ export class DappMiner extends React.Component {
     componentDidMount() {
         // Start polling gas prices
         this.gasInterval = setInterval(() => this._updateGasParams(), 12000);
-        this._updateGasParams();
 
         // HANDLE ERRORS SUCH AS INFURA DOES NOT REPLY!!
         this._jpegMiner.read.totalSupply().then((nextScan) => {
             this.setState({ nextScan: nextScan.toNumber() });
+            this._updateGasParams();
         });
     }
 
@@ -236,23 +237,16 @@ export class DappMiner extends React.Component {
                     <Mine
                         mineFunc={(amount) => this._mine(amount)}
                         maxFeeETH={() => {
-                            const wei = this._calcMaxFeeWei();
-                            if (wei === null) return "";
+                            if (this.state.maxFeeWeiNext === undefined) return "N/A";
 
-                            const remainder = wei.mod(1e14);
-                            return ethers.utils.formatEther(wei.sub(remainder));
+                            const remainder = this.state.maxFeeWeiNext.mod(1e14);
+                            return ethers.utils.formatEther(this.state.maxFeeWeiNext.sub(remainder));
                         }}
                         next={this.state.nextScan}
                     />
                 </div>
             </div>
         );
-    }
-
-    _calcMaxFeeWei() {
-        if (this.state.maxFeePerGas === undefined || this.state.nextScan === undefined) return null;
-
-        return this.state.maxFeePerGas.mul(this.gasMintingFees[this.state.nextScan]);
     }
 
     async _connectWallet() {
@@ -306,6 +300,11 @@ export class DappMiner extends React.Component {
         });
     }
 
+    _stopPollingMinerData() {
+        clearInterval(this._pollDataInterval);
+        this._pollDataInterval = undefined;
+    }
+
     _initializeUser(userAddress) {
         // This method initializes the dapp
 
@@ -314,38 +313,17 @@ export class DappMiner extends React.Component {
             selectedAddress: userAddress
         });
 
-        // Then, we initialize ethers, fetch user's state
-
-        // Fetching the user's data
-        this._intializeUserProvider();
-        this._startPollingMinerData();
-    }
-
-    async _intializeUserProvider() {
-        // We first initialize ethers by creating a provider using window.ethereum
+        // Initialize user provider
         this._userProvider = new ethers.providers.Web3Provider(window.ethereum);
-
-        // When, we initialize the contract using that provider and the JPEG miner
-        // artifact. You can do this same thing with your contracts.
         this._jpegMiner.write = new ethers.Contract(
             contractAddress.JPEGminer,
             JPEGminerArtifact.abi,
             this._userProvider.getSigner(0)
         );
-    }
 
-    // The next two methods are needed to start and stop polling data.
-    // CAN I USE A LISTENER?!?!
-    _startPollingMinerData() {
+        // CAN I USE A LISTENER?!?!
         this._pollDataInterval = setInterval(() => this._updateMinerStatus(), 1000);
-
-        // We run it once immediately so we don't have to wait for it
         this._updateMinerStatus();
-    }
-
-    _stopPollingMinerData() {
-        clearInterval(this._pollDataInterval);
-        this._pollDataInterval = undefined;
     }
 
     async _updateMinerStatus() {
@@ -363,19 +341,23 @@ export class DappMiner extends React.Component {
             }
         } = await resp.json();
 
+        const maxFeePerGas = ethers.utils.parseUnits(feeCap.toFixed(9).toString(), "gwei");
+        const maxPriorityFeePerGas = ethers.utils.parseUnits(maxPriorityFee.toFixed(9).toString(), "gwei");
+
         this.setState({
-            maxFeePerGas: ethers.utils.parseUnits(feeCap.toFixed(9).toString(), "gwei"),
-            maxPriorityFeePerGas: ethers.utils.parseUnits(maxPriorityFee.toFixed(9).toString(), "gwei")
+            maxFeePerGas,
+            maxPriorityFeePerGas
         });
+
+        if (this.state.nextScan !== undefined) {
+            const maxFeeWeiNext = maxFeePerGas.mul(this.gasMintingFees[this.state.nextScan]);
+            this.setState({
+                maxFeeWeiNext
+            });
+        }
     }
 
-    // This method sends an ethereum transaction to transfer tokens.
-    // While this action is specific to this application, it illustrates how to
-    // send a transaction.
-
-    /** AMOUNT IS ALWAYS PASSED BY THE USER, BUT IT COULD BE PREFILLD BY THE FRONTEND.
-     * TAKE CARE OF THE CASE WHERE AMOUNT IS TOO LARGE
-     *  */
+    // Mine JPEG
     async _mine(amount) {
         // Sending a transaction is a complex operation:
         //   - The user can reject it
@@ -396,16 +378,13 @@ export class DappMiner extends React.Component {
             // clear it.
             this._dismissTransactionError();
 
-            // const gasPrice = await this._userProvider.getGasPrice();
+            // MAKE SURE INPUT CAN ONLY ACCEPT DECIMAL NUMBERS!
+            const wei = amount === "" ? this.state.maxFeeWeiNext : ethers.utils.parseEther(amount);
 
-            // We send the transaction, and save its hash in the Dapp's state. This
-            // way we can indicate that we are waiting for it to be mined.
-            const expectedGasTx = ethers.BigNumber.from(70707).mul(this.state.nextScan).add(3000000);
             const tx = await this._jpegMiner.write.mine(this.imageScans[this.state.nextScan], {
-                value: ethers.constants.WeiPerEther.mul(amount),
+                value: wei,
                 maxFeePerGas: this.state.maxFeePerGas,
-                maxPriorityFeePerGas: this.state.maxPriorityFeePerGas,
-                gasLimit: expectedGasTx.mul(11).div(10)
+                maxPriorityFeePerGas: this.state.maxPriorityFeePerGas
             });
             this.setState({ txBeingSent: tx.hash });
 
