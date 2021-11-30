@@ -1,6 +1,6 @@
 import React from "react";
 
-export function Mine({ mineFunc, estimateETH, next }) {
+export function Mine({ mineFunc, maxFeeWei, next }) {
     return (
         <form
             className="row g-2 align-items-end justify-content-center"
@@ -19,7 +19,7 @@ export function Mine({ mineFunc, estimateETH, next }) {
         >
             <div className="col-2">
                 <label>ETH Amount</label>
-                <input className="form-control" type="number" step="1" name="amount" placeholder={estimateETH} />
+                <input className="form-control" type="number" step="1" name="amount" placeholder={maxFeeWei} />
                 {/* REPLACE PLACEHOLDER TEXT WITH REAL TIME ON THE ESTIMATED AMOUNT OF ETH TO MINE*/}
             </div>
             <div className="col-auto">

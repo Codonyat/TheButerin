@@ -28,23 +28,28 @@ const ERROR_CODE_TX_REJECTED_BY_USER = 4001;
 //   5. Renders the whole application
 //
 export class DappMiner extends React.Component {
+    imageScans = contractAddress.imageScans;
+
     constructor(props) {
         super(props);
 
-        // ADD OUR OWN PROVIDER HERE SIMILAR TO this._userProvider = new ethers.providers.Web3Provider(window.ethereum);
-        // USE EVENT LISTENER TO UPDATE CONTRACT STATE!
+        // All state properties
+        this.state = {
+            nextScan: undefined,
+            maxFeePerGas: undefined,
+            maxPriorityFeePerGas: undefined,
+            // Properties that depend on the user account
+            canMine: undefined,
+            selectedAddress: undefined,
+            txBeingSent: undefined,
+            transactionError: undefined,
+            networkError: undefined
+        };
 
-        // We store multiple things in Dapp's state.
-        // You don't need to follow this pattern, but it's an useful example.
+        // Initial state that will be used when user changes account
         this.initialState = {
             // Miner's data
             canMine: undefined,
-            // Mining data
-            imageScans: contractAddress.imageScans,
-            nextScan: undefined,
-            // Gas parameters
-            maxFeePerGas: undefined,
-            maxPriorityFeePerGas: undefined,
             // The user's address
             selectedAddress: undefined,
             // The ID about transactions being sent, and any possible error with them
@@ -52,8 +57,6 @@ export class DappMiner extends React.Component {
             transactionError: undefined,
             networkError: undefined
         };
-
-        this.state = this.initialState;
 
         // Our own provider
         if (contractAddress.chainId === 31337) {
@@ -81,9 +84,23 @@ export class DappMiner extends React.Component {
                 topics: [ethers.utils.id("Mined(address,string)")]
             },
             (log, event) => {
-                console.log(log, event);
+                console.log(log);
+                console.log(event);
             }
         );
+    }
+
+    componentDidMount() {
+        // Start polling gas prices
+        this.gasInterval = setInterval(() => this._updateGasParams(), 12000);
+    }
+
+    componentWillUnmount() {
+        // Stop polling gas prices
+        clearInterval(this.gasInterval);
+        this.gasInterval = undefined;
+
+        this._stopPollingMinerData();
     }
 
     render() {
@@ -200,7 +217,7 @@ export class DappMiner extends React.Component {
                         <li>Current cost of mining: Y gas</li>
                         <li>Next cost of mining: Z gas</li>
                     </ul>
-                    <p>Good luck & good mining</p>
+                    <p>Good mining (gm)</p>
                 </div>
 
                 <div className="container p-3">
@@ -209,16 +226,18 @@ export class DappMiner extends React.Component {
                     )}
 
                     {/* ADD QUESTION MARK NEXT TO INPUT ETH AMOUNT THAT EXPLAINS THIS IS THE ESTIMATED MINTING FEE IN ADDITION TO THE TX FEE */}
-                    <Mine mineFunc={(amount) => this._mine(amount)} next={this.state.nextScan} />
+                    <Mine
+                        mineFunc={(amount) => this._mine(amount)}
+                        maxFeeWei={this.state.maxFeePerGas}
+                        next={this.state.nextScan}
+                    />
                 </div>
             </div>
         );
     }
 
-    componentWillUnmount() {
-        // We poll the user's state
-        // gets unmounted
-        this._stopPollingData();
+    _calcMaxFeeWei() {
+        this.state.maxFeePerGas;
     }
 
     async _connectWallet() {
@@ -233,14 +252,27 @@ export class DappMiner extends React.Component {
 
         // First we check the network
         if (!this._checkNetwork()) {
-            return;
+            try {
+                await window.ethereum.request({
+                    method: "wallet_switchEthereumChain",
+                    params: [{ chainId: ethers.utils.hexValue(contractAddress.chainId) }]
+                });
+            } catch (switchError) {
+                // DISABLE MINE() AND OUTPUT MESSAGE
+                // this.setState({
+                //     // ASK METAMASK TO CHANGE NETWORK
+                //     networkError: `Please connect Metamask to ${contractAddress.chainId} network`
+                // });
+                // ALSO ADD 'ADD NETWORK' METHOD
+                return;
+            }
         }
 
         this._initializeUser(selectedAddress);
 
         // We reinitialize it whenever the user changes their account.
         window.ethereum.on("accountsChanged", ([newAddress]) => {
-            this._stopPollingData();
+            this._stopPollingMinerData();
             // `accountsChanged` event can be triggered with an undefined newAddress.
             // This happens when the user removes the Dapp from the "Connected
             // list of sites allowed access to your addresses" (Metamask > Settings > Connections)
@@ -254,7 +286,7 @@ export class DappMiner extends React.Component {
 
         // We reset the dapp state if the network is changed
         window.ethereum.on("chainChanged ", ([chainId]) => {
-            this._stopPollingData();
+            this._stopPollingMinerData();
             this._resetState();
         });
     }
@@ -270,11 +302,11 @@ export class DappMiner extends React.Component {
         // Then, we initialize ethers, fetch user's state
 
         // Fetching the user's data
-        this._intializeUseProvider();
-        this._startPollingData();
+        this._intializeUserProvider();
+        this._startPollingMinerData();
     }
 
-    async _intializeUseProvider() {
+    async _intializeUserProvider() {
         // We first initialize ethers by creating a provider using window.ethereum
         this._userProvider = new ethers.providers.Web3Provider(window.ethereum);
 
@@ -289,21 +321,16 @@ export class DappMiner extends React.Component {
 
     // The next two methods are needed to start and stop polling data.
     // CAN I USE A LISTENER?!?!
-    _startPollingData() {
+    _startPollingMinerData() {
         this._pollDataInterval = setInterval(() => this._updateMinerStatus(), 1000);
-
-        this._pollGasInterval = setInterval(() => this._updateGasParams(), 12000);
 
         // We run it once immediately so we don't have to wait for it
         this._updateMinerStatus();
-        this._updateGasParams();
     }
 
-    _stopPollingData() {
+    _stopPollingMinerData() {
         clearInterval(this._pollDataInterval);
         this._pollDataInterval = undefined;
-        clearInterval(this._pollGasInterval);
-        this._pollGasInterval = undefined;
     }
 
     async _updateMinerStatus() {
@@ -327,6 +354,7 @@ export class DappMiner extends React.Component {
             }
         } = await resp.json();
 
+        console.log(feeCap);
         this.setState({
             maxFeePerGas: ethers.utils.parseUnits(feeCap.toFixed(9).toString(), "gwei"),
             maxPriorityFeePerGas: ethers.utils.parseUnits(maxPriorityFee.toFixed(9).toString(), "gwei")
@@ -365,7 +393,7 @@ export class DappMiner extends React.Component {
             // We send the transaction, and save its hash in the Dapp's state. This
             // way we can indicate that we are waiting for it to be mined.
             const expectedGasTx = ethers.BigNumber.from(70707).mul(this.state.nextScan).add(3000000);
-            const tx = await this._jpegMiner.write.mine(this.state.imageScans[this.state.nextScan], {
+            const tx = await this._jpegMiner.write.mine(this.imageScans[this.state.nextScan], {
                 value: ethers.constants.WeiPerEther.mul(amount),
                 maxFeePerGas: this.state.maxFeePerGas,
                 maxPriorityFeePerGas: this.state.maxPriorityFeePerGas,
@@ -432,13 +460,9 @@ export class DappMiner extends React.Component {
 
     // This method checks if Metamask selected network is Localhost:8545
     _checkNetwork() {
-        if (window.ethereum.networkVersion === contractAddress.chainId) {
+        if (Number(window.ethereum.networkVersion) === contractAddress.chainId) {
             return true;
         }
-
-        this.setState({
-            networkError: `Please connect Metamask to ${contractAddress.chainId} network`
-        });
 
         return false;
     }
