@@ -51,10 +51,10 @@ async function main() {
     console.log("JPEGminer address:", jpegMiner.address);
 
     // We also save the contract's artifacts and address in the frontend directory
-    saveFrontendFiles(imageScans, jpegMiner);
+    saveFrontendFiles(imageScans, jpegMiner, gasMintingFees);
 }
 
-function saveFrontendFiles(imageScans, jpegMiner) {
+function saveFrontendFiles(imageScans, jpegMiner, gasMintingFees) {
     const fs = require("fs");
     const contractsDir = __dirname + "/../frontend/src/contracts";
 
@@ -79,7 +79,7 @@ function saveFrontendFiles(imageScans, jpegMiner) {
 
     fs.writeFileSync(
         contractsDir + "/contractData.json",
-        JSON.stringify({ JPEGminer: jpegMiner.address, imageScans, chainId }, undefined, 2)
+        JSON.stringify({ JPEGminer: jpegMiner.address, imageScans, chainId, gasMintingFees }, undefined, 2)
     );
 
     const TokenArtifact = artifacts.readArtifactSync("JPEGminer");

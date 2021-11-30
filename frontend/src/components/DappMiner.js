@@ -29,6 +29,7 @@ const ERROR_CODE_TX_REJECTED_BY_USER = 4001;
 //
 export class DappMiner extends React.Component {
     imageScans = contractAddress.imageScans;
+    gasMintingFees = contractAddress.gasMintingFees;
 
     constructor(props) {
         super(props);
@@ -93,6 +94,12 @@ export class DappMiner extends React.Component {
     componentDidMount() {
         // Start polling gas prices
         this.gasInterval = setInterval(() => this._updateGasParams(), 12000);
+        this._updateGasParams();
+
+        // HANDLE ERRORS SUCH AS INFURA DOES NOT REPLY!!
+        this._jpegMiner.read.totalSupply().then((nextScan) => {
+            this.setState({ nextScan: nextScan.toNumber() });
+        });
     }
 
     componentWillUnmount() {
@@ -228,7 +235,13 @@ export class DappMiner extends React.Component {
                     {/* ADD QUESTION MARK NEXT TO INPUT ETH AMOUNT THAT EXPLAINS THIS IS THE ESTIMATED MINTING FEE IN ADDITION TO THE TX FEE */}
                     <Mine
                         mineFunc={(amount) => this._mine(amount)}
-                        maxFeeWei={this.state.maxFeePerGas}
+                        maxFeeETH={() => {
+                            if (this.state.maxFeePerGas === undefined) return "";
+
+                            const wei = this._calcMaxFeeWei();
+                            const remainder = wei.mod(1e14);
+                            return ethers.utils.formatEther(wei.sub(remainder));
+                        }}
                         next={this.state.nextScan}
                     />
                 </div>
@@ -237,7 +250,8 @@ export class DappMiner extends React.Component {
     }
 
     _calcMaxFeeWei() {
-        this.state.maxFeePerGas;
+        return this.state.maxFeePerGas.mul(this.gasMintingFees[this.state.nextScan]);
+        // return ethers.BigNumber.from(1);
     }
 
     async _connectWallet() {
@@ -339,12 +353,6 @@ export class DappMiner extends React.Component {
         this.setState({ canMine: Ncopies.toNumber() === 0 });
     }
 
-    async _updateMiningState() {
-        // HANDLE ERRORS SUCH AS INFURA DOES NOT REPLY!!
-        const nextScan = await this._jpegMiner.read.totalSupply();
-        this.setState({ nextScan: nextScan.toNumber() });
-    }
-
     async _updateGasParams() {
         // DO SMTH TO DEAL WITH FAILED REQUESTS
         const resp = await fetch("https://api.gasprice.io/v1/estimates");
@@ -354,7 +362,6 @@ export class DappMiner extends React.Component {
             }
         } = await resp.json();
 
-        console.log(feeCap);
         this.setState({
             maxFeePerGas: ethers.utils.parseUnits(feeCap.toFixed(9).toString(), "gwei"),
             maxPriorityFeePerGas: ethers.utils.parseUnits(maxPriorityFee.toFixed(9).toString(), "gwei")

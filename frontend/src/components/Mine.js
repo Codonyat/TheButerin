@@ -1,6 +1,6 @@
 import React from "react";
 
-export function Mine({ mineFunc, maxFeeWei, next }) {
+export function Mine({ mineFunc, maxFeeETH, next }) {
     return (
         <form
             className="row g-2 align-items-end justify-content-center"
@@ -17,9 +17,19 @@ export function Mine({ mineFunc, maxFeeWei, next }) {
                 }
             }}
         >
-            <div className="col-2">
-                <label>ETH Amount</label>
-                <input className="form-control" type="number" step="1" name="amount" placeholder={maxFeeWei} />
+            {/* ADD ? BUTTON THAT SAYS:
+            Estimated fee for minining (in addition to the gas). Because the fee is denominated in gas, it fluctuates with the price of gas. Feel free to increase the amount of
+            ETH to ensure the transaction does not fail. Any excess ETH paid for mining is returned.
+            */}
+            <div className="col-3">
+                {/* <label>ETH Amount</label> */}
+                <input
+                    className="form-control"
+                    type="number"
+                    step="1"
+                    name="amount"
+                    placeholder={`${maxFeeETH()} ETH`}
+                />
                 {/* REPLACE PLACEHOLDER TEXT WITH REAL TIME ON THE ESTIMATED AMOUNT OF ETH TO MINE*/}
             </div>
             <div className="col-auto">
