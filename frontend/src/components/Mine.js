@@ -12,9 +12,7 @@ export function Mine({ mineFunc, maxFeeETH, next }) {
                 const formData = new FormData(event.target);
                 const amount = formData.get("amount");
 
-                if (amount) {
-                    mineFunc(amount);
-                }
+                mineFunc(amount);
             }}
         >
             {/* ADD ? BUTTON THAT SAYS:
@@ -23,13 +21,7 @@ export function Mine({ mineFunc, maxFeeETH, next }) {
             */}
             <div className="col-3">
                 {/* <label>ETH Amount</label> */}
-                <input
-                    className="form-control"
-                    type="number"
-                    step="1"
-                    name="amount"
-                    placeholder={`${maxFeeETH()} ETH`}
-                />
+                <input className="form-control" type="number" step="1" name="amount" placeholder={maxFeeETH()} />
                 {/* REPLACE PLACEHOLDER TEXT WITH REAL TIME ON THE ESTIMATED AMOUNT OF ETH TO MINE*/}
             </div>
             <div className="col-auto">

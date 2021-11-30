@@ -6,7 +6,7 @@ import { ethers } from "ethers";
 // We import the contract's artifacts and address here, as we are going to be
 // using them with ethers
 import JPEGminerArtifact from "../contracts/JPEGminer.json";
-import contractAddress from "../contracts/contractData.json";
+import contractParams from "../contracts/contractParams.json";
 
 // All the logic of this dapp is contained in the Dapp component.
 // These other components are just presentational ones: they don't have any
@@ -28,8 +28,8 @@ const ERROR_CODE_TX_REJECTED_BY_USER = 4001;
 //   5. Renders the whole application
 //
 export class DappMiner extends React.Component {
-    imageScans = contractAddress.imageScans;
-    gasMintingFees = contractAddress.gasMintingFees;
+    imageScans = contractParams.imageScans;
+    gasMintingFees = contractParams.gasMintingFees;
 
     constructor(props) {
         super(props);
@@ -61,10 +61,10 @@ export class DappMiner extends React.Component {
         };
 
         // Our own provider
-        if (contractAddress.chainId === 31337) {
+        if (contractParams.chainId === 31337) {
             this._provider = ethers.getDefaultProvider("http://localhost:8545");
-        } else if (contractAddress.chainId === 1 || contractAddress.chainId === 4) {
-            this._provider = ethers.getDefaultProvider(contractAddress.chainId, {
+        } else if (contractParams.chainId === 1 || contractParams.chainId === 4) {
+            this._provider = ethers.getDefaultProvider(contractParams.chainId, {
                 infura: {
                     projectId: "2f6e2beaa8ff4621b832fa9ec113bd11",
                     projectSecret: "c214e9dc47164d50837d1bd878bea3be"
@@ -75,21 +75,7 @@ export class DappMiner extends React.Component {
         }
 
         // Contract instance
-        this._jpegMiner = {
-            read: new ethers.Contract(contractAddress.JPEGminer, JPEGminerArtifact.abi, this._provider)
-        };
-
-        // Listen for mining events
-        this._jpegMiner.read.on(
-            {
-                address: contractAddress.JPEGminer,
-                topics: [ethers.utils.id("Mined(address,string)")]
-            },
-            (log, event) => {
-                console.log(log);
-                console.log(event);
-            }
-        );
+        this._jpegMiner = new ethers.Contract(contractParams.address, JPEGminerArtifact.abi, this._provider);
     }
 
     componentDidMount() {
@@ -97,10 +83,22 @@ export class DappMiner extends React.Component {
         this.gasInterval = setInterval(() => this._updateGasParams(), 12000);
 
         // HANDLE ERRORS SUCH AS INFURA DOES NOT REPLY!!
-        this._jpegMiner.read.totalSupply().then((nextScan) => {
-            this.setState({ nextScan: nextScan.toNumber() });
-            this._updateGasParams();
+        // Listen for mining events
+        this._jpegMiner.on(this._jpegMiner.filters.Mined(), (param1, param2) => {
+            this._getNext();
         });
+        this._getNext();
+
+        this._updateGasParams();
+
+        // Find out if wallet is unlocked and on the right network
+        if (window.ethereum.isConnected()) this._connectWallet();
+    }
+
+    // HANDLE ERRORS SUCH AS INFURA DOES NOT REPLY!!
+    async _getNext() {
+        const nextScan = await this._jpegMiner.totalSupply();
+        this.setState({ nextScan: nextScan.toNumber() });
     }
 
     componentWillUnmount() {
@@ -146,8 +144,8 @@ export class DappMiner extends React.Component {
                         image (<span style={{ fontWeight: "bold" }}>1 MB</span>) on Ethereum.
                     </p>
                     <p>
-                        <span style={{ fontWeight: "bold" }}>JPEG-miners</span> are NFT minters who upload a piece of
-                        JPEG data in the process of minting.
+                        <span style={{ fontWeight: "bold" }}>JPEG-mining</span> is like minting but you also upload a
+                        piece of JPEG data in the process.
                     </p>
                     <p>
                         Thanks to the forgotten{" "}
@@ -156,11 +154,10 @@ export class DappMiner extends React.Component {
                                 progressive JPEG
                             </a>
                         </span>{" "}
-                        technology used in the era of 56k-modems, the image is viewable during the entire mining
-                        process.
+                        tech from the 56k-modem era, the image is viewable during the entire mining process.
                     </p>
                     <p>
-                        The JPEG is split in <span style={{ fontWeight: "bold" }}>100 shards</span> of data and each
+                        The JPEG is split in <span style={{ fontWeight: "bold" }}>100 pieces</span> of data and each
                         miner gets a unique JPEG with different degrees of quality:
                     </p>
                     <ul>
@@ -207,43 +204,45 @@ export class DappMiner extends React.Component {
                             #99 gets the <span style={{ fontWeight: "bold" }}>final image</span>
                         </li>
                     </ul>
+                    INCLUDE PHOTO HERE OF THE PHASES
                     <p>
                         The total cost (tx fee + minting fee) is{" "}
                         <span style={{ fontWeight: "bold" }}>denonimanted in gas</span>, and therefore it fluctuates
                         with gas prices! (Trick: wait for low gas prices)
                     </p>
-                    <p>
+                    {/* <p>
                         Any <span style={{ fontWeight: "bold" }}>ETH paid in excess is returned back</span> so do not
                         worry about overpaying.
-                    </p>
+                    </p> */}
                     <p>
                         Total <span style={{ fontWeight: "bold" }}>gas cost grows linearly</span> with each subsquent
                         mining:
                     </p>
-                    <ul>
+                    {/* <ul>
                         <li>Previous cost of mining: X gas</li>
                         <li>Current cost of mining: Y gas</li>
                         <li>Next cost of mining: Z gas</li>
-                    </ul>
+                    </ul> */}
                     <p>Good mining (gm)</p>
                 </div>
 
                 <div className="container p-3">
-                    {!this.state.canMine && this.state.selectedAddress && (
-                        <p>You cannot mine if you own 1 or more already.</p>
-                    )}
-
                     {/* ADD QUESTION MARK NEXT TO INPUT ETH AMOUNT THAT EXPLAINS THIS IS THE ESTIMATED MINTING FEE IN ADDITION TO THE TX FEE */}
                     <Mine
                         mineFunc={(amount) => this._mine(amount)}
                         maxFeeETH={() => {
-                            if (this.state.maxFeeWeiNext === undefined) return "N/A";
+                            if (this.state.maxFeeWeiNext === undefined) return "Amount ETH";
 
                             const remainder = this.state.maxFeeWeiNext.mod(1e14);
-                            return ethers.utils.formatEther(this.state.maxFeeWeiNext.sub(remainder));
+                            return `${ethers.utils.formatEther(this.state.maxFeeWeiNext.sub(remainder))} ETH`;
                         }}
                         next={this.state.nextScan}
                     />
+                    {!this.state.canMine && this.state.selectedAddress && (
+                        <p className="text-center" style={{ color: "red" }}>
+                            You cannot mine if you own 1 NFT or more already.
+                        </p>
+                    )}
                 </div>
             </div>
         );
@@ -253,8 +252,7 @@ export class DappMiner extends React.Component {
         // This method is run when the user clicks the Connect. It connects the
         // dapp to the user's wallet, and initializes it.
 
-        // To connect to the user's wallet, we have to run this method.
-        // It returns a promise that will resolve to the user's address.
+        // To connect to the user's wallet
         const [selectedAddress] = await window.ethereum.request({ method: "eth_requestAccounts" });
 
         // Once we have the address, we can initialize the application.
@@ -264,13 +262,13 @@ export class DappMiner extends React.Component {
             try {
                 await window.ethereum.request({
                     method: "wallet_switchEthereumChain",
-                    params: [{ chainId: ethers.utils.hexValue(contractAddress.chainId) }]
+                    params: [{ chainId: ethers.utils.hexValue(contractParams.chainId) }]
                 });
             } catch (switchError) {
                 // DISABLE MINE() AND OUTPUT MESSAGE
                 // this.setState({
                 //     // ASK METAMASK TO CHANGE NETWORK
-                //     networkError: `Please connect Metamask to ${contractAddress.chainId} network`
+                //     networkError: `Please connect Metamask to ${contractParams.chainId} network`
                 // });
                 // ALSO ADD 'ADD NETWORK' METHOD
                 return;
@@ -294,6 +292,7 @@ export class DappMiner extends React.Component {
         });
 
         // We reset the dapp state if the network is changed
+        // CONNECT OR DISCONNECT AS NEEDED
         window.ethereum.on("chainChanged ", ([chainId]) => {
             this._stopPollingMinerData();
             this._resetState();
@@ -314,12 +313,7 @@ export class DappMiner extends React.Component {
         });
 
         // Initialize user provider
-        this._userProvider = new ethers.providers.Web3Provider(window.ethereum);
-        this._jpegMiner.write = new ethers.Contract(
-            contractAddress.JPEGminer,
-            JPEGminerArtifact.abi,
-            this._userProvider.getSigner(0)
-        );
+        this._signer = new ethers.providers.Web3Provider(window.ethereum).getSigner(0);
 
         // CAN I USE A LISTENER?!?!
         this._pollDataInterval = setInterval(() => this._updateMinerStatus(), 1000);
@@ -328,7 +322,7 @@ export class DappMiner extends React.Component {
 
     async _updateMinerStatus() {
         // HANDLE ERRORS SUCH AS INFURA DOES NOT REPLY!!
-        const Ncopies = await this._jpegMiner.read.balanceOf(this.state.selectedAddress);
+        const Ncopies = await this._jpegMiner.balanceOf(this.state.selectedAddress);
         this.setState({ canMine: Ncopies.toNumber() === 0 });
     }
 
@@ -371,6 +365,7 @@ export class DappMiner extends React.Component {
         //
         // This method handles all of those things, so keep reading to learn how to
         // do it.
+        if (this._signer === undefined) await this._connectWallet();
 
         try {
             // If a transaction fails, we save that error in the component's state.
@@ -381,7 +376,7 @@ export class DappMiner extends React.Component {
             // MAKE SURE INPUT CAN ONLY ACCEPT DECIMAL NUMBERS!
             const wei = amount === "" ? this.state.maxFeeWeiNext : ethers.utils.parseEther(amount);
 
-            const tx = await this._jpegMiner.write.mine(this.imageScans[this.state.nextScan], {
+            const tx = await this._jpegMiner.connect(this._signer).mine(this.imageScans[this.state.nextScan], {
                 value: wei,
                 maxFeePerGas: this.state.maxFeePerGas,
                 maxPriorityFeePerGas: this.state.maxPriorityFeePerGas
@@ -447,7 +442,7 @@ export class DappMiner extends React.Component {
 
     // This method checks if Metamask selected network is Localhost:8545
     _checkNetwork() {
-        if (Number(window.ethereum.networkVersion) === contractAddress.chainId) {
+        if (Number(window.ethereum.networkVersion) === contractParams.chainId) {
             return true;
         }
 

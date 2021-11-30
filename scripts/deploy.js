@@ -78,8 +78,8 @@ function saveFrontendFiles(imageScans, jpegMiner, gasMintingFees) {
     }
 
     fs.writeFileSync(
-        contractsDir + "/contractData.json",
-        JSON.stringify({ JPEGminer: jpegMiner.address, imageScans, chainId, gasMintingFees }, undefined, 2)
+        contractsDir + "/contractParams.json",
+        JSON.stringify({ address: jpegMiner.address, imageScans, chainId, gasMintingFees }, undefined, 2)
     );
 
     const TokenArtifact = artifacts.readArtifactSync("JPEGminer");
