@@ -236,9 +236,9 @@ export class DappMiner extends React.Component {
                     <Mine
                         mineFunc={(amount) => this._mine(amount)}
                         maxFeeETH={() => {
-                            if (this.state.maxFeePerGas === undefined) return "";
-
                             const wei = this._calcMaxFeeWei();
+                            if (wei === null) return "";
+
                             const remainder = wei.mod(1e14);
                             return ethers.utils.formatEther(wei.sub(remainder));
                         }}
@@ -250,8 +250,9 @@ export class DappMiner extends React.Component {
     }
 
     _calcMaxFeeWei() {
+        if (this.state.maxFeePerGas === undefined || this.state.nextScan === undefined) return null;
+
         return this.state.maxFeePerGas.mul(this.gasMintingFees[this.state.nextScan]);
-        // return ethers.BigNumber.from(1);
     }
 
     async _connectWallet() {
