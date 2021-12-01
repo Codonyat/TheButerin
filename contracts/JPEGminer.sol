@@ -37,9 +37,10 @@ contract JPEGminer is ERC721Enumerable, Ownable {
 
     uint256 public constant NSCANS = 100;
 
-    string private constant _NAME = "JPEG Mining";
+    string private constant _NAME = "Mined JPEG";
+    string private constant _SYMBOL = "MJ";
     string private constant _DESCRIPTION =
-        "JPEG Mining is a collaborative effort to store a 1.45MB on-chain image in Base64 format (1.09MB in binary). "
+        "Mined JPEG is a collaborative effort to store a 1.45MB on-chain image in Base64 format (1.09MB in binary). "
         "The image is split into 100 pieces which are stored on-chain by every wallet that calls the function mine(). "
         "Thanks to the progressive JPEG technology the image is viewable since its first piece is mined, "
         "and its quality gradually improves until the final image when the last piece is mined. "
@@ -62,7 +63,7 @@ contract JPEGminer is ERC721Enumerable, Ownable {
         string memory imageHeaderB64,
         bytes32[] memory imageHashes,
         uint256[] memory mintingGasFees
-    ) ERC721("JPEG Miner", "JM") {
+    ) ERC721(_NAME, _SYMBOL) {
         require(imageHashes.length == NSCANS);
 
         // Store minting gas fees

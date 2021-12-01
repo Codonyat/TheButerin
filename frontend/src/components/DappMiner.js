@@ -6,7 +6,7 @@ import { ethers } from "ethers";
 // We import the contract's artifacts and address here, as we are going to be
 // using them with ethers
 import JPEGminerArtifact from "../contracts/JPEGminer.json";
-import contractParams from "../contracts/contractParams.json";
+import { imageScans, gasMintingFees, chainId, address } from "../contracts/contractParams.json";
 
 // All the logic of this dapp is contained in the Dapp component.
 // These other components are just presentational ones: they don't have any
@@ -20,16 +20,14 @@ import { Mine } from "./Mine";
 // This is an error code that indicates that the user canceled a transaction
 const ERROR_CODE_TX_REJECTED_BY_USER = 4001;
 
-// This component is in charge of doing these things:
-//   1. It connects to the user's wallet
-//   2. Initializes ethers and the JPEGminer contract
-//   3. Polls the user state in JPEGminer
-//   4. Mines NFT
-//   5. Renders the whole application
-//
+// Networks chain Ids
+const MAINNET_ID = 1;
+const RINKEBY_ID = 4;
+const HARDHAT_ID = 31337;
+
 export class DappMiner extends React.Component {
-    imageScans = contractParams.imageScans;
-    gasMintingFees = contractParams.gasMintingFees;
+    imageScans = imageScans;
+    gasMintingFees = gasMintingFees;
 
     constructor(props) {
         super(props);
@@ -41,30 +39,21 @@ export class DappMiner extends React.Component {
             maxFeePerGas: undefined,
             maxPriorityFeePerGas: undefined,
             // Properties that depend on the user account
-            canMine: undefined,
-            selectedAddress: undefined,
-            txBeingSent: undefined,
-            transactionError: undefined,
-            networkError: undefined
+            canMine: true,
+            selectedAddress: undefined
         };
 
         // Initial state that will be used when user changes account
         this.initialState = {
-            // Miner's data
-            canMine: undefined,
-            // The user's address
-            selectedAddress: undefined,
-            // The ID about transactions being sent, and any possible error with them
-            txBeingSent: undefined,
-            transactionError: undefined,
-            networkError: undefined
+            canMine: true,
+            selectedAddress: undefined
         };
 
         // Our own provider
-        if (contractParams.chainId === 31337) {
+        if (chainId === HARDHAT_ID) {
             this._provider = ethers.getDefaultProvider("http://localhost:8545");
-        } else if (contractParams.chainId === 1 || contractParams.chainId === 4) {
-            this._provider = ethers.getDefaultProvider(contractParams.chainId, {
+        } else if (chainId === MAINNET_ID || chainId === RINKEBY_ID) {
+            this._provider = ethers.getDefaultProvider(chainId, {
                 infura: {
                     projectId: "2f6e2beaa8ff4621b832fa9ec113bd11",
                     projectSecret: "c214e9dc47164d50837d1bd878bea3be"
@@ -75,7 +64,7 @@ export class DappMiner extends React.Component {
         }
 
         // Contract instance
-        this._jpegMiner = new ethers.Contract(contractParams.address, JPEGminerArtifact.abi, this._provider);
+        this._jpegMiner = new ethers.Contract(address, JPEGminerArtifact.abi, this._provider);
     }
 
     componentDidMount() {
@@ -92,7 +81,18 @@ export class DappMiner extends React.Component {
         this._updateGasParams();
 
         // Find out if wallet is unlocked and on the right network
-        if (window.ethereum.isConnected()) this._connectWallet();
+        if (window.ethereum.isConnected()) this._connectWallet(false);
+
+        // We reinitialize it whenever the user changes their account.
+        window.ethereum.on("accountsChanged", (addrArray) => {
+            // If user is locking wallet
+            if (addrArray.length === 0) {
+                return this._resetMinerState();
+            }
+
+            // If user is changing account
+            this._connectWallet(true);
+        });
     }
 
     // HANDLE ERRORS SUCH AS INFURA DOES NOT REPLY!!
@@ -105,17 +105,9 @@ export class DappMiner extends React.Component {
         // Stop polling gas prices
         clearInterval(this.gasInterval);
         this.gasInterval = undefined;
-
-        this._stopPollingMinerData();
     }
 
     render() {
-        // Ethereum wallets inject the window.ethereum object. If it hasn't been
-        // injected, we instruct the user to install MetaMask.
-        if (window.ethereum === undefined) {
-            return <NoWalletDetected />;
-        }
-
         // If everything is loaded, we render the application.
         return (
             <div
@@ -130,7 +122,7 @@ export class DappMiner extends React.Component {
             >
                 <div className="container p-3">
                     <ConnectWallet
-                        connectWallet={() => this._connectWallet()}
+                        connectWallet={() => this._connectWallet(true)}
                         selectedAddress={this.state.selectedAddress}
                     />
                 </div>
@@ -208,16 +200,13 @@ export class DappMiner extends React.Component {
                     <p>
                         The total cost (tx fee + minting fee) is{" "}
                         <span style={{ fontWeight: "bold" }}>denonimanted in gas</span>, and therefore it fluctuates
-                        with gas prices! (Trick: wait for low gas prices)
+                        with gas prices! (<span style={{ fontWeight: "bold" }}>Trick</span>: wait for low gas prices)
                     </p>
                     {/* <p>
                         Any <span style={{ fontWeight: "bold" }}>ETH paid in excess is returned back</span> so do not
                         worry about overpaying.
                     </p> */}
-                    <p>
-                        Total <span style={{ fontWeight: "bold" }}>gas cost grows linearly</span> with each subsquent
-                        mining:
-                    </p>
+                    <p>For #0 mining costs 3M gas (minting + tx fee), and increases up to 10M gas for #99.</p>
                     {/* <ul>
                         <li>Previous cost of mining: X gas</li>
                         <li>Current cost of mining: Y gas</li>
@@ -227,20 +216,28 @@ export class DappMiner extends React.Component {
                 </div>
 
                 <div className="container p-3">
-                    {/* ADD QUESTION MARK NEXT TO INPUT ETH AMOUNT THAT EXPLAINS THIS IS THE ESTIMATED MINTING FEE IN ADDITION TO THE TX FEE */}
-                    <Mine
-                        mineFunc={(amount) => this._mine(amount)}
-                        maxFeeETH={() => {
-                            if (this.state.maxFeeWeiNext === undefined) return "Amount ETH";
+                    {/* ADD QUESTION MARK NEXT TO INPUT ETH AMOUNT THAT EXPLAINS THIS IS THE ESTIMATED MINTING FEE IN ADDITION TO THE TX FEE, AND ALSO SPECIFIES HOW MUCH GAS MUST BE PAID */}
+                    {this.state.canMine && window.ethereum !== undefined && (
+                        <Mine
+                            mineFunc={(amount) => this._mine(amount)}
+                            maxFeeETH={() => {
+                                if (this.state.maxFeeWeiNext === undefined) return "Amount ETH";
 
-                            const remainder = this.state.maxFeeWeiNext.mod(1e14);
-                            return `${ethers.utils.formatEther(this.state.maxFeeWeiNext.sub(remainder))} ETH`;
-                        }}
-                        next={this.state.nextScan}
-                    />
-                    {!this.state.canMine && this.state.selectedAddress && (
+                                const remainder = this.state.maxFeeWeiNext.mod(1e14);
+                                return `~${ethers.utils.formatEther(this.state.maxFeeWeiNext.sub(remainder))} ETH`;
+                            }}
+                            next={this.state.nextScan}
+                        />
+                    )}
+                    {!this.state.canMine && (
                         <p className="text-center" style={{ color: "red" }}>
-                            You cannot mine if you own 1 NFT or more already.
+                            Cannot mine if you own 1 Mined JPEG.
+                        </p>
+                    )}
+
+                    {window.ethereum === undefined && (
+                        <p className="text-center" style={{ color: "red" }}>
+                            Install Metamask
                         </p>
                     )}
                 </div>
@@ -248,79 +245,65 @@ export class DappMiner extends React.Component {
         );
     }
 
-    async _connectWallet() {
-        // This method is run when the user clicks the Connect. It connects the
-        // dapp to the user's wallet, and initializes it.
-
-        // To connect to the user's wallet
-        const [selectedAddress] = await window.ethereum.request({ method: "eth_requestAccounts" });
+    async _connectWallet(userTriggered) {
+        // If Metamask is not unlocked, do not request the user to sign in their wallet
+        if (
+            !userTriggered &&
+            window.ethereum._metamask !== undefined &&
+            !(await window.ethereum._metamask.isUnlocked())
+        )
+            return;
 
         // Once we have the address, we can initialize the application.
 
         // First we check the network
         if (!this._checkNetwork()) {
+            if (!userTriggered) return;
+
             try {
                 await window.ethereum.request({
                     method: "wallet_switchEthereumChain",
-                    params: [{ chainId: ethers.utils.hexValue(contractParams.chainId) }]
+                    params: [{ chainId: ethers.utils.hexValue(chainId) }]
                 });
-            } catch (switchError) {
+            } catch (undefined) {
+                // No need to add network because it is mainnet.
                 // DISABLE MINE() AND OUTPUT MESSAGE
-                // this.setState({
-                //     // ASK METAMASK TO CHANGE NETWORK
-                //     networkError: `Please connect Metamask to ${contractParams.chainId} network`
-                // });
-                // ALSO ADD 'ADD NETWORK' METHOD
+
                 return;
             }
         }
 
-        this._initializeUser(selectedAddress);
-
-        // We reinitialize it whenever the user changes their account.
-        window.ethereum.on("accountsChanged", ([newAddress]) => {
-            this._stopPollingMinerData();
-            // `accountsChanged` event can be triggered with an undefined newAddress.
-            // This happens when the user removes the Dapp from the "Connected
-            // list of sites allowed access to your addresses" (Metamask > Settings > Connections)
-            // To avoid errors, we reset the dapp state
-            if (newAddress === undefined) {
-                return this._resetState();
-            }
-
-            this._initializeUser(newAddress);
-        });
+        this._initializeUser();
 
         // We reset the dapp state if the network is changed
         // CONNECT OR DISCONNECT AS NEEDED
-        window.ethereum.on("chainChanged ", ([chainId]) => {
-            this._stopPollingMinerData();
-            this._resetState();
-        });
+        if (window.ethereum.listenerCount(["chainChanged"]) === 0) {
+            window.ethereum.on("chainChanged", ([chainId]) => {
+                // THIS LISTENER IS NOT TRIGGERED!?
+                // SHOULD I REMOVE THE LISTENER UPON DISCONNECT?
+                this._initializeUser();
+                window.location.reload();
+            });
+        }
     }
 
-    _stopPollingMinerData() {
-        clearInterval(this._pollDataInterval);
-        this._pollDataInterval = undefined;
-    }
-
-    _initializeUser(userAddress) {
-        // This method initializes the dapp
+    async _initializeUser() {
+        // User's address
+        const arrAddr = await window.ethereum.request({ method: "eth_requestAccounts" });
 
         // We first store the user's address in the component's state
         this.setState({
-            selectedAddress: userAddress
+            selectedAddress: arrAddr.length > 0 ? arrAddr[0] : undefined
         });
+
+        // Get miner state
+        this._updateMinerState();
 
         // Initialize user provider
         this._signer = new ethers.providers.Web3Provider(window.ethereum).getSigner(0);
-
-        // CAN I USE A LISTENER?!?!
-        this._pollDataInterval = setInterval(() => this._updateMinerStatus(), 1000);
-        this._updateMinerStatus();
     }
 
-    async _updateMinerStatus() {
+    async _updateMinerState() {
         // HANDLE ERRORS SUCH AS INFURA DOES NOT REPLY!!
         const Ncopies = await this._jpegMiner.balanceOf(this.state.selectedAddress);
         this.setState({ canMine: Ncopies.toNumber() === 0 });
@@ -344,28 +327,20 @@ export class DappMiner extends React.Component {
         });
 
         if (this.state.nextScan !== undefined) {
-            const maxFeeWeiNext = maxFeePerGas.mul(this.gasMintingFees[this.state.nextScan]);
+            const maxFeeWeiNext = maxFeePerGas.mul(gasMintingFees[this.state.nextScan]);
             this.setState({
                 maxFeeWeiNext
             });
+        }
+
+        if (chainId === HARDHAT_ID) {
+            this._provider.send("hardhat_setNextBlockBaseFeePerGas", [maxFeePerGas.toHexString()]);
         }
     }
 
     // Mine JPEG
     async _mine(amount) {
-        // Sending a transaction is a complex operation:
-        //   - The user can reject it
-        //   - It can fail before reaching the ethereum network (i.e. if the user
-        //     doesn't have ETH for paying for the tx's gas)
-        //   - It has to be mined, so it isn't immediately confirmed.
-        //     Note that some testing networks, like Hardhat Network, do mine
-        //     transactions immediately, but your dapp should be prepared for
-        //     other networks.
-        //   - It can fail once mined.
-        //
-        // This method handles all of those things, so keep reading to learn how to
-        // do it.
-        if (this._signer === undefined) await this._connectWallet();
+        await this._connectWallet(true);
 
         try {
             // If a transaction fails, we save that error in the component's state.
@@ -376,12 +351,11 @@ export class DappMiner extends React.Component {
             // MAKE SURE INPUT CAN ONLY ACCEPT DECIMAL NUMBERS!
             const wei = amount === "" ? this.state.maxFeeWeiNext : ethers.utils.parseEther(amount);
 
-            const tx = await this._jpegMiner.connect(this._signer).mine(this.imageScans[this.state.nextScan], {
+            const tx = await this._jpegMiner.connect(this._signer).mine(imageScans[this.state.nextScan], {
                 value: wei,
                 maxFeePerGas: this.state.maxFeePerGas,
                 maxPriorityFeePerGas: this.state.maxPriorityFeePerGas
             });
-            this.setState({ txBeingSent: tx.hash });
 
             // We use .wait() to wait for the transaction to be mined. This method
             // returns the transaction's receipt.
@@ -394,35 +368,14 @@ export class DappMiner extends React.Component {
                 throw new Error("Transaction failed");
             }
 
-            // If we got here, the transaction was successful, so you may want to
-            // update your state.
-            await this._updateMinerStatus();
+            // Update miner state
+            await this._updateMinerState();
         } catch (error) {
-            // We check the error code to see if this error was produced because the
-            // user rejected a tx. If that's the case, we do nothing.
+            // If user rejected a tx, we do nothing.
             if (error.code === ERROR_CODE_TX_REJECTED_BY_USER) {
                 return;
             }
-
-            // Other errors are logged and stored in the Dapp's state. This is used to
-            // show them to the user, and for debugging.
-            console.error(error);
-            this.setState({ transactionError: error });
-        } finally {
-            // If we leave the try/catch, we aren't sending a tx anymore, so we clear
-            // this part of the state.
-            this.setState({ txBeingSent: undefined });
         }
-    }
-
-    // This method just clears part of the state.
-    _dismissTransactionError() {
-        this.setState({ transactionError: undefined });
-    }
-
-    // This method just clears part of the state.
-    _dismissNetworkError() {
-        this.setState({ networkError: undefined });
     }
 
     // This is an utility method that turns an RPC error into a human readable
@@ -436,13 +389,13 @@ export class DappMiner extends React.Component {
     }
 
     // This method resets the state
-    _resetState() {
+    _resetMinerState() {
         this.setState(this.initialState);
     }
 
     // This method checks if Metamask selected network is Localhost:8545
     _checkNetwork() {
-        if (Number(window.ethereum.networkVersion) === contractParams.chainId) {
+        if (Number(window.ethereum.networkVersion) === chainId) {
             return true;
         }
 

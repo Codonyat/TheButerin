@@ -28,6 +28,7 @@ module.exports = {
     networks: {
         hardhat: {
             gasPrice: 1e11, // 100 gwei
+            initialBaseFeePerGas: 1e11,
             accounts: {
                 count: 102,
                 mnemonic: "test test test test test test test test test test test junk"
