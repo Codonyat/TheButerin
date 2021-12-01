@@ -40,7 +40,8 @@ export class DappMiner extends React.Component {
             maxPriorityFeePerGas: undefined,
             // Properties that depend on the user account
             canMine: true,
-            selectedAddress: undefined
+            selectedAddress: undefined,
+            errorMessage: undefined
         };
 
         // Initial state that will be used when user changes account
@@ -67,46 +68,6 @@ export class DappMiner extends React.Component {
         this._jpegMiner = new ethers.Contract(address, JPEGminerArtifact.abi, this._provider);
     }
 
-    componentDidMount() {
-        // Start polling gas prices
-        this.gasInterval = setInterval(() => this._updateGasParams(), 12000);
-
-        // HANDLE ERRORS SUCH AS INFURA DOES NOT REPLY!!
-        // Listen for mining events
-        this._jpegMiner.on(this._jpegMiner.filters.Mined(), (param1, param2) => {
-            this._getNext();
-        });
-        this._getNext();
-
-        this._updateGasParams();
-
-        // Find out if wallet is unlocked and on the right network
-        if (window.ethereum.isConnected()) this._connectWallet(false);
-
-        // We reinitialize it whenever the user changes their account.
-        window.ethereum.on("accountsChanged", (addrArray) => {
-            // If user is locking wallet
-            if (addrArray.length === 0) {
-                return this._resetMinerState();
-            }
-
-            // If user is changing account
-            this._connectWallet(true);
-        });
-    }
-
-    // HANDLE ERRORS SUCH AS INFURA DOES NOT REPLY!!
-    async _getNext() {
-        const nextScan = await this._jpegMiner.totalSupply();
-        this.setState({ nextScan: nextScan.toNumber() });
-    }
-
-    componentWillUnmount() {
-        // Stop polling gas prices
-        clearInterval(this.gasInterval);
-        this.gasInterval = undefined;
-    }
-
     render() {
         // If everything is loaded, we render the application.
         return (
@@ -122,7 +83,7 @@ export class DappMiner extends React.Component {
             >
                 <div className="container p-3">
                     <ConnectWallet
-                        connectWallet={() => this._connectWallet(true)}
+                        connectWallet={() => this._connectWallet()}
                         selectedAddress={this.state.selectedAddress}
                     />
                 </div>
@@ -229,15 +190,9 @@ export class DappMiner extends React.Component {
                             next={this.state.nextScan}
                         />
                     )}
-                    {!this.state.canMine && (
+                    {this.state.errorMessage && (
                         <p className="text-center" style={{ color: "red" }}>
-                            Cannot mine if you own 1 Mined JPEG.
-                        </p>
-                    )}
-
-                    {window.ethereum === undefined && (
-                        <p className="text-center" style={{ color: "red" }}>
-                            Install Metamask
+                            {this.state.errorMessage}
                         </p>
                     )}
                 </div>
@@ -245,55 +200,90 @@ export class DappMiner extends React.Component {
         );
     }
 
-    async _connectWallet(userTriggered) {
-        // If Metamask is not unlocked, do not request the user to sign in their wallet
-        if (
-            !userTriggered &&
-            window.ethereum._metamask !== undefined &&
-            !(await window.ethereum._metamask.isUnlocked())
-        )
+    componentDidMount() {
+        // Start polling gas prices
+        this.gasInterval = setInterval(() => this._updateGasParams(), 12000);
+        this._updateGasParams();
+
+        // HANDLE ERRORS SUCH AS INFURA DOES NOT REPLY!!
+        // Listen for mining events
+        this._jpegMiner.on(this._jpegMiner.filters.Mined(), (param1, param2) => {
+            this._getNext();
+        });
+        this._getNext();
+
+        // If wallet is unlocked and on the right network, then import address without asking the user
+        if (window.ethereum !== undefined && window.ethereum._metamask !== undefined) {
+            window.ethereum._metamask.isUnlocked().then((isUnlocked) => {
+                if (isUnlocked) this._initializeUser();
+            });
+        }
+    }
+
+    // HANDLE ERRORS SUCH AS INFURA DOES NOT REPLY!!
+    async _getNext() {
+        const nextScan = await this._jpegMiner.totalSupply();
+        this.setState({ nextScan: nextScan.toNumber() });
+    }
+
+    componentWillUnmount() {
+        // Stop polling gas prices
+        clearInterval(this.gasInterval);
+        this.gasInterval = undefined;
+    }
+
+    async _connectWallet() {
+        if (window.ethereum === undefined) {
+            this.setState({
+                errorMessage: "Install Metamask"
+            });
             return;
+        }
 
-        // Once we have the address, we can initialize the application.
-
-        // First we check the network
+        // Change the network if necessary
         if (!this._checkNetwork()) {
-            if (!userTriggered) return;
-
             try {
                 await window.ethereum.request({
                     method: "wallet_switchEthereumChain",
                     params: [{ chainId: ethers.utils.hexValue(chainId) }]
                 });
-            } catch (undefined) {
-                // No need to add network because it is mainnet.
+            } catch (switchError) {
+                // No need to call wallet_addEthereumChain because it is mainnet.
                 // DISABLE MINE() AND OUTPUT MESSAGE
 
+                this.setState({
+                    errorMessage: this._getRpcErrorMessage(switchError)
+                });
                 return;
             }
         }
 
         this._initializeUser();
+    }
 
-        // We reset the dapp state if the network is changed
-        // CONNECT OR DISCONNECT AS NEEDED
-        if (window.ethereum.listenerCount(["chainChanged"]) === 0) {
-            window.ethereum.on("chainChanged", ([chainId]) => {
-                // THIS LISTENER IS NOT TRIGGERED!?
-                // SHOULD I REMOVE THE LISTENER UPON DISCONNECT?
-                this._initializeUser();
-                window.location.reload();
-            });
+    _getRpcErrorMessage(error) {
+        if (error.data) {
+            return error.data.message;
         }
+
+        return error.message;
     }
 
     async _initializeUser() {
-        // User's address
-        const arrAddr = await window.ethereum.request({ method: "eth_requestAccounts" });
+        // Get address
+        let selectedAddress;
+        try {
+            [selectedAddress] = await window.ethereum.request({ method: "eth_requestAccounts" });
+        } catch (error) {
+            this.setState({
+                errorMessage: this._getRpcErrorMessage(error)
+            });
+            return;
+        }
 
         // We first store the user's address in the component's state
         this.setState({
-            selectedAddress: arrAddr.length > 0 ? arrAddr[0] : undefined
+            selectedAddress
         });
 
         // Get miner state
@@ -301,12 +291,42 @@ export class DappMiner extends React.Component {
 
         // Initialize user provider
         this._signer = new ethers.providers.Web3Provider(window.ethereum).getSigner(0);
+
+        // Add listener in case user changes network if necessary
+        if (window.ethereum.listenerCount(["chainChanged"]) === 0) {
+            window.ethereum.on("chainChanged", (arrChainId) => {
+                // console.log("chainChanged");
+                if (arrChainId.length === 0) {
+                    return this._resetUser();
+                }
+                // Call this._resetUser(); instead if no network
+                // this._initializeUser();
+                window.location.reload();
+            });
+        }
+
+        // REMEMBER TO REMOVE LISTENERS
+
+        // We reinitialize it whenever the user changes their account.
+        if (window.ethereum.listenerCount(["accountsChanged"]) === 0) {
+            window.ethereum.on("accountsChanged", (addrArray) => {
+                // If user is locking wallet
+                if (addrArray.length === 0) {
+                    return this._resetUser();
+                }
+
+                // If user is changing account
+                this._initializeUser();
+            });
+        }
     }
 
     async _updateMinerState() {
         // HANDLE ERRORS SUCH AS INFURA DOES NOT REPLY!!
         const Ncopies = await this._jpegMiner.balanceOf(this.state.selectedAddress);
-        this.setState({ canMine: Ncopies.toNumber() === 0 });
+
+        const canMine = Ncopies.toNumber() === 0;
+        this.setState({ canMine, errorMessage: "Cannot mine if you own 1 Mined JPEG." });
     }
 
     async _updateGasParams() {
@@ -340,7 +360,7 @@ export class DappMiner extends React.Component {
 
     // Mine JPEG
     async _mine(amount) {
-        await this._connectWallet(true);
+        await this._connectWallet();
 
         try {
             // If a transaction fails, we save that error in the component's state.
@@ -389,7 +409,7 @@ export class DappMiner extends React.Component {
     }
 
     // This method resets the state
-    _resetMinerState() {
+    _resetUser() {
         this.setState(this.initialState);
     }
 
