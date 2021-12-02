@@ -1,21 +1,17 @@
 import React from "react";
-
-// We'll use ethers to interact with the Ethereum network and our contract
 import { ethers } from "ethers";
 
-// We import the contract's artifacts and address here, as we are going to be
-// using them with ethers
+// Contract artifact
 import JPEGminerArtifact from "../contracts/JPEGminer.json";
+
+// Other contract data
 import { imageScans, gasMintingFees, chainId, address } from "../contracts/contractParams.json";
 
-// All the logic of this dapp is contained in the Dapp component.
-// These other components are just presentational ones: they don't have any
-// logic. They just render HTML.
-import { NoWalletDetected } from "./NoWalletDetected";
+// React components
+import { ErrorMessage } from "./ErrorMessage";
 import { ConnectWallet } from "./ConnectWallet";
 import { Mine } from "./Mine";
-
-// const gwei = ethers.BigNumber.from(10).pow(9);
+import { Instructions } from "./Instructions";
 
 // This is an error code that indicates that the user canceled a transaction
 const ERROR_CODE_TX_REJECTED_BY_USER = 4001;
@@ -75,7 +71,7 @@ export class DappMiner extends React.Component {
         // If everything is loaded, we render the application.
         return (
             <div
-                className="container p-4"
+                className="container p-4 rounded-3"
                 style={{
                     maxWidth: "720px",
                     backgroundImage: 'url("minecraft-diamond-pickaxe-cosplay-foam.jpg")',
@@ -84,102 +80,18 @@ export class DappMiner extends React.Component {
                     height: "100%"
                 }}
             >
-                <div className="container p-3">
+                <div className="container p-3 rounded-3">
                     <ConnectWallet
                         connectWallet={() => this._connectWallet()}
                         message={this.state.connectMessage || this.state.selectedAddress}
                     />
                 </div>
 
-                <div className="container text-start p-3">
-                    {/* USE MINECRAFT FONT?
-                        STYLE LIST
-                    */}
-                    <p>
-                        Collective effort to <span style={{ fontStyle: "italic" }}>JPEG-mine</span> the largest on-chain
-                        image (<span style={{ fontWeight: "bold" }}>1 MB</span>) on Ethereum.
-                    </p>
-                    <p>
-                        <span style={{ fontWeight: "bold" }}>JPEG-mining</span> is like minting but you also upload a
-                        piece of JPEG data in the process.
-                    </p>
-                    <p>
-                        Thanks to the forgotten{" "}
-                        <span style={{ fontWeight: "bold" }}>
-                            <a href="https://www.liquidweb.com/kb/what-is-a-progressive-jpeg/" className="text-reset">
-                                progressive JPEG
-                            </a>
-                        </span>{" "}
-                        tech from the 56k-modem era, the image is viewable during the entire mining process.
-                    </p>
-                    <p>
-                        The JPEG is split in <span style={{ fontWeight: "bold" }}>100 pieces</span> of data and each
-                        miner gets a unique JPEG with different degrees of quality:
-                    </p>
-                    <ul>
-                        <li>
-                            #0 - #10 are in{" "}
-                            <span style={{ fontWeight: "bold", backgroundColor: "white", color: "black" }}>black</span>&
-                            <span
-                                style={{
-                                    fontWeight: "bold",
-                                    backgroundColor: "black",
-                                    color: "white"
-                                }}
-                            >
-                                white
-                            </span>
-                        </li>
-                        <li>
-                            #11 - #32 introduce{" "}
-                            <span
-                                style={{
-                                    fontWeight: "bold",
-                                    background: "red",
-                                    background:
-                                        "-webkit-linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red)",
-                                    background:
-                                        "-o-linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red)",
-                                    background:
-                                        "-moz-linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red)",
-                                    background:
-                                        "linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red)",
-                                    WebkitBackgroundClip: "text",
-                                    color: "transparent"
-                                }}
-                            >
-                                color
-                            </span>{" "}
-                            to the image
-                        </li>
-                        <li>
-                            #33 - #98 improve the{" "}
-                            <span style={{ fontWeight: "bold", fontSize: "large" }}>resolution</span>
-                        </li>
-                        <li>
-                            #99 gets the <span style={{ fontWeight: "bold" }}>final image</span>
-                        </li>
-                    </ul>
-                    INCLUDE PHOTO HERE OF THE PHASES
-                    <p>
-                        The total cost (tx fee + minting fee) is{" "}
-                        <span style={{ fontWeight: "bold" }}>denonimanted in gas</span>, and therefore it fluctuates
-                        with gas prices! (<span style={{ fontWeight: "bold" }}>Trick</span>: wait for low gas prices)
-                    </p>
-                    {/* <p>
-                        Any <span style={{ fontWeight: "bold" }}>ETH paid in excess is returned back</span> so do not
-                        worry about overpaying.
-                    </p> */}
-                    <p>For #0 mining costs 3M gas (minting + tx fee), and increases up to 10M gas for #99.</p>
-                    {/* <ul>
-                        <li>Previous cost of mining: X gas</li>
-                        <li>Current cost of mining: Y gas</li>
-                        <li>Next cost of mining: Z gas</li>
-                    </ul> */}
-                    <p>Good mining (gm)</p>
+                <div className="container text-start p-3 rounded-3">
+                    <Instructions />
                 </div>
 
-                <div className="container p-3">
+                <div className="container p-3 rounded-3">
                     {/* ADD QUESTION MARK NEXT TO INPUT ETH AMOUNT THAT EXPLAINS THIS IS THE ESTIMATED MINTING FEE IN ADDITION TO THE TX FEE, AND ALSO SPECIFIES HOW MUCH GAS MUST BE PAID */}
                     {this.state.canMine && window.ethereum !== undefined && (
                         <Mine
@@ -193,11 +105,10 @@ export class DappMiner extends React.Component {
                             next={this.state.nextScan}
                         />
                     )}
-                    {this.state.errorMessage !== undefined && (
-                        <p className="text-center" style={{ color: "red" }}>
-                            {this.state.errorMessage}
-                        </p>
-                    )}
+                </div>
+
+                <div className="p-3 m-auto rounded-3" style={{ backgroundColor: "Lavender", maxWidth: "500px" }}>
+                    {this.state.errorMessage !== undefined && <ErrorMessage errorMessage={this.state.errorMessage} />}
                 </div>
             </div>
         );
@@ -328,12 +239,10 @@ export class DappMiner extends React.Component {
         const Ncopies = await this._jpegMiner.balanceOf(this.state.selectedAddress);
 
         const canMine = Ncopies.toNumber() === 0;
-        this.setState({ canMine, errorMessage: "Cannot mine if you own 1 Mined JPEG." });
+        this.setState({ canMine, errorMessage: canMine ? undefined : "Cannot mine if you own 1 Mined JPEG already." });
     }
 
     async _updateGasParams() {
-        console.log("Updating gas price...");
-
         // DO SMTH TO DEAL WITH FAILED REQUESTS
         const resp = await fetch("https://api.gasprice.io/v1/estimates");
         const {
@@ -350,7 +259,6 @@ export class DappMiner extends React.Component {
             maxPriorityFeePerGas
         });
 
-        console.log(this.state.nextScan);
         if (this.state.nextScan !== undefined) {
             const maxFeeWeiNext = maxFeePerGas.mul(gasMintingFees[this.state.nextScan]);
             this.setState({
@@ -358,9 +266,10 @@ export class DappMiner extends React.Component {
             });
         }
 
-        if (chainId === HARDHAT_ID) {
-            this._provider.send("hardhat_setNextBlockBaseFeePerGas", [maxFeePerGas.toHexString()]);
-        }
+        // // @debug
+        // if (chainId === HARDHAT_ID) {
+        //     this._provider.send("hardhat_setNextBlockBaseFeePerGas", [maxFeePerGas.toHexString()]);
+        // }
     }
 
     // Mine JPEG
@@ -368,37 +277,36 @@ export class DappMiner extends React.Component {
         await this._connectWallet();
 
         try {
-            // If a transaction fails, we save that error in the component's state.
-            // We only save one such error, so before sending a second transaction, we
-            // clear it.
-            this._dismissTransactionError();
+            console.log("mine");
 
-            // MAKE SURE INPUT CAN ONLY ACCEPT DECIMAL NUMBERS!
+            // Get user input or estimate eth minting price
             const wei = amount === "" ? this.state.maxFeeWeiNext : ethers.utils.parseEther(amount);
 
+            // Send tx
             const tx = await this._jpegMiner.connect(this._signer).mine(imageScans[this.state.nextScan], {
                 value: wei,
                 maxFeePerGas: this.state.maxFeePerGas,
                 maxPriorityFeePerGas: this.state.maxPriorityFeePerGas
             });
 
-            // We use .wait() to wait for the transaction to be mined. This method
-            // returns the transaction's receipt.
-            const receipt = await tx.wait();
+            // // Wait for transaction's receipt.
+            // const receipt = await tx.wait();
 
-            // The receipt, contains a status flag, which is 0 to indicate an error.
-            if (receipt.status === 0) {
-                // We can't know the exact error that made the transaction fail when it
-                // was mined, so we throw this generic one.
-                throw new Error("Transaction failed");
-            }
+            // // The receipt, contains a status flag, which is 0 to indicate an error.
+            // if (receipt.status === 0) {
+            //     // We can't know the exact error that made the transaction fail when it
+            //     // was mined, so we throw this generic one.
+            //     throw new Error("Transaction failed");
+            // }
 
             // Update miner state
-            await this._updateMinerState();
+            this._updateMinerState();
         } catch (error) {
-            // If user rejected a tx, we do nothing.
-            if (error.code === ERROR_CODE_TX_REJECTED_BY_USER) {
-                return;
+            // If user did not reject the tx, show what was the error
+            if (error.code !== ERROR_CODE_TX_REJECTED_BY_USER) {
+                this.setState({
+                    errorMessage: this._getRpcErrorMessage(error)
+                });
             }
         }
     }
