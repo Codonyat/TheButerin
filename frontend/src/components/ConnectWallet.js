@@ -1,11 +1,11 @@
 import React from "react";
 
-export function ConnectWallet({ connectWallet, selectedAddress }) {
+export function ConnectWallet({ connectWallet, message }) {
     return (
         <div className="clearfix">
             <button className="btn btn-warning float-end" type="button" onClick={connectWallet}>
-                {!selectedAddress && "Connect Wallet"}
-                {selectedAddress}
+                {!message && "Connect Wallet"}
+                {message}
             </button>
         </div>
     );

@@ -41,13 +41,16 @@ export class DappMiner extends React.Component {
             // Properties that depend on the user account
             canMine: true,
             selectedAddress: undefined,
-            errorMessage: undefined
+            errorMessage: undefined,
+            connectMessage: undefined
         };
 
         // Initial state that will be used when user changes account
         this.initialState = {
             canMine: true,
-            selectedAddress: undefined
+            selectedAddress: undefined,
+            errorMessage: undefined,
+            connectMessage: undefined
         };
 
         // Our own provider
@@ -84,7 +87,7 @@ export class DappMiner extends React.Component {
                 <div className="container p-3">
                     <ConnectWallet
                         connectWallet={() => this._connectWallet()}
-                        selectedAddress={this.state.selectedAddress}
+                        message={this.state.connectMessage || this.state.selectedAddress}
                     />
                 </div>
 
@@ -190,7 +193,7 @@ export class DappMiner extends React.Component {
                             next={this.state.nextScan}
                         />
                     )}
-                    {this.state.errorMessage && (
+                    {this.state.errorMessage !== undefined && (
                         <p className="text-center" style={{ color: "red" }}>
                             {this.state.errorMessage}
                         </p>
@@ -235,7 +238,7 @@ export class DappMiner extends React.Component {
     async _connectWallet() {
         if (window.ethereum === undefined) {
             this.setState({
-                errorMessage: "Install Metamask"
+                connectMessage: "Install Metamask"
             });
             return;
         }
@@ -252,7 +255,8 @@ export class DappMiner extends React.Component {
                 // DISABLE MINE() AND OUTPUT MESSAGE
 
                 this.setState({
-                    errorMessage: this._getRpcErrorMessage(switchError)
+                    // errorMessage: "this._getRpcErrorMessage(switchError)"
+                    connectMessage: "Connect to Ethereum mainnet"
                 });
                 return;
             }
@@ -270,37 +274,38 @@ export class DappMiner extends React.Component {
     }
 
     async _initializeUser() {
-        // Get address
-        let selectedAddress;
-        try {
-            [selectedAddress] = await window.ethereum.request({ method: "eth_requestAccounts" });
-        } catch (error) {
+        if (!this._checkNetwork()) {
+            this._resetUser();
             this.setState({
-                errorMessage: this._getRpcErrorMessage(error)
+                connectMessage: "Change network to Ethereum Mainnet"
             });
-            return;
+        } else {
+            // Get address
+            let selectedAddress;
+            try {
+                [selectedAddress] = await window.ethereum.request({ method: "eth_requestAccounts" });
+            } catch (error) {
+                this.setState({
+                    errorMessage: this._getRpcErrorMessage(error)
+                });
+                return;
+            }
+
+            // We first store the user's address in the component's state
+            this.setState({
+                selectedAddress
+            });
+
+            // Get miner state
+            this._updateMinerState();
+
+            // Initialize user provider
+            this._signer = new ethers.providers.Web3Provider(window.ethereum).getSigner(0);
         }
-
-        // We first store the user's address in the component's state
-        this.setState({
-            selectedAddress
-        });
-
-        // Get miner state
-        this._updateMinerState();
-
-        // Initialize user provider
-        this._signer = new ethers.providers.Web3Provider(window.ethereum).getSigner(0);
 
         // Add listener in case user changes network if necessary
         if (window.ethereum.listenerCount(["chainChanged"]) === 0) {
-            window.ethereum.on("chainChanged", (arrChainId) => {
-                // console.log("chainChanged");
-                if (arrChainId.length === 0) {
-                    return this._resetUser();
-                }
-                // Call this._resetUser(); instead if no network
-                // this._initializeUser();
+            window.ethereum.on("chainChanged", () => {
                 window.location.reload();
             });
         }
