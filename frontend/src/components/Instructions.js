@@ -21,12 +21,13 @@ export function Instructions() {
                 tech from the 56k-modem era, <strong>the final image is gradually revealed</strong> during the mining
                 process.
             </p>
-            <p>
+            <p className="m-0">
                 The JPEG is split in <strong>100 pieces</strong> of data and each miner gets a unique JPEG with
                 different degrees of quality:
             </p>
-            <ul>
-                <li>
+            <ul className="list-unstyled">
+                <li className="ms-4">
+                    <i class="bi bi-arrow-return-right"></i>
                     #0 - #10 are in{" "}
                     <span style={{ fontWeight: "bold", backgroundColor: "white", color: "black" }}>black</span>&
                     <span
@@ -39,7 +40,7 @@ export function Instructions() {
                         white
                     </span>
                 </li>
-                <li>
+                <li className="ms-4">
                     #11 - #32 introduce{" "}
                     <span
                         style={{
@@ -59,10 +60,10 @@ export function Instructions() {
                     </span>{" "}
                     to the image
                 </li>
-                <li>
+                <li className="ms-4">
                     #33 - #98 improve the <span style={{ fontWeight: "bold", fontSize: "large" }}>resolution</span>
                 </li>
-                <li>
+                <li className="ms-4">
                     #99 gets the <strong>final image</strong>
                 </li>
                 {/* MENTION THE REVEAL OF THE IMAGE SOMEWHERE */}
