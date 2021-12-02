@@ -1,6 +1,6 @@
 import React from "react";
 
-export function Mine({ mineFunc, maxFeeETH, next }) {
+export function Mine({ mineFunc, maxFeeETH, next, enable }) {
     return (
         <form
             className="row g-2 align-items-end justify-content-center"
@@ -28,6 +28,7 @@ export function Mine({ mineFunc, maxFeeETH, next }) {
                     step="1"
                     name="amount"
                     placeholder={maxFeeETH()}
+                    disabled={!enable}
                 />
                 {/* REPLACE PLACEHOLDER TEXT WITH REAL TIME ON THE ESTIMATED AMOUNT OF ETH TO MINE*/}
             </div>
@@ -37,6 +38,7 @@ export function Mine({ mineFunc, maxFeeETH, next }) {
                     className="btn btn-primary"
                     type="submit"
                     value={next === undefined ? "" : `Mine #${next.toString().padStart(2, 0)}`}
+                    disabled={!enable}
                 />
                 {/* PASS THE NEXT TO MINE */}
             </div>

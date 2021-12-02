@@ -67,6 +67,7 @@ export function Instructions() {
                 <li>
                     #99 gets the <span style={{ fontWeight: "bold" }}>final image</span>
                 </li>
+                {/* MENTION THE REVEAL OF THE IMAGE SOMEWHERE */}
             </ul>
             INCLUDE PHOTO HERE OF THE PHASES
             <p>
@@ -84,7 +85,7 @@ export function Instructions() {
                         <li>Current cost of mining: Y gas</li>
                         <li>Next cost of mining: Z gas</li>
                     </ul> */}
-            <p>Good mining (gm)</p>
+            <p className="m-0">Good mining (gm)</p>
         </>
     );
 }

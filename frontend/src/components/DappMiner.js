@@ -93,7 +93,7 @@ export class DappMiner extends React.Component {
 
                 <div className="container p-3 rounded-3">
                     {/* ADD QUESTION MARK NEXT TO INPUT ETH AMOUNT THAT EXPLAINS THIS IS THE ESTIMATED MINTING FEE IN ADDITION TO THE TX FEE, AND ALSO SPECIFIES HOW MUCH GAS MUST BE PAID */}
-                    {this.state.canMine && window.ethereum !== undefined && (
+                    {window.ethereum !== undefined && (
                         <Mine
                             mineFunc={(amount) => this._mine(amount)}
                             maxFeeETH={() => {
@@ -103,13 +103,16 @@ export class DappMiner extends React.Component {
                                 return `~${ethers.utils.formatEther(this.state.maxFeeWeiNext.sub(remainder))} ETH`;
                             }}
                             next={this.state.nextScan}
+                            enable={this.state.canMine}
                         />
                     )}
                 </div>
 
-                <div className="p-3 m-auto rounded-3" style={{ backgroundColor: "Lavender", maxWidth: "500px" }}>
-                    {this.state.errorMessage !== undefined && <ErrorMessage errorMessage={this.state.errorMessage} />}
-                </div>
+                {this.state.errorMessage && (
+                    <div className="p-3 m-auto rounded-3" style={{ backgroundColor: "Lavender", maxWidth: "500px" }}>
+                        <ErrorMessage errorMessage={this.state.errorMessage} />
+                    </div>
+                )}
             </div>
         );
     }
@@ -131,18 +134,22 @@ export class DappMiner extends React.Component {
                 if (isUnlocked) this._initializeUser();
             });
         }
-    }
 
-    // HANDLE ERRORS SUCH AS INFURA DOES NOT REPLY!!
-    async _getNext() {
-        const nextScan = await this._jpegMiner.totalSupply();
-        this.setState({ nextScan: nextScan.toNumber() });
+        this._startListeners();
     }
 
     componentWillUnmount() {
         // Stop polling gas prices
         clearInterval(this.gasInterval);
         this.gasInterval = undefined;
+
+        this._stopListeners();
+    }
+
+    // HANDLE ERRORS SUCH AS INFURA DOES NOT REPLY!!
+    async _getNext() {
+        const nextScan = await this._jpegMiner.totalSupply();
+        this.setState({ nextScan: nextScan.toNumber() });
     }
 
     async _connectWallet() {
@@ -213,6 +220,12 @@ export class DappMiner extends React.Component {
             this._signer = new ethers.providers.Web3Provider(window.ethereum).getSigner(0);
         }
 
+        this._startListeners();
+    }
+
+    _startListeners() {
+        if (window.ethereum === undefined) return;
+
         // Add listener in case user changes network if necessary
         if (window.ethereum.listenerCount(["chainChanged"]) === 0) {
             window.ethereum.on("chainChanged", () => {
@@ -223,15 +236,15 @@ export class DappMiner extends React.Component {
         // We reinitialize it whenever the user changes their account.
         if (window.ethereum.listenerCount(["accountsChanged"]) === 0) {
             window.ethereum.on("accountsChanged", (addrArray) => {
-                // If user is locking wallet
-                if (addrArray.length === 0) {
-                    return this._resetUser();
-                }
-
-                // If user is changing account
-                this._initializeUser();
+                window.location.reload();
             });
         }
+    }
+
+    _stopListeners() {
+        if (window.ethereum === undefined) return;
+
+        window.ethereum.removeAllListeners(["chainChanged", "accountsChanged"]);
     }
 
     async _updateMinerState() {
@@ -239,7 +252,10 @@ export class DappMiner extends React.Component {
         const Ncopies = await this._jpegMiner.balanceOf(this.state.selectedAddress);
 
         const canMine = Ncopies.toNumber() === 0;
-        this.setState({ canMine, errorMessage: canMine ? undefined : "Cannot mine if you own 1 Mined JPEG already." });
+        this.setState({
+            canMine,
+            errorMessage: canMine ? undefined : "Cannot mine if you own 1 Mined JPEG (MJ) already."
+        });
     }
 
     async _updateGasParams() {
@@ -277,8 +293,6 @@ export class DappMiner extends React.Component {
         await this._connectWallet();
 
         try {
-            console.log("mine");
-
             // Get user input or estimate eth minting price
             const wei = amount === "" ? this.state.maxFeeWeiNext : ethers.utils.parseEther(amount);
 
