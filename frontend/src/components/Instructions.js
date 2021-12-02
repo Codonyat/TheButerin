@@ -8,24 +8,22 @@ export function Instructions() {
                     */}
             <p>
                 Collective effort to <span style={{ fontStyle: "italic" }}>JPEG-mine</span> the largest on-chain image (
-                <span style={{ fontWeight: "bold" }}>1 MB</span>) on Ethereum.
+                <strong>1 MB</strong>) on Ethereum.
             </p>
             <p>
-                <span style={{ fontWeight: "bold" }}>JPEG-mining</span> is like minting but you also upload a piece of
-                JPEG data in the process.
+                <strong>JPEG-mining</strong> is like minting but you also upload a piece of JPEG data in the process.
             </p>
             <p>
                 Thanks to the forgotten{" "}
-                <span style={{ fontWeight: "bold" }}>
-                    <a href="https://www.liquidweb.com/kb/what-is-a-progressive-jpeg/" className="text-reset">
-                        progressive JPEG
-                    </a>
-                </span>{" "}
-                tech from the 56k-modem era, the image is viewable during the entire mining process.
+                <a href="https://www.liquidweb.com/kb/what-is-a-progressive-jpeg/" className="text-reset">
+                    progressive JPEG
+                </a>{" "}
+                tech from the 56k-modem era, <strong>the final image is gradually revealed</strong> during the mining
+                process.
             </p>
             <p>
-                The JPEG is split in <span style={{ fontWeight: "bold" }}>100 pieces</span> of data and each miner gets
-                a unique JPEG with different degrees of quality:
+                The JPEG is split in <strong>100 pieces</strong> of data and each miner gets a unique JPEG with
+                different degrees of quality:
             </p>
             <ul>
                 <li>
@@ -65,18 +63,17 @@ export function Instructions() {
                     #33 - #98 improve the <span style={{ fontWeight: "bold", fontSize: "large" }}>resolution</span>
                 </li>
                 <li>
-                    #99 gets the <span style={{ fontWeight: "bold" }}>final image</span>
+                    #99 gets the <strong>final image</strong>
                 </li>
                 {/* MENTION THE REVEAL OF THE IMAGE SOMEWHERE */}
             </ul>
             INCLUDE PHOTO HERE OF THE PHASES
             <p>
-                The total cost (tx fee + minting fee) is <span style={{ fontWeight: "bold" }}>denonimanted in gas</span>
-                , and therefore it fluctuates with gas prices! (<span style={{ fontWeight: "bold" }}>Trick</span>: wait
-                for low gas prices)
+                The total cost (tx fee + minting fee) is <strong>denonimanted in gas</strong>, and therefore it
+                fluctuates with gas prices! (<strong>Trick</strong>: wait for low gas prices)
             </p>
             {/* <p>
-                        Any <span style={{ fontWeight: "bold" }}>ETH paid in excess is returned back</span> so do not
+                        Any <strong>ETH paid in excess is returned back</strong> so do not
                         worry about overpaying.
                     </p> */}
             <p>For #0 mining costs 3M gas (minting + tx fee), and increases up to 10M gas for #99.</p>

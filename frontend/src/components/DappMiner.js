@@ -74,9 +74,6 @@ export class DappMiner extends React.Component {
                 className="container p-4 rounded-3"
                 style={{
                     maxWidth: "720px",
-                    backgroundImage: 'url("minecraft-diamond-pickaxe-cosplay-foam.jpg")',
-                    backgroundPosition: "center",
-                    backgroundRepeat: "no-repeat",
                     height: "100%"
                 }}
             >
@@ -87,7 +84,14 @@ export class DappMiner extends React.Component {
                     />
                 </div>
 
-                <div className="container text-start p-3 rounded-3">
+                <div
+                    className="container text-start p-3 rounded-3"
+                    style={{
+                        backgroundImage: 'url("minecraft-diamond-light.jpg")',
+                        backgroundPosition: "center center",
+                        backgroundRepeat: "no-repeat"
+                    }}
+                >
                     <Instructions />
                 </div>
 
