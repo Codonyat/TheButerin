@@ -206,14 +206,13 @@ export class DappMiner extends React.Component {
     componentDidMount() {
         // Start polling gas prices
         this.gasInterval = setInterval(() => this._updateGasParams(), 12000);
-        this._updateGasParams();
 
         // HANDLE ERRORS SUCH AS INFURA DOES NOT REPLY!!
         // Listen for mining events
         this._jpegMiner.on(this._jpegMiner.filters.Mined(), (param1, param2) => {
             this._getNext();
         });
-        this._getNext();
+        this._getNext().then(this._updateGasParams.bind(this));
 
         // If wallet is unlocked and on the right network, then import address without asking the user
         if (window.ethereum !== undefined && window.ethereum._metamask !== undefined) {
@@ -310,8 +309,6 @@ export class DappMiner extends React.Component {
             });
         }
 
-        // REMEMBER TO REMOVE LISTENERS
-
         // We reinitialize it whenever the user changes their account.
         if (window.ethereum.listenerCount(["accountsChanged"]) === 0) {
             window.ethereum.on("accountsChanged", (addrArray) => {
@@ -335,6 +332,8 @@ export class DappMiner extends React.Component {
     }
 
     async _updateGasParams() {
+        console.log("Updating gas price...");
+
         // DO SMTH TO DEAL WITH FAILED REQUESTS
         const resp = await fetch("https://api.gasprice.io/v1/estimates");
         const {
@@ -351,6 +350,7 @@ export class DappMiner extends React.Component {
             maxPriorityFeePerGas
         });
 
+        console.log(this.state.nextScan);
         if (this.state.nextScan !== undefined) {
             const maxFeeWeiNext = maxFeePerGas.mul(gasMintingFees[this.state.nextScan]);
             this.setState({
@@ -403,8 +403,7 @@ export class DappMiner extends React.Component {
         }
     }
 
-    // This is an utility method that turns an RPC error into a human readable
-    // message.
+    // Turns an RPC error into a human readable message.
     _getRpcErrorMessage(error) {
         if (error.data) {
             return error.data.message;
