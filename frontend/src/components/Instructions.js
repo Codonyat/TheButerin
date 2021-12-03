@@ -36,7 +36,7 @@ export function Instructions() {
                     {/* <svg class="bi" width="32" height="32" fill="currentColor">
                         <use xlink:href="arrow-return-right" />
                     </svg> */}
-                    <img src="/arrow-return-right.svg" alt="Bootstrap" width="16" height="16"></img> #00 - #10 are in{" "}
+                    <img src="/arrow-return-right.svg" width="16" height="16"></img> #00 - #10 are in{" "}
                     <span style={{ fontWeight: "bold", backgroundColor: "white", color: "black" }}>black</span>&
                     <span
                         style={{
@@ -92,8 +92,8 @@ export function Instructions() {
             </ul>
             <p>
                 <span style={numStyle}>5</span> The total cost (tx fee + minting fee) is{" "}
-                <strong>denonimanted in gas</strong>, and therefore it fluctuates with gas prices! (
-                <strong>Trick</strong>: wait for low gas prices)
+                <strong>denonimanted in gas</strong>, and therefore it fluctuates with gas prices!{" "}
+                <strong>Any extra ETH is returned to the miner</strong>. (Trick: wait for low gas prices)
             </p>
             {/* <p>
                         Any <strong>ETH paid in excess is returned back</strong> so do not

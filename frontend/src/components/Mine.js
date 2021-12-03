@@ -15,12 +15,7 @@ export function Mine({ mineFunc, maxFeeETH, next, enable }) {
                 mineFunc(amount);
             }}
         >
-            {/* ADD ? BUTTON THAT SAYS:
-            Estimated fee for minining (in addition to the gas). Because the fee is denominated in gas, it fluctuates with the price of gas. Feel free to increase the amount of
-            ETH to ensure the transaction does not fail. Any excess ETH paid for mining is returned.
-            */}
-            <div className="col-auto">
-                {/* <label>ETH Amount</label> */}
+            <div className="col-auto" style={{ position: "relative" }}>
                 <input
                     style={{ width: "130px" }}
                     className="form-control"
@@ -31,7 +26,6 @@ export function Mine({ mineFunc, maxFeeETH, next, enable }) {
                     placeholder={maxFeeETH()}
                     disabled={!enable}
                 />
-                {/* REPLACE PLACEHOLDER TEXT WITH REAL TIME ON THE ESTIMATED AMOUNT OF ETH TO MINE*/}
             </div>
             <div className="col-auto">
                 <input
