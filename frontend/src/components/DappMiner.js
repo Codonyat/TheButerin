@@ -97,7 +97,7 @@ export class DappMiner extends React.Component {
 
                 <div className="container py-3">
                     {/* ADD QUESTION MARK NEXT TO INPUT ETH AMOUNT THAT EXPLAINS THIS IS THE ESTIMATED MINTING FEE IN ADDITION TO THE TX FEE, AND ALSO SPECIFIES HOW MUCH GAS MUST BE PAID */}
-                    {window.ethereum !== undefined && (
+                    {window.ethereum !== undefined && this.state.nextScan < 100 && (
                         <Mine
                             mineFunc={(amount) => this._mine(amount)}
                             maxFeeETH={() => {
@@ -113,7 +113,7 @@ export class DappMiner extends React.Component {
                 </div>
 
                 {this.state.errorMessage && (
-                    <div className="py-3 m-auto rounded-3" style={{ backgroundColor: "Lavender", maxWidth: "500px" }}>
+                    <div className="p-3 m-auto rounded-3" style={{ backgroundColor: "Lavender", maxWidth: "500px" }}>
                         <ErrorMessage errorMessage={this.state.errorMessage} />
                     </div>
                 )}
@@ -127,7 +127,7 @@ export class DappMiner extends React.Component {
 
         // HANDLE ERRORS SUCH AS INFURA DOES NOT REPLY!!
         // Listen for mining events
-        this._jpegMiner.on(this._jpegMiner.filters.Mined(), (param1, param2) => {
+        this._jpegMiner.on(this._jpegMiner.filters.Mined(), () => {
             this._getNext();
         });
         this._getNext().then(this._updateGasParams.bind(this));
@@ -153,8 +153,13 @@ export class DappMiner extends React.Component {
 
     // HANDLE ERRORS SUCH AS INFURA DOES NOT REPLY!!
     async _getNext() {
-        const nextScan = await this._jpegMiner.totalSupply();
-        this.setState({ nextScan: nextScan.toNumber() });
+        const nextScan = (await this._jpegMiner.totalSupply()).toNumber();
+        this.setState({ nextScan });
+        if (nextScan >= 100) {
+            this.setState({
+                errorMessage: "100 Mined JPEGS... Mining is over!\nCongratulations everyone that participated."
+            });
+        }
     }
 
     async _connectWallet() {
@@ -264,6 +269,13 @@ export class DappMiner extends React.Component {
     }
 
     async _updateGasParams() {
+        if (this.state.nextScan >= 100) {
+            // Stop polling gas prices
+            clearInterval(this.gasInterval);
+            this.gasInterval = undefined;
+            return;
+        }
+
         // DO SMTH TO DEAL WITH FAILED REQUESTS
         const resp = await fetch("https://api.gasprice.io/v1/estimates");
         const {
@@ -287,14 +299,15 @@ export class DappMiner extends React.Component {
             });
         }
 
-        // // @debug
-        // if (chainId === HARDHAT_ID) {
-        //     this._provider.send("hardhat_setNextBlockBaseFeePerGas", [maxFeePerGas.toHexString()]);
-        // }
+        // @debug
+        if (chainId === HARDHAT_ID && maxFeePerGas !== undefined) {
+            this._provider.send("hardhat_setNextBlockBaseFeePerGas", [maxFeePerGas.toHexString()]);
+        }
     }
 
     // Mine JPEG
     async _mine(amount) {
+        if (this.state.nextScan >= 100) return;
         await this._connectWallet();
 
         try {
