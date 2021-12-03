@@ -11,7 +11,7 @@ const numStyle = {
 export function Instructions() {
     return (
         <>
-            DEPLOY TO RINKEBY. UPON MINING SHOW LINK TO OPENSEA IN THE ERROR MESSAGE. CHECK MOBILE.
+            CHECK MOBILE.
             <p>
                 <span style={numStyle}>1</span> Collective effort to{" "}
                 <span style={{ fontStyle: "italic" }}>JPEG-mine</span> <strong>the largest ever on-chain image</strong>{" "}

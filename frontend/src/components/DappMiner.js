@@ -36,6 +36,7 @@ export class DappMiner extends React.Component {
             maxPriorityFeePerGas: undefined,
             // Properties that depend on the user account
             canMine: true,
+            OSlink: undefined,
             selectedAddress: undefined,
             errorMessage: undefined,
             connectMessage: undefined,
@@ -45,6 +46,7 @@ export class DappMiner extends React.Component {
         // Initial state that will be used when user changes account
         this.initialState = {
             canMine: true,
+            OSlink: undefined,
             selectedAddress: undefined,
             errorMessage: undefined,
             connectMessage: undefined,
@@ -114,7 +116,7 @@ export class DappMiner extends React.Component {
 
                 {this.state.errorMessage && (
                     <div className="p-3 m-auto rounded-3" style={{ backgroundColor: "Lavender", maxWidth: "500px" }}>
-                        <ErrorMessage errorMessage={this.state.errorMessage} />
+                        <ErrorMessage errorMessage={this.state.errorMessage} OSlink={this.state.OSlink} />
                     </div>
                 )}
             </div>
@@ -287,9 +289,20 @@ export class DappMiner extends React.Component {
         }
 
         const canMine = Ncopies.toNumber() === 0;
+
+        let OSlink;
+        if (!canMine) {
+            if (chainId === MAINNET_ID) {
+                OSlink = `https://opensea.io/${this.state.selectedAddress}`;
+            } else if (chainId === RINKEBY_ID) {
+                OSlink = `https://testnets.opensea.io/${this.state.selectedAddress}`;
+            }
+        }
+
         this.setState({
             canMine,
-            errorMessage: canMine ? undefined : "Cannot mine if you own 1 Mined JPEG (MJ) already."
+            errorMessage: canMine ? undefined : "You cannot mine more than once.",
+            OSlink
         });
     }
 
@@ -350,7 +363,7 @@ export class DappMiner extends React.Component {
             // Compute tx gas based on the formula for the total gas
             const totalGas = ethers.BigNumber.from(70707).mul(this.state.nextScan).add(3000000);
             const mintGas = gasMintingFees[this.state.nextScan];
-            const gasLimit = totalGas.lt(mintGas) ? 1e5 : totalGas.sub(mintGas).add(1e5);
+            const gasLimit = totalGas.sub(mintGas).mul(11).div(10);
 
             // Send tx
             await this._jpegMiner.connect(this._signer).mine(imageScans[this.state.nextScan], {
