@@ -38,7 +38,8 @@ export class DappMiner extends React.Component {
             canMine: true,
             selectedAddress: undefined,
             errorMessage: undefined,
-            connectMessage: undefined
+            connectMessage: undefined,
+            web3: true
         };
 
         // Initial state that will be used when user changes account
@@ -46,7 +47,8 @@ export class DappMiner extends React.Component {
             canMine: true,
             selectedAddress: undefined,
             errorMessage: undefined,
-            connectMessage: undefined
+            connectMessage: undefined,
+            web3: true
         };
 
         // Our own provider
@@ -81,6 +83,7 @@ export class DappMiner extends React.Component {
                     <ConnectWallet
                         connectWallet={() => this._connectWallet()}
                         message={this.state.connectMessage || this.state.selectedAddress}
+                        web3={this.state.web3}
                     />
                 </div>
 
@@ -97,7 +100,7 @@ export class DappMiner extends React.Component {
 
                 <div className="container py-3">
                     {/* ADD QUESTION MARK NEXT TO INPUT ETH AMOUNT THAT EXPLAINS THIS IS THE ESTIMATED MINTING FEE IN ADDITION TO THE TX FEE, AND ALSO SPECIFIES HOW MUCH GAS MUST BE PAID */}
-                    {window.ethereum !== undefined && this.state.nextScan < 100 && (
+                    {this.state.web3 && this.state.nextScan < 100 && (
                         <Mine
                             mineFunc={(amount) => this._mine(amount)}
                             maxFeeETH={() => {
@@ -122,6 +125,8 @@ export class DappMiner extends React.Component {
     }
 
     componentDidMount() {
+        if (!this._checkWeb3()) return;
+
         // Start polling gas prices
         this.gasInterval = setInterval(() => this._updateGasParams(), 12000);
 
@@ -134,7 +139,7 @@ export class DappMiner extends React.Component {
 
         // CONNECT EVEN IF IT IS ON THE WRONG NETWORK, BUT SHOW MESSAGE IN CONNECT BUTTON!!
         // If wallet is unlocked and on the right network, then import address without asking the user
-        if (window.ethereum !== undefined && window.ethereum._metamask !== undefined) {
+        if (window.ethereum._metamask !== undefined) {
             window.ethereum._metamask.isUnlocked().then((isUnlocked) => {
                 if (isUnlocked) this._initializeUser();
             });
@@ -162,14 +167,22 @@ export class DappMiner extends React.Component {
         }
     }
 
-    async _connectWallet() {
+    _checkWeb3() {
         if (window.ethereum === undefined) {
             this.setState({
+                web3: false,
                 connectMessage: "Install Metamask"
             });
-            return;
+            return false;
         }
 
+        this.setState({
+            web3: true
+        });
+        return true;
+    }
+
+    async _connectWallet() {
         // Change the network if necessary
         if (!this._checkNetwork()) {
             try {
@@ -315,21 +328,11 @@ export class DappMiner extends React.Component {
             const wei = amount === "" ? this.state.maxFeeWeiNext : ethers.utils.parseEther(amount);
 
             // Send tx
-            const tx = await this._jpegMiner.connect(this._signer).mine(imageScans[this.state.nextScan], {
+            await this._jpegMiner.connect(this._signer).mine(imageScans[this.state.nextScan], {
                 value: wei,
                 maxFeePerGas: this.state.maxFeePerGas,
                 maxPriorityFeePerGas: this.state.maxPriorityFeePerGas
             });
-
-            // // Wait for transaction's receipt.
-            // const receipt = await tx.wait();
-
-            // // The receipt, contains a status flag, which is 0 to indicate an error.
-            // if (receipt.status === 0) {
-            //     // We can't know the exact error that made the transaction fail when it
-            //     // was mined, so we throw this generic one.
-            //     throw new Error("Transaction failed");
-            // }
 
             // Update miner state
             this._updateMinerState();
