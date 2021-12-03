@@ -25,7 +25,8 @@ export function Mine({ mineFunc, maxFeeETH, next, enable }) {
                     style={{ width: "130px" }}
                     className="form-control"
                     type="number"
-                    step="1"
+                    min="0"
+                    step="0.1"
                     name="amount"
                     placeholder={maxFeeETH()}
                     disabled={!enable}

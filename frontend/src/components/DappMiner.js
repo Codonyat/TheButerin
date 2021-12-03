@@ -132,6 +132,7 @@ export class DappMiner extends React.Component {
         });
         this._getNext().then(this._updateGasParams.bind(this));
 
+        // CONNECT EVEN IF IT IS ON THE WRONG NETWORK, BUT SHOW MESSAGE IN CONNECT BUTTON!!
         // If wallet is unlocked and on the right network, then import address without asking the user
         if (window.ethereum !== undefined && window.ethereum._metamask !== undefined) {
             window.ethereum._metamask.isUnlocked().then((isUnlocked) => {
@@ -198,7 +199,7 @@ export class DappMiner extends React.Component {
         if (!this._checkNetwork()) {
             this._resetUser();
             this.setState({
-                connectMessage: "Change network to Ethereum Mainnet"
+                connectMessage: "Change to Ethereum Mainnet"
             });
         } else {
             // Get address
