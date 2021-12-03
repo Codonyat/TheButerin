@@ -71,13 +71,13 @@ export class DappMiner extends React.Component {
         // If everything is loaded, we render the application.
         return (
             <div
-                className="container p-4 rounded-3"
+                className="container p-4"
                 style={{
                     maxWidth: "720px",
                     height: "100%"
                 }}
             >
-                <div className="container p-3 rounded-3">
+                <div className="container py-3">
                     <ConnectWallet
                         connectWallet={() => this._connectWallet()}
                         message={this.state.connectMessage || this.state.selectedAddress}
@@ -85,7 +85,7 @@ export class DappMiner extends React.Component {
                 </div>
 
                 <div
-                    className="container text-start p-3 rounded-3"
+                    className="container text-start py-3"
                     style={{
                         backgroundImage: 'url("minecraft-diamond-light.jpg")',
                         backgroundPosition: "center center",
@@ -95,7 +95,7 @@ export class DappMiner extends React.Component {
                     <Instructions />
                 </div>
 
-                <div className="container p-3 rounded-3">
+                <div className="container py-3">
                     {/* ADD QUESTION MARK NEXT TO INPUT ETH AMOUNT THAT EXPLAINS THIS IS THE ESTIMATED MINTING FEE IN ADDITION TO THE TX FEE, AND ALSO SPECIFIES HOW MUCH GAS MUST BE PAID */}
                     {window.ethereum !== undefined && (
                         <Mine
@@ -113,7 +113,7 @@ export class DappMiner extends React.Component {
                 </div>
 
                 {this.state.errorMessage && (
-                    <div className="p-3 m-auto rounded-3" style={{ backgroundColor: "Lavender", maxWidth: "500px" }}>
+                    <div className="py-3 m-auto rounded-3" style={{ backgroundColor: "Lavender", maxWidth: "500px" }}>
                         <ErrorMessage errorMessage={this.state.errorMessage} />
                     </div>
                 )}
