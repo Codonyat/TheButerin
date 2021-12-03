@@ -28,10 +28,11 @@ async function main() {
     const [deployer] = await ethers.getSigners();
     console.log("Deploying the contracts with the account:", await deployer.getAddress());
 
-    console.log("Account balance:", (await deployer.getBalance()).toString());
+    console.log("Main account balance:", ethers.utils.formatEther(await deployer.getBalance()), "ETH");
 
     // Compress image to progressive JPEG
-    utils.toProgressiveJPEG("Logan_3000x1000", "test");
+    // utils.toProgressiveJPEG("Logan_3000x1000", "test");
+    utils.toProgressiveJPEG("landscape0", "test");
 
     // Open JPEG in binary
     const scans = utils.getScans("test");
@@ -45,8 +46,10 @@ async function main() {
 
     // Deploy JPEG Miner
     const JPEGminer = await ethers.getContractFactory("JPEGminer");
-    const jpegMiner = await JPEGminer.deploy(scansB64.JpegHeaderB64, hashes, gasMintingFees);
+    console.log("Deploying...");
+    const jpegMiner = await JPEGminer.deploy(scansB64.JpegHeaderB64, hashes, gasMintingFees, { nonce: 2 });
     await jpegMiner.deployed();
+    console.log("Deployed...");
 
     console.log("JPEGminer address:", jpegMiner.address);
 

@@ -36,7 +36,7 @@ module.exports = {
             // chainId: 1337
         },
         rinkeby: {
-            gasPrice: 1000000008, // 1 gwei
+            gasPrice: 1100000000, // 1.1 gwei
             url: "https://rinkeby.infura.io/v3/2f6e2beaa8ff4621b832fa9ec113bd11",
             accounts: ["0x47dfe5cadbb4c8fe8dc3f2b7d1e9348ea3681e7bcc73d26013e41be13409d516"]
             // address: 0x9aE075025245E05eFD180a65fde8E258712493b5

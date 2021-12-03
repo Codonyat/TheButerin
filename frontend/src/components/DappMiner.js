@@ -55,11 +55,8 @@ export class DappMiner extends React.Component {
         if (chainId === HARDHAT_ID) {
             this._provider = ethers.getDefaultProvider("http://localhost:8545");
         } else if (chainId === MAINNET_ID || chainId === RINKEBY_ID) {
-            this._provider = ethers.getDefaultProvider(chainId, {
-                infura: {
-                    projectId: "2f6e2beaa8ff4621b832fa9ec113bd11",
-                    projectSecret: "c214e9dc47164d50837d1bd878bea3be"
-                }
+            this._provider = new ethers.providers.InfuraProvider(chainId, {
+                projectId: "2f6e2beaa8ff4621b832fa9ec113bd11"
             });
         } else {
             throw new Error("Wrong network");
@@ -130,7 +127,6 @@ export class DappMiner extends React.Component {
         // Start polling gas prices
         this.gasInterval = setInterval(() => this._updateGasParams(), 12000);
 
-        // HANDLE ERRORS SUCH AS INFURA DOES NOT REPLY!!
         // Listen for mining events
         this._jpegMiner.on(this._jpegMiner.filters.Mined(), () => {
             this._getNext();
@@ -158,7 +154,16 @@ export class DappMiner extends React.Component {
 
     // HANDLE ERRORS SUCH AS INFURA DOES NOT REPLY!!
     async _getNext() {
-        const nextScan = (await this._jpegMiner.totalSupply()).toNumber();
+        let nextScan;
+        try {
+            nextScan = (await this._jpegMiner.totalSupply()).toNumber();
+        } catch (error) {
+            this.setState({
+                errorMessage: this._getRpcErrorMessage(error)
+            });
+            return;
+        }
+
         this.setState({ nextScan });
         if (nextScan >= 100) {
             this.setState({
@@ -271,8 +276,15 @@ export class DappMiner extends React.Component {
     }
 
     async _updateMinerState() {
-        // HANDLE ERRORS SUCH AS INFURA DOES NOT REPLY!!
-        const Ncopies = await this._jpegMiner.balanceOf(this.state.selectedAddress);
+        let Ncopies;
+        try {
+            Ncopies = await this._jpegMiner.balanceOf(this.state.selectedAddress);
+        } catch (error) {
+            this.setState({
+                errorMessage: this._getRpcErrorMessage(error)
+            });
+            return;
+        }
 
         const canMine = Ncopies.toNumber() === 0;
         this.setState({
@@ -289,8 +301,16 @@ export class DappMiner extends React.Component {
             return;
         }
 
-        // DO SMTH TO DEAL WITH FAILED REQUESTS
-        const resp = await fetch("https://api.gasprice.io/v1/estimates");
+        let resp;
+        try {
+            resp = await fetch("https://api.gasprice.io/v1/estimates");
+        } catch (error) {
+            this.setState({
+                errorMessage: this._getRpcErrorMessage(error)
+            });
+            return;
+        }
+
         const {
             result: {
                 fast: { feeCap, maxPriorityFee }
@@ -312,10 +332,10 @@ export class DappMiner extends React.Component {
             });
         }
 
-        // @debug
-        if (chainId === HARDHAT_ID && maxFeePerGas !== undefined) {
-            this._provider.send("hardhat_setNextBlockBaseFeePerGas", [maxFeePerGas.toHexString()]);
-        }
+        // // @debug
+        // if (chainId === HARDHAT_ID && maxFeePerGas !== undefined) {
+        //     this._provider.send("hardhat_setNextBlockBaseFeePerGas", [maxFeePerGas.toHexString()]);
+        // }
     }
 
     // Mine JPEG
