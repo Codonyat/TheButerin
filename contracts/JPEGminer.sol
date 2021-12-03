@@ -88,7 +88,7 @@ contract JPEGminer is ERC721Enumerable, Ownable {
                 tokenId,
                 string(
                     abi.encodePacked(
-                        '{"name": "',
+                        'data:application/json;charset=UTF-8,{"name": "',
                         _NAME,
                         ": ",
                         Strings.toString(tokenId + 1),

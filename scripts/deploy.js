@@ -47,7 +47,7 @@ async function main() {
     // Deploy JPEG Miner
     const JPEGminer = await ethers.getContractFactory("JPEGminer");
     console.log("Deploying...");
-    const jpegMiner = await JPEGminer.deploy(scansB64.JpegHeaderB64, hashes, gasMintingFees, { nonce: 2 });
+    const jpegMiner = await JPEGminer.deploy(scansB64.JpegHeaderB64, hashes, gasMintingFees);
     await jpegMiner.deployed();
     console.log("Deployed...");
 

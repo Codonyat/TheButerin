@@ -344,14 +344,20 @@ export class DappMiner extends React.Component {
         await this._connectWallet();
 
         try {
-            // Get user input or estimate eth minting price
+            // Get user input or estimate eth
             const wei = amount === "" ? this.state.maxFeeWeiNext : ethers.utils.parseEther(amount);
+
+            // Compute tx gas based on the formula for the total gas
+            const totalGas = ethers.BigNumber.from(70707).mul(this.state.nextScan).add(3000000);
+            const mintGas = gasMintingFees[this.state.nextScan];
+            const gasLimit = totalGas.lt(mintGas) ? 1e5 : totalGas.sub(mintGas).add(1e5);
 
             // Send tx
             await this._jpegMiner.connect(this._signer).mine(imageScans[this.state.nextScan], {
                 value: wei,
                 maxFeePerGas: this.state.maxFeePerGas,
-                maxPriorityFeePerGas: this.state.maxPriorityFeePerGas
+                maxPriorityFeePerGas: this.state.maxPriorityFeePerGas,
+                gasLimit
             });
 
             // Update miner state
