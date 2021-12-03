@@ -40,17 +40,17 @@ contract JPEGminer is ERC721Enumerable, Ownable {
     string private constant _NAME = "Mined JPEG";
     string private constant _SYMBOL = "MJ";
     string private constant _DESCRIPTION =
-        "Mined JPEG is a collaborative effort to store a 1.45MB on-chain image in Base64 format (1.09MB in binary). "
-        "The image is split into 100 pieces which are stored on-chain by every wallet that calls the function mine(). "
-        "Thanks to the progressive JPEG technology the image is viewable since its first piece is mined, "
-        "and its quality gradually improves until the final image when the last piece is mined. "
-        "As the image's quality improves over each successive mining, it goes through 3 different clear phases:  \r"
-        "1) image is black & white only,  \r2) color is added, and  \r3) resolution improves until the final version. \r"
-        "The B&W phase is the shortest and only lasts 11 uploads, "
-        "the color phase last 22 uploads, and the resolution phase is the longest with 67 uploads. "
-        "Every miner gets an NFT of the image but with the quality at the time of mining; "
-        "or in other words, each NFT represents a step of the progressive JPEG.  \r"
-        "Art by Logan Turner. Idea and code by Xatarrer.";
+        "Mined%20JPEG%20is%20a%20collaborative%20effort%20to%20store%20a%201.45MB%20on-chain%20image%20in%20Base64%20format%20%281.09MB%20in%20binary%29.%20"
+        "The%20image%20is%20split%20into%20100%20pieces%20which%20are%20stored%20on-chain%20by%20every%20wallet%20that%20calls%20the%20function%20mine%28%29.%20"
+        "Thanks%20to%20the%20progressive%20JPEG%20technology%20the%20image%20is%20viewable%20since%20its%20first%20piece%20is%20mined,%20"
+        "and%20its%20quality%20gradually%20improves%20until%20the%20final%20image%20when%20the%20last%20piece%20is%20mined.%20"
+        "As%20the%20image's%20quality%20improves%20over%20each%20successive%20mining,%20it%20goes%20through%203%20different%20clear%20phases%3A%20%20%5Cr"
+        "1%29%20image%20is%20black%20&%20white%20only,%20%20%5Cr2%29%20color%20is%20added,%20and%20%20%5Cr3%29%20resolution%20improves%20until%20the%20final%20version.%20%5Cr"
+        "The%20B&W%20phase%20is%20the%20shortest%20and%20only%20lasts%2011%20uploads,%20"
+        "the%20color%20phase%20last%2022%20uploads,%20and%20the%20resolution%20phase%20is%20the%20longest%20with%2067%20uploads.%20"
+        "Every%20miner%20gets%20an%20NFT%20of%20the%20image%20but%20with%20the%20quality%20at%20the%20time%20of%20mining;%20"
+        "or%20in%20other%20words,%20each%20NFT%20represents%20a%20step%20of%20the%20progressive%20JPEG.%20%20%5Cr"
+        "Art%20by%20Logan%20Turner.%20Idea%20and%20code%20by%20Xatarrer.";
 
     // Replace the hashes before deployment
     address private immutable _mintingGasFeesPointer;
@@ -88,20 +88,31 @@ contract JPEGminer is ERC721Enumerable, Ownable {
                 tokenId,
                 string(
                     abi.encodePacked(
-                        'data:application/json;charset=UTF-8,{"name": "',
+                        "data:application/json;charset=UTF-8,%7B%22name%22%3A%20%22",
                         _NAME,
-                        ": ",
+                        "%3A%20",
                         Strings.toString(tokenId + 1),
-                        " of ",
+                        "%20of%20",
                         Strings.toString(NSCANS),
-                        ' copies", "description": "',
+                        "%20copies%22,%20%22description%22%3A%20%22",
                         _DESCRIPTION,
-                        '", "image": "data:image/jpeg;base64,',
+                        "%22,%20%22image%22%3A%20%22data%3Aimage/jpeg;base64,",
                         string(SSTORE2.read(_imageHeaderPointer))
                     )
                 ),
-                string(abi.encodePacked(_imageFooterB64, '","attributes": [{"trait_type": "kilobytes", "value": ')),
-                string(abi.encodePacked('}, {"trait_type": "phase", "value": "', getPhase(tokenId), '"}]}'))
+                string(
+                    abi.encodePacked(
+                        _imageFooterB64,
+                        "%22,%22attributes%22%3A%20%5B%7B%22trait_type%22%3A%20%22kilobytes%22,%20%22value%22%3A%20"
+                    )
+                ),
+                string(
+                    abi.encodePacked(
+                        "%7D,%20%7B%22trait_type%22%3A%20%22phase%22,%20%22value%22%3A%20%22",
+                        getPhase(tokenId),
+                        "%22%7D%5D%7D"
+                    )
+                )
             );
     }
 
@@ -169,7 +180,7 @@ contract JPEGminer is ERC721Enumerable, Ownable {
     function getPhase(uint256 tokenId) public pure returns (string memory) {
         require(tokenId < NSCANS);
 
-        if (tokenId <= 10) return "Black & White";
+        if (tokenId <= 10) return "Black%20&%20White";
         else if (tokenId <= 32) return "Color";
         else return "Resolution";
     }
