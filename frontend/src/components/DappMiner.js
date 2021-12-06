@@ -71,7 +71,7 @@ export class DappMiner extends React.Component {
     render() {
         // If everything is loaded, we render the application.
         return (
-            <>
+            <div>
                 <div
                     className="container p-4"
                     style={{
@@ -120,19 +120,30 @@ export class DappMiner extends React.Component {
                             <ErrorMessage errorMessage={this.state.errorMessage} OSlink={this.state.OSlink} />
                         </div>
                     )}
+                    <div style={{ height: "80px" }}></div>
                 </div>
-                <div className="py-3 align-top" style={{ backgroundColor: "lightgray", textAlign: "center" }}>
+                <div
+                    className="align-top"
+                    style={{
+                        overflow: "hidden",
+                        position: "fixed",
+                        bottom: 0,
+                        width: "100%",
+                        backgroundColor: "lightgray",
+                        textAlign: "center"
+                    }}
+                >
                     <a href="https://discord.gg/QDnGyHR2FM">
-                        <img className="mx-3" src="/icons8-discord-new-30.png" width="30" height="30"></img>
+                        <img className="m-3" src="/icons8-discord-new-30.png" width="30" height="30"></img>
                     </a>
                     <a href="https://twitter.com/Xatarrer">
-                        <img className="mx-3" src="/icons8-twitter-circled-30.png" width="30" height="30"></img>
+                        <img className="m-3" src="/icons8-twitter-circled-30.png" width="30" height="30"></img>
                     </a>
                     <div
-                        className="mx-3 align-middle"
+                        className="m-3 align-middle"
                         style={{
                             display: "inline-block",
-                            minHeight: "30px",
+                            heigh: 0,
                             lineHeight: 1
                             // width: "200px"
                         }}
@@ -140,18 +151,18 @@ export class DappMiner extends React.Component {
                         <span
                             className="align-middle"
                             style={{
-                                fontSize: "xx-small"
+                                display: "inline-block",
+                                fontSize: "xx-small",
+                                maxWidth: "500px"
                             }}
                         >
                             <strong>Disclarimer</strong>: Smart contract on Ethereum with address XXX is unaudited.
-                            Authors take no responsability on any failure or unexpected behavior.
-                            <br></br>
-                            The Party understands and accepts that there is no warranty when interacting with the smart
-                            contract.
+                            Authors take no responsability on any failure or unexpected behavior. The Party understands
+                            and accepts that there is no warranty when interacting with the smart contract.
                         </span>
                     </div>
                 </div>
-            </>
+            </div>
         );
     }
 
