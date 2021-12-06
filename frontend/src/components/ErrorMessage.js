@@ -9,7 +9,7 @@ export function ErrorMessage({ errorMessage, OSlink }) {
             <div className="col-9">
                 {OSlink && (
                     <a href={OSlink} className="text-reset">
-                        Your NFT can be view in OpeanSea.
+                        Your NFT can be viewed in OpeanSea.
                     </a>
                 )}
                 <strong className="text-left m-0" style={{ height: "100%", display: "flex", alignItems: "center" }}>

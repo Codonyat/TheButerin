@@ -132,6 +132,8 @@ export class DappMiner extends React.Component {
         // Listen for mining events
         this._jpegMiner.on(this._jpegMiner.filters.Mined(), () => {
             this._getNext();
+            this._initializeUser();
+            // SHOULD CHECK THE STATE OF THE MINER!!
         });
         this._getNext().then(this._updateGasParams.bind(this));
 

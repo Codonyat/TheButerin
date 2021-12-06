@@ -31,8 +31,8 @@ async function main() {
     console.log("Main account balance:", ethers.utils.formatEther(await deployer.getBalance()), "ETH");
 
     // Compress image to progressive JPEG
-    // utils.toProgressiveJPEG("Logan_3000x1000", "test");
-    utils.toProgressiveJPEG("landscape0", "test");
+    utils.toProgressiveJPEG("Logan_3000x1000", "test");
+    // utils.toProgressiveJPEG("landscape0", "test");
 
     // Open JPEG in binary
     const scans = utils.getScans("test");

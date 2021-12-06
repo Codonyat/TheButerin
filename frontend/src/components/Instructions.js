@@ -11,7 +11,6 @@ const numStyle = {
 export function Instructions() {
     return (
         <>
-            CHECK MOBILE.
             <p>
                 <span style={numStyle}>1</span> Collective effort to{" "}
                 <span style={{ fontStyle: "italic" }}>JPEG-mine</span> <strong>the largest ever on-chain image</strong>{" "}
@@ -33,6 +32,31 @@ export function Instructions() {
                 same JPEG but with different degrees of quality:
             </p>
             <ul className="list-unstyled">
+                <div
+                    className="float-end mx-2"
+                    style={{
+                        backgroundColor: "white",
+                        maxWidth: "40%",
+                        position: "relative",
+                        border: "1px solid MidnightBlue"
+                    }}
+                >
+                    <img src="/progression.png" style={{ width: "100%", height: "auto" }}></img>
+                    <span
+                        style={{
+                            position: "absolute",
+                            width: "100%",
+                            left: 0,
+                            right: 0,
+                            margin: "auto",
+                            bottom: "-15px",
+                            textAlign: "center",
+                            fontSize: "x-small"
+                        }}
+                    >
+                        From left to right, tiny portion of #09, #39, #69 and #99
+                    </span>
+                </div>
                 <li className="ms-4">
                     {/* <svg class="bi" width="32" height="32" fill="currentColor">
                         <use xlink:href="arrow-return-right" />
@@ -50,7 +74,7 @@ export function Instructions() {
                     </span>
                 </li>
                 <li className="ms-4">
-                    <img src="/arrow-return-right.svg" alt="Bootstrap" width="16" height="16"></img> #11 - #32 introduce{" "}
+                    <img src="/arrow-return-right.svg" width="16" height="16"></img> #11 - #32 introduce{" "}
                     <span
                         style={{
                             fontWeight: "bold",
@@ -70,8 +94,7 @@ export function Instructions() {
                     to the image
                 </li>
                 <li className="ms-4">
-                    <img src="/arrow-return-right.svg" alt="Bootstrap" width="16" height="16"></img> #33 - #98 improve
-                    the{" "}
+                    <img src="/arrow-return-right.svg" width="16" height="16"></img> #33 - #98 improve the{" "}
                     <span
                         // className="align-middle"
                         style={{
@@ -86,8 +109,9 @@ export function Instructions() {
                     </span>
                 </li>
                 <li className="ms-4">
-                    <img src="/arrow-return-right.svg" alt="Bootstrap" width="16" height="16"></img> #99 gets the{" "}
-                    <strong>final image</strong>
+                    <img src="/arrow-return-right.svg" width="16" height="16"></img> #99 gets the{" "}
+                    <img src="/checkmark.svg" width="16" height="16"></img>
+                    <span style={{ fontVariant: "small-caps" }}>full-resolution image</span>
                 </li>
                 {/* MENTION THE REVEAL OF THE IMAGE SOMEWHERE */}
             </ul>
