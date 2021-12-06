@@ -134,16 +134,16 @@ export class DappMiner extends React.Component {
                     }}
                 >
                     <a href="https://discord.gg/QDnGyHR2FM">
-                        <img className="m-3" src="/icons8-discord-new-30.png" width="30" height="30"></img>
+                        <img className="m-3" src="/icons8-discord-new-30.png"></img>
                     </a>
                     <a href="https://twitter.com/Xatarrer">
-                        <img className="m-3" src="/icons8-twitter-circled-30.png" width="30" height="30"></img>
+                        <img className="m-3" src="/icons8-twitter-circled-30.png"></img>
                     </a>
                     <div
-                        className="m-3 align-middle"
+                        className="mx-3 align-middle"
                         style={{
                             display: "inline-block",
-                            heigh: 0,
+                            heigh: "auto",
                             lineHeight: 1
                             // width: "200px"
                         }}
