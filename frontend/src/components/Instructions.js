@@ -33,10 +33,10 @@ export function Instructions() {
             </p>
             <ul className="list-unstyled">
                 <div
-                    className="float-end mx-2"
+                    className="float-end m-2 mb-3"
                     style={{
                         backgroundColor: "white",
-                        maxWidth: "40%",
+                        width: "260px",
                         position: "relative",
                         border: "1px solid MidnightBlue"
                     }}
@@ -54,7 +54,7 @@ export function Instructions() {
                             fontSize: "x-small"
                         }}
                     >
-                        From left to right, tiny portion of #09, #39, #69 and #99
+                        From left to right, tiny portion of #10, #32, #65 and #99
                     </span>
                 </div>
                 <li className="ms-4">

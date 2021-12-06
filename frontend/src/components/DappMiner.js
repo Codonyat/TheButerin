@@ -71,55 +71,87 @@ export class DappMiner extends React.Component {
     render() {
         // If everything is loaded, we render the application.
         return (
-            <div
-                className="container p-4"
-                style={{
-                    maxWidth: "720px",
-                    height: "100%"
-                }}
-            >
-                <div className="container py-3">
-                    <ConnectWallet
-                        connectWallet={() => this._connectWallet()}
-                        message={this.state.connectMessage || this.state.selectedAddress}
-                        web3={this.state.web3}
-                    />
-                </div>
-
+            <>
                 <div
-                    className="container text-start py-3"
+                    className="container p-4"
                     style={{
-                        backgroundImage: 'url("minecraft-diamond-light.jpg")',
-                        backgroundPosition: "center center",
-                        backgroundRepeat: "no-repeat"
+                        maxWidth: "720px",
+                        height: "100%"
                     }}
                 >
-                    <Instructions />
-                </div>
-
-                <div className="container py-3">
-                    {/* ADD QUESTION MARK NEXT TO INPUT ETH AMOUNT THAT EXPLAINS THIS IS THE ESTIMATED MINTING FEE IN ADDITION TO THE TX FEE, AND ALSO SPECIFIES HOW MUCH GAS MUST BE PAID */}
-                    {this.state.web3 && this.state.nextScan < 100 && (
-                        <Mine
-                            mineFunc={(amount) => this._mine(amount)}
-                            maxFeeETH={() => {
-                                if (this.state.maxFeeWeiNext === undefined) return "Amount ETH";
-
-                                const remainder = this.state.maxFeeWeiNext.mod(1e14);
-                                return `~${ethers.utils.formatEther(this.state.maxFeeWeiNext.sub(remainder))} ETH`;
-                            }}
-                            next={this.state.nextScan}
-                            enable={this.state.canMine}
+                    <div className="container py-3">
+                        <ConnectWallet
+                            connectWallet={() => this._connectWallet()}
+                            message={this.state.connectMessage || this.state.selectedAddress}
+                            web3={this.state.web3}
                         />
+                    </div>
+                    <div
+                        className="container text-start py-3"
+                        style={{
+                            backgroundImage: 'url("minecraft-diamond-light.jpg")',
+                            backgroundPosition: "center center",
+                            backgroundRepeat: "no-repeat"
+                        }}
+                    >
+                        <Instructions />
+                    </div>
+                    <div className="container py-3">
+                        {/* ADD QUESTION MARK NEXT TO INPUT ETH AMOUNT THAT EXPLAINS THIS IS THE ESTIMATED MINTING FEE IN ADDITION TO THE TX FEE, AND ALSO SPECIFIES HOW MUCH GAS MUST BE PAID */}
+                        {this.state.web3 && this.state.nextScan < 100 && (
+                            <Mine
+                                mineFunc={(amount) => this._mine(amount)}
+                                maxFeeETH={() => {
+                                    if (this.state.maxFeeWeiNext === undefined) return "Amount ETH";
+
+                                    const remainder = this.state.maxFeeWeiNext.mod(1e14);
+                                    return `~${ethers.utils.formatEther(this.state.maxFeeWeiNext.sub(remainder))} ETH`;
+                                }}
+                                next={this.state.nextScan}
+                                enable={this.state.canMine}
+                            />
+                        )}
+                    </div>
+                    {this.state.errorMessage && (
+                        <div
+                            className="p-3 m-auto rounded-3"
+                            style={{ backgroundColor: "Lavender", maxWidth: "500px" }}
+                        >
+                            <ErrorMessage errorMessage={this.state.errorMessage} OSlink={this.state.OSlink} />
+                        </div>
                     )}
                 </div>
-
-                {this.state.errorMessage && (
-                    <div className="p-3 m-auto rounded-3" style={{ backgroundColor: "Lavender", maxWidth: "500px" }}>
-                        <ErrorMessage errorMessage={this.state.errorMessage} OSlink={this.state.OSlink} />
+                <div className="py-3 align-top" style={{ backgroundColor: "lightgray", textAlign: "center" }}>
+                    <a href="https://discord.gg/QDnGyHR2FM">
+                        <img className="mx-3" src="/icons8-discord-new-30.png" width="30" height="30"></img>
+                    </a>
+                    <a href="https://twitter.com/Xatarrer">
+                        <img className="mx-3" src="/icons8-twitter-circled-30.png" width="30" height="30"></img>
+                    </a>
+                    <div
+                        className="mx-3 align-middle"
+                        style={{
+                            display: "inline-block",
+                            minHeight: "30px",
+                            lineHeight: 1
+                            // width: "200px"
+                        }}
+                    >
+                        <span
+                            className="align-middle"
+                            style={{
+                                fontSize: "xx-small"
+                            }}
+                        >
+                            <strong>Disclarimer</strong>: Smart contract on Ethereum with address XXX is unaudited.
+                            Authors take no responsability on any failure or unexpected behavior.
+                            <br></br>
+                            The Party understands and accepts that there is no warranty when interacting with the smart
+                            contract.
+                        </span>
                     </div>
-                )}
-            </div>
+                </div>
+            </>
         );
     }
 
