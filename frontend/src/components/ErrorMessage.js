@@ -8,7 +8,7 @@ export function ErrorMessage({ errorMessage, OSlink }) {
             </div>
             <div className="col-9">
                 {OSlink && (
-                    <a href={OSlink} className="text-reset">
+                    <a href={OSlink} className="text-reset" target="_blank">
                         Your NFT can be viewed in OpeanSea.
                     </a>
                 )}

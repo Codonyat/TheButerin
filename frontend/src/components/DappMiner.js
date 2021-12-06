@@ -133,10 +133,10 @@ export class DappMiner extends React.Component {
                         textAlign: "center"
                     }}
                 >
-                    <a href="https://discord.gg/QDnGyHR2FM">
+                    <a href="https://discord.gg/QDnGyHR2FM" target="_blank">
                         <img className="m-3" src="/icons8-discord-new-30.png"></img>
                     </a>
-                    <a href="https://twitter.com/Xatarrer">
+                    <a href="https://twitter.com/Xatarrer" target="_blank">
                         <img className="m-3" src="/icons8-twitter-circled-30.png"></img>
                     </a>
                     <div
@@ -153,12 +153,13 @@ export class DappMiner extends React.Component {
                             style={{
                                 display: "inline-block",
                                 fontSize: "xx-small",
-                                maxWidth: "500px"
+                                maxWidth: "550px"
                             }}
                         >
-                            <strong>Disclarimer</strong>: Smart contract on Ethereum with address XXX is unaudited.
-                            Authors take no responsability on any failure or unexpected behavior. The Party understands
-                            and accepts that there is no warranty when interacting with the smart contract.
+                            <strong>Disclarimer</strong>: The smart contract on Ethereum with address XXX is unaudited.
+                            The authors take no responsability on any loss of funds, code bug or unexpected behavior.
+                            Any party interacting with the smart contract understands and accepts that there is no
+                            warranty.
                         </span>
                     </div>
                 </div>

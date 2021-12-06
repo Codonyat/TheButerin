@@ -40,16 +40,15 @@ contract JPEGminer is ERC721Enumerable, Ownable {
     string private constant _NAME = "Mined JPEG";
     string private constant _SYMBOL = "MJ";
     string private constant _DESCRIPTION =
-        "Mined JPEG is a collaborative effort to store a 1.45MB on-chain image in Base64 format %281.09MB in binary%29. "
-        "The image is split into 100 pieces which are stored on-chain by every wallet that calls the function mine%28%29. "
-        "Thanks to the progressive JPEG technology the image is viewable since its first piece is mined, "
-        "and its quality gradually improves until the final image when the last piece is mined.  %5Cr  %5Cr"
+        "JPEG Mining is a collaborative effort to store %2a%2athe largest on-chain image%2a%2a %281.45MB in Base64 format %26 1.09MB in binary%29. "
+        "The image is split into 100 pieces which are uploaded by every wallet that calls the function mine%28%29. "
+        "Thanks to the %2a%2aprogressive JPEG%2a%2a technology the image is viewable since its first piece is mined, "
+        "and its quality gradually improves until the last piece is mined.  %5Cr  %5Cr"
         "As the image's quality improves over each successive mining, it goes through 3 different clear phases%3A  %5Cr"
-        "1%29 image is black & white only,  %5Cr2%29 color is added, and  %5Cr3%29 resolution improves until the final version.  %5Cr"
+        "1. image is %2a%2black & white%2a%2 only,  %5Cr2. %2a%2color%2a%2 is added, and  %5Cr3. %2a%2resolution%2a%2 improves until the final version.  %5Cr"
         "The B&W phase is the shortest and only lasts 11 uploads, "
-        "the color phase last 22 uploads, and the resolution phase is the longest with 67 uploads. "
-        "Every miner gets an NFT of the image but with the quality at the time of mining; "
-        "or in other words, each NFT represents a step of the progressive JPEG.  %5Cr  %5Cr"
+        "the color phase last 22 uploads, and the resolution phase is the longest with 67 uploads.  %5Cr  %5Cr"
+        "Every JPEG miner gets an NFT of the image with the quality at the time of minting.  %5Cr  %5Cr"
         "Art by Logan Turner. Idea and code by Xatarrer.";
 
     // Replace the hashes before deployment

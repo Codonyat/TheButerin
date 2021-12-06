@@ -22,7 +22,11 @@ export function Instructions() {
             </p>
             <p>
                 <span style={numStyle}>3</span> Thanks to the{" "}
-                <a href="https://www.liquidweb.com/kb/what-is-a-progressive-jpeg/" className="text-reset">
+                <a
+                    href="https://www.liquidweb.com/kb/what-is-a-progressive-jpeg/"
+                    className="text-reset"
+                    target="_blank"
+                >
                     forgotten tech from the 56k-modem era
                 </a>
                 , <strong>the final image is revealed during the mining process</strong>.
