@@ -13,7 +13,12 @@ export function Instructions() {
         <>
             <p>
                 <span style={numStyle}>1</span> Collective effort to{" "}
-                <span style={{ fontStyle: "italic" }}>JPEG-mine</span> <strong>the largest ever on-chain image</strong>{" "}
+                <span style={{ fontStyle: "italic" }}>JPEG-mine</span>{" "}
+                <strong>
+                    <a href="https://opensea.io/collection/mined-jpeg" className="text-reset" target="_blank">
+                        the largest ever on-chain image
+                    </a>
+                </strong>{" "}
                 (1 MB) on Ethereum.
             </p>
             <p>
