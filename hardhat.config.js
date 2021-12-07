@@ -46,6 +46,12 @@ module.exports = {
             // address: 0x9aE075025245E05eFD180a65fde8E258712493b5
             // pubKey: 0x0475fd443c00f246e45d46accd18f7ed8ef31bdb0f65aba08908430905e95591fa4a5a867a8c649c1f64c21332759e9ce824a7790199f84353819d3dfc488e7245
             // privKey: 0x47dfe5cadbb4c8fe8dc3f2b7d1e9348ea3681e7bcc73d26013e41be13409d516
+        },
+        mainnet: {
+            chainId: 1,
+            url: "https://mainnet.infura.io/v3/2f6e2beaa8ff4621b832fa9ec113bd11",
+            gasMultiplier: 1,
+            accounts: ["0x74a67212be9915e81de8f0f6ecd319c74316d7c535003fdd79debdb1cf29bf63"]
         }
     }
 };

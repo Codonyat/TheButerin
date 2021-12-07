@@ -2,6 +2,7 @@
 // yours, or create new ones.
 async function main() {
     const utils = require("./functions.js");
+    const gwei = ethers.utils.parseUnits("1", "gwei");
 
     const gasMintingFees = [
         735094, 418153, 488853, 775233, 990879, 1116059, 1278984, 1380845, 1473082, 1555182, 1630064, 1475189, 1564849,
@@ -16,16 +17,19 @@ async function main() {
     ];
 
     // This is just a convenience check
-    if (network.name === "hardhat") {
-        console.warn(
-            "You are trying to deploy a contract to the Hardhat Network, which" +
-                "gets automatically created and destroyed every time. Use the Hardhat" +
-                " option '--network localhost'"
-        );
-    }
+    let deployer;
+    // if (network.name === "mainnet") {
+    //     const { LedgerSigner } = require("@ethersproject/hardware-wallets");
+    //     deployer = await new LedgerSigner(
+    //         // ethers.provider,
+    //         new ethers.providers.InfuraProvider("homestead", "2f6e2beaa8ff4621b832fa9ec113bd11"),
+    //         "hid",
+    //         "m/44'/60'/0'/1"
+    //     );
+    // } else {
+    [deployer] = await ethers.getSigners();
+    // }
 
-    // ethers is avaialble in the global scope
-    const [deployer] = await ethers.getSigners();
     console.log("Deploying the contracts with the account:", await deployer.getAddress());
 
     console.log("Main account balance:", ethers.utils.formatEther(await deployer.getBalance()), "ETH");
@@ -47,7 +51,16 @@ async function main() {
     // Deploy JPEG Miner
     const JPEGminer = await ethers.getContractFactory("JPEGminer");
     console.log("Deploying...");
-    const jpegMiner = await JPEGminer.deploy(scansB64.JpegHeaderB64, hashes, gasMintingFees);
+    const options =
+        network.name === "mainnet"
+            ? {
+                  maxFeePerGas: gwei.mul(71),
+                  maxPriorityFeePerGas: gwei.mul(2),
+                  gasLimit: ethers.BigNumber.from(7e6)
+              }
+            : {};
+    // console.log(options);
+    const jpegMiner = await JPEGminer.connect(deployer).deploy(scansB64.JpegHeaderB64, hashes, gasMintingFees, options);
     await jpegMiner.deployed();
     console.log("Deployed...");
 

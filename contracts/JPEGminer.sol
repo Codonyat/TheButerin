@@ -1,6 +1,6 @@
 //SPDX-License-Identifier: MIT
 
-/// @title JPEG Mining Proof of Concept
+/// @title JPEG Mining
 /// @author Xatarrer
 /// @notice Unaudited
 pragma solidity ^0.8.4;
@@ -15,7 +15,6 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 /** 
     @dev Total gas (mint fee + dev fee) is monotonically increassing according to gas = 177551*tokenId+2422449
-    @dev At 100 gwei this reprents an initial mining price of 0.24 ETH and a final price of 2 ETH.
 
     @dev Return data URL:
     https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs
@@ -29,18 +28,14 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 contract JPEGminer is ERC721Enumerable, Ownable {
     using SafeMath for uint256;
 
-    event Mined(
-        // Also include the phase it was mined on
-        address minerAddress,
-        string indexed phase
-    );
+    event Mined(address minerAddress, string indexed phase);
 
     uint256 public constant NSCANS = 100;
 
     string private constant _NAME = "Mined JPEG";
     string private constant _SYMBOL = "MJ";
     string private constant _DESCRIPTION =
-        "JPEG Mining is a collaborative effort to store %2a%2athe largest on-chain image%2a%2a %281.45MB in Base64 format %26 1.09MB in binary%29. "
+        "JPEG Mining is a collaborative effort to store %2a%2athe largest on-chain image%2a%2a %281.5MB in Base64 format %26 1.1MB in binary%29. "
         "The image is split into 100 pieces which are uploaded by every wallet that calls the function mine%28%29. "
         "Thanks to the %2a%2aprogressive JPEG%2a%2a technology the image is viewable since its first piece is mined, "
         "and its quality gradually improves until the last piece is mined.  %5Cr  %5Cr"
@@ -216,7 +211,6 @@ contract JPEGminer is ERC721Enumerable, Ownable {
         require(totalSupply() < NSCANS, "Mining is over");
 
         // Check gas minting fee
-        // IMPORTANT TO CHECK IN RINKEBY THAT TX.GASPRICE = PRIORITY + BASE FEE
         uint256 mintingFee = tx.gasprice.mul(getMintingGasFee(totalSupply()));
         require(msg.value >= mintingFee, "ETH fee insufficient");
 
@@ -245,6 +239,3 @@ contract JPEGminer is ERC721Enumerable, Ownable {
         IERC20(addrERC20).transfer(owner(), balance);
     }
 }
-
-// LINEAR GAS INCREASE (MINING+FEE)
-// PRICE NFT IN GAS
