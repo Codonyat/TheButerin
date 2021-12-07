@@ -64,7 +64,7 @@ describe("JPEG Miner", function () {
     let minGas = Infinity;
     let maxGas = 0;
     let profit = ethers.constants.Zero;
-    for (let i = 0; i < 1; i++) {
+    for (let i = 0; i < Nscans; i++) {
         describe(`Mining of ${i + 1}/${Nscans}`, function () {
             // Wrong mining tests
             it(`fails cuz wrong data`, async function () {
@@ -133,25 +133,25 @@ describe("JPEG Miner", function () {
             else if (i <= 32) phase = "Color";
             else phase = "Resolution";
 
-            // Properties
-            let tokenURI;
-            it(`tokenURI()`, async function () {
-                console.log(await jpegMiner.tokenURI(i, { gasLimit: 300e6 }));
-                tokenURI = JSON.parse(await jpegMiner.tokenURI(i, { gasLimit: 300e6 }));
-                expect(tokenURI.name).to.be.equal(`JPEG Mining: ${i + 1} of ${Nscans} copies`);
+            // // Properties
+            // let tokenURI;
+            // it(`tokenURI()`, async function () {
+            //     console.log(await jpegMiner.tokenURI(i, { gasLimit: 300e6 }));
+            //     tokenURI = JSON.parse(await jpegMiner.tokenURI(i, { gasLimit: 300e6 }));
+            //     expect(tokenURI.name).to.be.equal(`JPEG Mining: ${i + 1} of ${Nscans} copies`);
 
-                fs.writeFileSync(`${__dirname}/images/test${String(i).padStart(3, "0")}B64.txt`, tokenURI.image);
+            //     fs.writeFileSync(`${__dirname}/images/test${String(i).padStart(3, "0")}B64.txt`, tokenURI.image);
 
-                expect(tokenURI.attributes[0].trait_type).to.be.equal("kilobytes");
-                expect(tokenURI.attributes[0].value).to.be.greaterThan(0);
+            //     expect(tokenURI.attributes[0].trait_type).to.be.equal("kilobytes");
+            //     expect(tokenURI.attributes[0].value).to.be.greaterThan(0);
 
-                expect(tokenURI.attributes[1].trait_type).to.be.equal("phase");
-                expect(tokenURI.attributes[1].value).to.be.equal(phase);
-            }).timeout(1000000);
+            //     expect(tokenURI.attributes[1].trait_type).to.be.equal("phase");
+            //     expect(tokenURI.attributes[1].value).to.be.equal(phase);
+            // }).timeout(1000000);
 
-            it(`imageURI()`, async function () {
-                expect(await jpegMiner.imageURI(i, { gasLimit: 300e6 })).to.be.equal(tokenURI.image);
-            }).timeout(1000000);
+            // it(`imageURI()`, async function () {
+            //     expect(await jpegMiner.imageURI(i, { gasLimit: 300e6 })).to.be.equal(tokenURI.image);
+            // }).timeout(1000000);
 
             it(`getPhase()`, async function () {
                 expect(await jpegMiner.getPhase(i)).to.be.equal(phase);
@@ -230,6 +230,7 @@ describe("JPEG Miner", function () {
         );
 
         console.log("Total gas per mining is", totalGasArr);
+        console.log(`Total gas in txs is ${gasSpent.reduce((totalGas, gas) => totalGas + gas, 0)}`);
 
         // console.log(
         //     "Minting gas is",

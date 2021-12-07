@@ -8,9 +8,17 @@ export function ErrorMessage({ errorMessage, OSlink }) {
             </div>
             <div className="col-9">
                 {OSlink && (
-                    <a href={OSlink} className="text-reset" target="_blank">
-                        Your NFT can be viewed in OpeanSea.
-                    </a>
+                    <span>
+                        Your NFT can be viewed in{" "}
+                        <a href={OSlink} className="text-reset" target="_blank">
+                            OpeanSea.
+                        </a>
+                        <br></br>
+                        Join us in{" "}
+                        <a href="https://discord.gg/QDnGyHR2FM" className="text-reset" target="_blank">
+                            Discord.
+                        </a>
+                    </span>
                 )}
                 <strong className="text-left m-0" style={{ height: "100%", display: "flex", alignItems: "center" }}>
                     {errorMessage}
