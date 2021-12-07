@@ -156,10 +156,17 @@ export class DappMiner extends React.Component {
                                 maxWidth: "550px"
                             }}
                         >
-                            <strong>Disclarimer</strong>: The smart contract on Ethereum with address XXX is unaudited.
-                            The authors take no responsability on any loss of funds, code bug or unexpected behavior.
-                            Any party interacting with the smart contract understands and accepts that there is no
-                            warranty.
+                            <strong>Disclarimer</strong>: The smart contract on Ethereum with address{" "}
+                            <a
+                                href="https://etherscan.io/address/0x7cd51fa7e155805c34f333ba493608742a67da8e"
+                                className="text-reset"
+                                target="_blank"
+                            >
+                                0x7cd51FA7E155805C34F333ba493608742A67Da8e
+                            </a>{" "}
+                            is unaudited. The authors take no responsability on any loss of funds, code bug or
+                            unexpected behavior. Any party interacting with the smart contract understands and accepts
+                            that there is no warranty.
                         </span>
                     </div>
                 </div>
