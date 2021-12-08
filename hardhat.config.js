@@ -50,8 +50,7 @@ module.exports = {
         mainnet: {
             chainId: 1,
             url: "https://mainnet.infura.io/v3/2f6e2beaa8ff4621b832fa9ec113bd11",
-            gasMultiplier: 1,
-            accounts: ["0x74a67212be9915e81de8f0f6ecd319c74316d7c535003fdd79debdb1cf29bf63"]
+            gasMultiplier: 1
         }
     }
 };
