@@ -9,8 +9,11 @@ export function ErrorMessage({ errorMessage, OSlink }) {
             <div className="col-9">
                 {OSlink && (
                     <span>
-                        Your NFT can be viewed in{" "}
                         <a href={OSlink} className="text-reset" target="_blank">
+                            Your NFT
+                        </a>{" "}
+                        can be viewed in{" "}
+                        <a href="https://opensea.io/collection/mined-jpeg" className="text-reset" target="_blank">
                             OpeanSea.
                         </a>
                         <br></br>
