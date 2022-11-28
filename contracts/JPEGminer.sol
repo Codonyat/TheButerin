@@ -3,7 +3,7 @@
 /// @title JPEG Mining
 /// @author Xatarrer
 /// @notice Unaudited
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
@@ -11,11 +11,9 @@ import "@rari-capital/solmate/src/utils/SSTORE2.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 /** 
-    @dev Total gas (mint fee + dev fee) is monotonically increassing according to gas = 177551*tokenId+2422449
-
     @dev Return data URL:
     https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs
     https://en.wikipedia.org/wiki/Data_URI_scheme
@@ -26,14 +24,13 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 */
 
 contract JPEGminer is ERC721Enumerable, Ownable {
-    using SafeMath for uint256;
+    event Mined(address indexed minerAddress, string indexed phase); // ALSO RECORD BYTES
 
-    event Mined(address minerAddress, string indexed phase);
+    bytes32 private constant _ROOT = 0;
+    uint256 public constant N_SCANS = 100;
 
-    uint256 public constant NSCANS = 100;
-
-    string private constant _NAME = "Mined JPEG";
-    string private constant _SYMBOL = "MJ";
+    string private constant _NAME = "The Buterin";
+    string private constant _SYMBOL = "VIT";
     string private constant _DESCRIPTION =
         "JPEG Mining is a collaborative effort to store %2a%2athe largest on-chain image%2a%2a %281.5MB in Base64 format %26 1.1MB in binary%29. "
         "The image is split into 100 pieces which are uploaded by every wallet that calls the function mine%28%29. "
@@ -47,30 +44,18 @@ contract JPEGminer is ERC721Enumerable, Ownable {
         "Art by Logan Turner. Idea and code by Xatarrer.";
 
     // Replace the hashes before deployment
-    address private immutable _mintingGasFeesPointer;
-    address private immutable _imageHashesPointer;
-    address private immutable _imageHeaderPointer;
-    address[] private _imageScansPointers;
-    string private constant _imageFooterB64 = "/9k=";
+    address private immutable _IMAGE_HEADER_POINTER;
+    address[] private _imageScansPointers = new address[](N_SCANS);
+    string private constant _IMAGE_FOOTER = "/9k=";
 
-    constructor(
-        string memory imageHeaderB64,
-        bytes32[] memory imageHashes,
-        uint256[] memory mintingGasFees
-    ) ERC721(_NAME, _SYMBOL) {
-        require(imageHashes.length == NSCANS);
-
-        // Store minting gas fees
-        _mintingGasFeesPointer = SSTORE2.write(abi.encodePacked(mintingGasFees));
-
+    constructor(string memory imageHeaderB64) ERC721(_NAME, _SYMBOL) {
         // Store header
-        _imageHeaderPointer = SSTORE2.write(bytes(imageHeaderB64));
+        _IMAGE_HEADER_POINTER = SSTORE2.write(bytes(imageHeaderB64));
+    }
 
-        // Store hashes
-        _imageHashesPointer = SSTORE2.write(abi.encodePacked(imageHashes));
-
-        // Initialize array of pointers to scans
-        _imageScansPointers = new address[](NSCANS);
+    function _verifyDataChunk(bytes32[] calldata proof, string calldata imageScanB64) private view {
+        bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(totalSupply(), imageScanB64))));
+        require(MerkleProof.verifyCalldata(proof, _ROOT, leaf), "Invalid data");
     }
 
     /// @return JSON with properties
@@ -87,16 +72,16 @@ contract JPEGminer is ERC721Enumerable, Ownable {
                         "%3A ",
                         Strings.toString(tokenId + 1),
                         " of ",
-                        Strings.toString(NSCANS),
+                        Strings.toString(N_SCANS),
                         "%22, %22description%22%3A %22",
                         _DESCRIPTION,
                         "%22, %22image%22%3A %22data%3Aimage/jpeg;base64,",
-                        string(SSTORE2.read(_imageHeaderPointer))
+                        string(SSTORE2.read(_IMAGE_HEADER_POINTER))
                     )
                 ),
                 string(
                     abi.encodePacked(
-                        _imageFooterB64,
+                        _IMAGE_FOOTER,
                         "%22,%22attributes%22%3A %5B%7B%22trait_type%22%3A %22kilobytes%22, %22value%22%3A "
                     )
                 ),
@@ -112,130 +97,56 @@ contract JPEGminer is ERC721Enumerable, Ownable {
 
     function mergeScans(
         uint256 tokenId,
-        string memory preImage,
-        string memory posImage,
-        string memory lastText
-    ) private view returns (string memory) {
+        bytes memory preImageBody,
+        bytes memory posImageBody,
+        bytes memory lastText
+    ) private view returns (bytes memory imageBody) {
         // Get scans
         uint256 KB = 0;
-        string[] memory data = new string[](9);
 
-        for (uint256 i = 0; i < 9; i++) {
-            if (tokenId < 12 * i) break;
+        uint256 Nscans = tokenId + 1;
 
-            string[] memory scans = new string[](12);
-
-            for (uint256 j = 0; j < 12; j++) {
-                if (tokenId < 12 * i + j) break;
-
-                bytes memory scan = SSTORE2.read(_imageScansPointers[12 * i + j]);
-                scans[j] = string(scan);
-                KB += scan.length;
-            }
-
-            data[i] = string(
-                abi.encodePacked(
-                    scans[0],
-                    scans[1],
-                    scans[2],
-                    scans[3],
-                    scans[4],
-                    scans[5],
-                    scans[6],
-                    scans[7],
-                    scans[8],
-                    scans[9],
-                    scans[10],
-                    scans[11]
-                )
-            );
+        // Read all scans upto tokenId
+        bytes[] memory imageScans = new bytes[](Nscans);
+        uint256 Nbytes;
+        for (uint256 i = 0; i < Nscans; i++) {
+            imageScans[i] = SSTORE2.read(_imageScansPointers[i]);
+            Nbytes += imageScans[i].length;
         }
 
-        return (
-            string(
-                abi.encodePacked(
-                    preImage,
-                    data[0],
-                    data[1],
-                    data[2],
-                    data[3],
-                    data[4],
-                    data[5],
-                    data[6],
-                    data[7],
-                    data[8],
-                    posImage,
-                    string(abi.encodePacked(Strings.toString(KB / 1024), lastText))
-                )
-            )
-        );
+        // Merge scans
+        imageBody = new bytes(Nbytes);
+        uint256 offset = 32;
+        for (uint256 i = 0; i < Nscans; i++) {
+            Nbytes += imageScans.length;
+            bytes memory imageScan = imageScans[i];
+            assembly {
+                mstore(add(imageBody, offset), imageScan)
+            }
+            offset += imageScans[i].length;
+        }
     }
 
     function getPhase(uint256 tokenId) public pure returns (string memory) {
-        require(tokenId < NSCANS);
+        require(tokenId < N_SCANS);
 
         if (tokenId <= 10) return "Black & White";
         else if (tokenId <= 32) return "Color";
         else return "Resolution";
     }
 
-    function getMintingGasFee(uint256 tokenId) public view returns (uint256) {
-        require(tokenId < NSCANS);
-
-        bytes memory hashBytes = SSTORE2.read(_mintingGasFeesPointer, tokenId * 32, (tokenId + 1) * 32);
-
-        bytes32 out;
-        for (uint256 i = 0; i < 32; i++) {
-            out |= bytes32(hashBytes[i] & 0xFF) >> (i * 8);
-        }
-        return uint256(out);
-    }
-
-    function getHash(uint256 tokenId) public view returns (bytes32) {
-        require(tokenId < NSCANS);
-
-        bytes memory hashBytes = SSTORE2.read(_imageHashesPointer, tokenId * 32, (tokenId + 1) * 32);
-
-        bytes32 out;
-        for (uint256 i = 0; i < 32; i++) {
-            out |= bytes32(hashBytes[i] & 0xFF) >> (i * 8);
-        }
-        return out;
-    }
-
     /// @param imageScanB64 Piece of image data in base64
-    function mine(string calldata imageScanB64) external payable {
-        // Checks
-        require(msg.sender == tx.origin, "Only EA's can mine");
-        require(balanceOf(msg.sender) == 0, "Cannot mine more than once");
-        require(totalSupply() < NSCANS, "Mining is over");
-
-        // Check gas minting fee
-        uint256 mintingFee = tx.gasprice.mul(getMintingGasFee(totalSupply()));
-        require(msg.value >= mintingFee, "ETH fee insufficient");
-
+    function mine(string calldata imageScanB64, bytes32[] calldata proof) external {
         // Check hash matches
-        require(keccak256(bytes(imageScanB64)) == getHash(totalSupply()), "Wrong data");
+        _verifyDataChunk(proof, imageScanB64);
 
         // SSTORE2 scan
         _imageScansPointers[totalSupply()] = SSTORE2.write(bytes(imageScanB64));
-
-        // Return change
-        payable(msg.sender).transfer(msg.value - mintingFee);
 
         // Mint scan
         uint256 tokenId = totalSupply();
         _mint(msg.sender, tokenId);
 
         emit Mined(msg.sender, getPhase(tokenId));
-    }
-
-    function withdrawEth() external onlyOwner {
-        payable(owner()).transfer(address(this).balance);
-    }
-
-    function withdrawToken(address addrERC20) external onlyOwner {
-        uint256 balance = IERC20(addrERC20).balanceOf(address(this));
-        IERC20(addrERC20).transfer(owner(), balance);
     }
 }

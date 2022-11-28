@@ -27,8 +27,9 @@
     "dependencies": {
         "@ethersproject/hardware-wallets": "^5.5.0",
         "@ledgerhq/hw-transport-node-hid": "^6.11.2",
-        "@openzeppelin/contracts": "^4.3.3",
-        "@rari-capital/solmate": "^5.0.2",
+        "@openzeppelin/contracts": "^4.8.0",
+        "@openzeppelin/merkle-tree": "^1.0.1",
+        "@rari-capital/solmate": "^6.4.0",
         "hardhat": "^2.6.8",
         "ledgerhq": "^0.0.1-security",
         "lodash": "^4.17.21",
