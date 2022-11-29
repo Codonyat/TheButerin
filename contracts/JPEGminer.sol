@@ -63,7 +63,7 @@ contract JPEGminer is ERC721Enumerable, Ownable {
         require(_exists(tokenId), "Token does not exist");
 
         return
-            getImageB64(
+            _appendImageB64(
                 tokenId,
                 string(
                     abi.encodePacked(
@@ -95,14 +95,11 @@ contract JPEGminer is ERC721Enumerable, Ownable {
             );
     }
 
-    function getImageB64(
+    function _appendImageB64(
         uint256 tokenId,
-        bytes memory preImageBody,
-        bytes memory posImageBody
+        bytes memory preImage,
+        bytes memory posImage
     ) private view returns (bytes memory image) {
-        // Get scans
-        uint256 KB = 0;
-
         uint256 Nscans = tokenId + 1;
 
         // Read all scans upto tokenId
@@ -113,19 +110,24 @@ contract JPEGminer is ERC721Enumerable, Ownable {
             Nbytes += imageScans[i].length;
         }
 
-        // Count header & footer
+        // Count pre image data, image header, image footer and post image data
         bytes memory imageHeader = SSTORE2.read(_IMAGE_HEADER_POINTER);
         bytes memory imageFooter = _IMAGE_FOOTER;
-        Nbytes += imageHeader.length + imageFooter.length;
+        Nbytes += preImage.length + imageHeader.length + imageFooter.length + posImage.length;
 
-        // Merge header
+        // Merge pre image data and header
         image = new bytes(Nbytes);
+        uint256 offset = 32;
         assembly {
-            mstore(add(image, 32), imageHeader)
+            mstore(add(image, offset), preImage)
         }
+        offset += preImage.length;
+        assembly {
+            mstore(add(image, offset), imageHeader)
+        }
+        offset += imageHeader.length;
 
         // Merge scans
-        uint256 offset = 32 + imageHeader.length;
         for (uint256 i = 0; i < Nscans; i++) {
             Nbytes += imageScans.length;
             bytes memory imageScan = imageScans[i];
@@ -135,9 +137,13 @@ contract JPEGminer is ERC721Enumerable, Ownable {
             offset += imageScans[i].length;
         }
 
-        // Merge footer
+        // Merge footer and pos image data
         assembly {
             mstore(add(image, offset), imageFooter)
+        }
+        offset += imageFooter.length;
+        assembly {
+            mstore(add(image, offset), posImage)
         }
     }
 
