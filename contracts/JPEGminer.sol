@@ -62,44 +62,6 @@ contract JPEGminer is ERC721Enumerable, Ownable {
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         require(_exists(tokenId), "Token does not exist");
 
-        return
-            _appendImageB64(
-                tokenId,
-                string(
-                    abi.encodePacked(
-                        "data:application/json;charset=UTF-8,%7B%22name%22%3A %22",
-                        _NAME,
-                        "%3A ",
-                        Strings.toString(tokenId + 1),
-                        " of ",
-                        Strings.toString(N_SCANS),
-                        "%22, %22description%22%3A %22",
-                        _DESCRIPTION,
-                        "%22, %22image%22%3A %22data%3Aimage/jpeg;base64,",
-                        string(SSTORE2.read(_IMAGE_HEADER_POINTER))
-                    )
-                ),
-                string(
-                    abi.encodePacked(
-                        _IMAGE_FOOTER,
-                        "%22,%22attributes%22%3A %5B%7B%22trait_type%22%3A %22kilobytes%22, %22value%22%3A "
-                    )
-                ),
-                string(
-                    abi.encodePacked(
-                        "%7D, %7B%22trait_type%22%3A %22phase%22, %22value%22%3A %22",
-                        getPhase(tokenId),
-                        "%22%7D%5D%7D"
-                    )
-                )
-            );
-    }
-
-    function _appendImageB64(
-        uint256 tokenId,
-        bytes memory preImage,
-        bytes memory posImage
-    ) private view returns (bytes memory image) {
         uint256 Nscans = tokenId + 1;
 
         // Read all scans upto tokenId
@@ -111,19 +73,34 @@ contract JPEGminer is ERC721Enumerable, Ownable {
         }
 
         // Count pre image data, image header, image footer and post image data
+        bytes memory preImage = abi.encodePacked(
+            "data:application/json;charset=UTF-8,%7B%22name%22%3A %22",
+            _NAME,
+            "%3A ",
+            Strings.toString(tokenId + 1),
+            " of ",
+            Strings.toString(N_SCANS),
+            "%22, %22description%22%3A %22",
+            _DESCRIPTION,
+            "%22, %22image%22%3A %22data%3Aimage/jpeg;base64,",
+            string(SSTORE2.read(_IMAGE_HEADER_POINTER))
+        );
         bytes memory imageHeader = SSTORE2.read(_IMAGE_HEADER_POINTER);
         bytes memory imageFooter = _IMAGE_FOOTER;
+        bytes memory posImage = abi.encodePacked(
+            "%22,%22attributes%22%3A %5B%7B%22trait_type%22%3A %22kilobytes%22, %22value%22%3A "
+        );
         Nbytes += preImage.length + imageHeader.length + imageFooter.length + posImage.length;
 
         // Merge pre image data and header
-        image = new bytes(Nbytes);
+        bytes memory URI = new bytes(Nbytes);
         uint256 offset = 32;
         assembly {
-            mstore(add(image, offset), preImage)
+            mstore(add(URI, offset), preImage)
         }
         offset += preImage.length;
         assembly {
-            mstore(add(image, offset), imageHeader)
+            mstore(add(URI, offset), imageHeader)
         }
         offset += imageHeader.length;
 
@@ -132,20 +109,34 @@ contract JPEGminer is ERC721Enumerable, Ownable {
             Nbytes += imageScans.length;
             bytes memory imageScan = imageScans[i];
             assembly {
-                mstore(add(image, offset), imageScan)
+                mstore(add(URI, offset), imageScan)
             }
             offset += imageScans[i].length;
         }
 
         // Merge footer and pos image data
         assembly {
-            mstore(add(image, offset), imageFooter)
+            mstore(add(URI, offset), imageFooter)
         }
         offset += imageFooter.length;
         assembly {
-            mstore(add(image, offset), posImage)
+            mstore(add(URI, offset), posImage)
         }
+
+        return string(URI);
+
+        // abi.encodePacked(
+        //     "%7D, %7B%22trait_type%22%3A %22phase%22, %22value%22%3A %22",
+        //     getPhase(tokenId),
+        //     "%22%7D%5D%7D"
+        // )
     }
+
+    function _createURI(
+        uint256 tokenId,
+        bytes memory preImage,
+        bytes memory posImage
+    ) private view returns (bytes memory URI) {}
 
     function getPhase(uint256 tokenId) public pure returns (string memory) {
         require(tokenId < N_SCANS);
