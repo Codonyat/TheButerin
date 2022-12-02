@@ -61,7 +61,6 @@ describe("The Buterin Card", async function () {
             );
 
             // Right mining tests
-
             await expect(jpegMiner.mine(JpegScansB64[i], tree.getProof(i))).to.emit(jpegMiner, "Mined");
         }
     });
@@ -80,12 +79,5 @@ describe("The Buterin Card", async function () {
 
     it("transfer of NFT succeed", async function () {
         await expect(jpegMiner.transferFrom(from.address, to.address, tokenId)).to.emit(jpegMiner, "Transfer");
-    });
-
-    after(async () => {
-        this.timeout(1000000);
-
-        const uri = await jpegMiner.tokenURI(99);
-        fs.writeFileSync(`${__dirname}/uriB64.txt`, uri);
     });
 });
