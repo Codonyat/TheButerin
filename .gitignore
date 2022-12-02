@@ -6,3 +6,5 @@ libjpeg-turbo
 #Hardhat files
 cache
 artifacts
+test/results
+
