@@ -6,6 +6,7 @@
 pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
+import "./Array.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@rari-capital/solmate/src/utils/SSTORE2.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -70,77 +71,22 @@ contract JPEGminer is ERC721Enumerable, Ownable {
 
         uint256 Nscans = tokenId + 1;
 
-        // Read all scans upto tokenId
-        bytes[] memory imageScans = new bytes[](Nscans);
-        uint256 Nbytes;
+        // Create big array of bytes and copy necessary segments
+        bytes[] memory bytesSegments = new bytes[](Nscans + 4);
+        bytesSegments[0] = "TEXT BEFORE IMAGE ";
+        bytesSegments[1] = SSTORE2.read(_IMAGE_HEADER_POINTER);
+        bytesSegments[Nscans + 2] = _IMAGE_FOOTER;
+        bytesSegments[Nscans + 3] = " TEXT AFTER IMAGE";
+
+        // Copy scans
         for (uint256 i = 0; i < Nscans; i++) {
-            imageScans[i] = SSTORE2.read(_IMAGE_SCANS_POINTERS[i]);
-            Nbytes += imageScans[i].length;
+            bytesSegments[i + 2] = SSTORE2.read(_IMAGE_SCANS_POINTERS[i]);
         }
 
-        // Count pre image data, image header, image footer and post image data
-        bytes memory preImage = abi.encodePacked(
-            "data:application/json;charset=UTF-8,%7B%22name%22%3A %22",
-            _NAME,
-            "%3A ",
-            Strings.toString(tokenId + 1),
-            "%22, %22description%22%3A %22",
-            _DESCRIPTION,
-            "%22, %22image%22%3A %22data%3Aimage/jpeg;base64,",
-            string(SSTORE2.read(_IMAGE_HEADER_POINTER))
-        );
-        bytes memory imageHeader = SSTORE2.read(_IMAGE_HEADER_POINTER);
-        bytes memory imageFooter = _IMAGE_FOOTER;
-        bytes memory posImage = abi.encodePacked(
-            "%22,%22attributes%22%3A %5B%7B%22trait_type%22%3A %22kilobytes%22, %22value%22%3A "
-        );
-        Nbytes += preImage.length + imageHeader.length + imageFooter.length + posImage.length;
-
-        // Merge pre image data and header
-        bytes memory URI = new bytes(Nbytes);
-        uint256 offset = 32;
-        assembly {
-            mstore(add(URI, offset), preImage)
-        }
-        offset += preImage.length;
-        assembly {
-            mstore(add(URI, offset), imageHeader)
-        }
-        offset += imageHeader.length;
-
-        // Merge scans
-        for (uint256 i = 0; i < Nscans; i++) {
-            Nbytes += imageScans.length;
-            bytes memory imageScan = imageScans[i];
-            assembly {
-                mstore(add(URI, offset), imageScan)
-            }
-            offset += imageScans[i].length;
-        }
-
-        // Merge footer and pos image data
-        assembly {
-            mstore(add(URI, offset), imageFooter)
-        }
-        offset += imageFooter.length;
-        assembly {
-            mstore(add(URI, offset), posImage)
-        }
+        bytes memory URI = Array.join(bytesSegments);
 
         return string(URI);
-
-        // abi.encodePacked(
-        //     "%7D, %7B%22trait_type%22%3A %22phase%22, %22value%22%3A %22",
-        //     getPhase(tokenId),
-        //     "%22%7D%5D%7D"
-        // )
     }
-
-    // function _createURI(
-    //     uint256 tokenId,
-    //     bytes memory preImage,
-    //     bytes memory posImage
-    // ) private view returns (bytes memory URI) {}
 
     function getPhase(uint256 tokenId) public view returns (string memory) {
         require(_exists(tokenId), "Token does not exist");

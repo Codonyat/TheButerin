@@ -14,7 +14,9 @@ const { StandardMerkleTree } = require("@openzeppelin/merkle-tree");
 
 const Nscans = 100;
 
-describe("The Vuterin Card", function () {
+describe("The Buterin Card", async function () {
+    this.timeout(1000000);
+
     let jpegMiner;
     let JpegScansB64;
     let tree;
@@ -48,40 +50,42 @@ describe("The Vuterin Card", function () {
         jpegMiner = await JPEGminer.deploy(tree.root, scansB64.JpegHeaderB64, scansB64.JpegFooterB64);
     });
 
-    for (let i = 0; i < Nscans; i++) {
-        describe(`Mining of ${i + 1}/${Nscans}`, function () {
+    it(`Mining`, async function () {
+        for (let i = 0; i < Nscans; i++) {
             // Wrong mining tests
-            it(`fails cuz wrong data`, async function () {
-                let indScan;
-                while ((indScan = Math.floor(Nscans * Math.random())) === i);
+            let indScan;
+            while ((indScan = Math.floor(Nscans * Math.random())) === i);
 
-                await expect(jpegMiner.mine(JpegScansB64[indScan], tree.getProof(indScan))).to.be.revertedWith(
-                    "Invalid data"
-                );
-            });
+            await expect(jpegMiner.mine(JpegScansB64[indScan], tree.getProof(indScan))).to.be.revertedWith(
+                "Invalid data"
+            );
 
             // Right mining tests
-            it(`succeeds`, async function () {
-                await expect(jpegMiner.mine(JpegScansB64[i], tree.getProof(i))).to.emit(jpegMiner, "Mined");
-            });
-        });
-    }
 
-    describe("Final mining checks", async function () {
-        it(`mining of ${Nscans + 1}/${Nscans} fails cuz it is over`, async function () {
-            await expect(jpegMiner.mine("Dummy data here", tree.getProof(0))).to.be.reverted;
-        });
+            await expect(jpegMiner.mine(JpegScansB64[i], tree.getProof(i))).to.emit(jpegMiner, "Mined");
+        }
+    });
 
-        const [from, fromFake, to] = await ethers.getSigners();
+    it(`Mining of ${Nscans + 1}/${Nscans} fails cuz it is over`, async function () {
+        await expect(jpegMiner.mine("Dummy data here", tree.getProof(0))).to.be.reverted;
+    });
 
-        it("transfer of NFT fails", async function () {
-            await expect(jpegMiner.connect(to).transferFrom(fromFake.address, to.address, tokenId)).to.be.revertedWith(
-                "ERC721: transfer caller is not owner nor approved"
-            );
-        });
+    const [from, fromFake, to] = await ethers.getSigners();
 
-        it("transfer of NFT succeed", async function () {
-            await expect(jpegMiner.transferFrom(from.address, to.address, tokenId)).to.emit(jpegMiner, "Transfer");
-        });
+    it("Transfer of NFT fails", async function () {
+        await expect(jpegMiner.connect(to).transferFrom(fromFake.address, to.address, tokenId)).to.be.revertedWith(
+            "ERC721: transfer caller is not owner nor approved"
+        );
+    });
+
+    it("transfer of NFT succeed", async function () {
+        await expect(jpegMiner.transferFrom(from.address, to.address, tokenId)).to.emit(jpegMiner, "Transfer");
+    });
+
+    after(async () => {
+        this.timeout(1000000);
+
+        const uri = await jpegMiner.tokenURI(99);
+        fs.writeFileSync(`${__dirname}/uriB64.txt`, uri);
     });
 });
