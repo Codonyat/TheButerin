@@ -26,8 +26,7 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 contract JPEGminer is ERC721Enumerable, Ownable {
     event Mined(address indexed minerAddress, string indexed phase); // ALSO RECORD BYTES
 
-    bytes32 private constant _ROOT = 0;
-    uint256 public constant N_SCANS = 100;
+    bytes32 private immutable _ROOT;
 
     string private constant _NAME = "The Buterin";
     string private constant _SYMBOL = "VIT";
@@ -45,12 +44,19 @@ contract JPEGminer is ERC721Enumerable, Ownable {
 
     // Image data
     address private immutable _IMAGE_HEADER_POINTER;
-    address[] private _imageScansPointers = new address[](N_SCANS);
-    bytes private constant _IMAGE_FOOTER = bytes("/9k=");
+    address[] private _IMAGE_SCANS_POINTERS;
+    bytes private _IMAGE_FOOTER;
 
-    constructor(string memory imageHeaderB64) ERC721(_NAME, _SYMBOL) {
-        // Store header
+    // bytes("/9k=");
+
+    constructor(
+        bytes32 root,
+        string memory imageHeaderB64,
+        string memory imageFooterB64
+    ) ERC721(_NAME, _SYMBOL) {
+        _ROOT = root;
         _IMAGE_HEADER_POINTER = SSTORE2.write(bytes(imageHeaderB64));
+        _IMAGE_FOOTER = bytes(imageFooterB64);
     }
 
     function _verifyDataChunk(bytes32[] calldata proof, string calldata imageScanB64) private view {
@@ -68,7 +74,7 @@ contract JPEGminer is ERC721Enumerable, Ownable {
         bytes[] memory imageScans = new bytes[](Nscans);
         uint256 Nbytes;
         for (uint256 i = 0; i < Nscans; i++) {
-            imageScans[i] = SSTORE2.read(_imageScansPointers[i]);
+            imageScans[i] = SSTORE2.read(_IMAGE_SCANS_POINTERS[i]);
             Nbytes += imageScans[i].length;
         }
 
@@ -78,8 +84,6 @@ contract JPEGminer is ERC721Enumerable, Ownable {
             _NAME,
             "%3A ",
             Strings.toString(tokenId + 1),
-            " of ",
-            Strings.toString(N_SCANS),
             "%22, %22description%22%3A %22",
             _DESCRIPTION,
             "%22, %22image%22%3A %22data%3Aimage/jpeg;base64,",
@@ -132,14 +136,14 @@ contract JPEGminer is ERC721Enumerable, Ownable {
         // )
     }
 
-    function _createURI(
-        uint256 tokenId,
-        bytes memory preImage,
-        bytes memory posImage
-    ) private view returns (bytes memory URI) {}
+    // function _createURI(
+    //     uint256 tokenId,
+    //     bytes memory preImage,
+    //     bytes memory posImage
+    // ) private view returns (bytes memory URI) {}
 
-    function getPhase(uint256 tokenId) public pure returns (string memory) {
-        require(tokenId < N_SCANS);
+    function getPhase(uint256 tokenId) public view returns (string memory) {
+        require(_exists(tokenId), "Token does not exist");
 
         if (tokenId <= 10) return "Black & White";
         else if (tokenId <= 32) return "Color";
@@ -152,7 +156,7 @@ contract JPEGminer is ERC721Enumerable, Ownable {
         _verifyDataChunk(proof, imageScanB64);
 
         // SSTORE2 scan
-        _imageScansPointers[totalSupply()] = SSTORE2.write(bytes(imageScanB64));
+        _IMAGE_SCANS_POINTERS.push(SSTORE2.write(bytes(imageScanB64)));
 
         // Mint scan
         uint256 tokenId = totalSupply();

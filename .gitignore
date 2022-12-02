@@ -2,7 +2,6 @@ node_modules
 .idea
 images
 libjpeg-turbo
-test/images
 
 #Hardhat files
 cache

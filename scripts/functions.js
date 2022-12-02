@@ -7,7 +7,7 @@ const _ = require("lodash");
 module.exports = {
     toProgressiveJPEG: function (fromBMP, toJPG) {
         execSync(
-            `${__dirname}\\..\\libjpeg-turbo\\bin\\cjpeg.exe -quality 85 -optimize -progressive -sample 1x1 -outfile ${__dirname}\\..\\images\\${toJPG}.jpg -scans ${__dirname}\\scan_script.sh ${__dirname}\\..\\images\\${fromBMP}.bmp`
+            `${__dirname}\\..\\libjpeg-turbo\\bin\\cjpeg.exe -quality 85 -optimize -progressive -sample 1x1 -outfile ${__dirname}\\..\\images\\${toJPG}.jpg -scans ${__dirname}\\..\\images\\scan_script.sh ${__dirname}\\..\\images\\${fromBMP}.bmp`
         );
     },
 
@@ -94,9 +94,9 @@ module.exports = {
         });
 
         return {
-            JpegHeaderB64: JpegHeaderB64,
-            JpegScansB64: JpegScansB64,
-            JpegFooterB64: JpegFooterB64
+            JpegHeaderB64,
+            JpegScansB64,
+            JpegFooterB64
         };
     },
 

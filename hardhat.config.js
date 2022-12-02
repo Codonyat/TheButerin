@@ -1,6 +1,7 @@
 require("@nomiclabs/hardhat-waffle");
 
 require("./tasks/faucet");
+require("hardhat-gas-reporter");
 
 module.exports = {
     solidity: {
