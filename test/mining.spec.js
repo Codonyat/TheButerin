@@ -1,6 +1,7 @@
 const { expect } = require("chai");
 const {
     ethers: {
+        BigNumber,
         constants: { Two }
     },
     waffle
@@ -15,7 +16,8 @@ const Nscans = 100;
 
 describe("The Vuterin Card", function () {
     let jpegMiner;
-    let JpegHeaderB64, JpegScansB64, JpegFooterB64;
+    let JpegScansB64;
+    let tree;
 
     before(async () => {
         // Compress image to progressive JPEG
@@ -28,21 +30,22 @@ describe("The Vuterin Card", function () {
         utils.saveShardedJPEGs(scans);
 
         // Convert scans to B64
-        ({ JpegHeaderB64, JpegScansB64, JpegFooterB64 } = utils.convertScansToB64(scans));
+        const scansB64 = utils.convertScansToB64(scans);
+        ({ JpegScansB64 } = scansB64);
 
         // Save Base64 links
         utils.saveShardedJPEGSinB64(scansB64);
 
         // Compute Merkle tree
-        const tree = StandardMerkleTree.of(
-            scansB64.map((scanB64, index) => [index, scanB64]),
+        tree = StandardMerkleTree.of(
+            JpegScansB64.map((scanB64, index) => [index, scanB64]),
             ["uint256", "string"]
         );
         console.log("Merkle Root:", tree.root);
 
         // Deploy JPEG Miner
         const JPEGminer = await ethers.getContractFactory("JPEGminer");
-        jpegMiner = await JPEGminer.deploy(tree.root, JpegHeaderB64, JpegFooterB64);
+        jpegMiner = await JPEGminer.deploy(tree.root, scansB64.JpegHeaderB64, scansB64.JpegFooterB64);
     });
 
     for (let i = 0; i < Nscans; i++) {
@@ -52,49 +55,33 @@ describe("The Vuterin Card", function () {
                 let indScan;
                 while ((indScan = Math.floor(Nscans * Math.random())) === i);
 
-                await expect(
-                    jpegMiner.mine(JpegScansB64[indScan], {
-                        gasLimit: BigNumber.from(10).pow(7)
-                    })
-                ).to.be.revertedWith("Wrong data");
+                await expect(jpegMiner.mine(JpegScansB64[indScan], tree.getProof(indScan))).to.be.revertedWith(
+                    "Invalid data"
+                );
             });
 
             // Right mining tests
             it(`succeeds`, async function () {
-                await expect(
-                    jpegMiner.mine(JpegScansB64[i], {
-                        gasLimit: BigNumber.from(10).pow(7)
-                    })
-                ).to.emit(jpegMiner, "Mined");
+                await expect(jpegMiner.mine(JpegScansB64[i], tree.getProof(i))).to.emit(jpegMiner, "Mined");
             });
         });
     }
 
-    describe("Final mining checks", function () {
+    describe("Final mining checks", async function () {
         it(`mining of ${Nscans + 1}/${Nscans} fails cuz it is over`, async function () {
-            await expect(
-                jpegMiner.connect(accounts[Nscans + 1]).mine("Dummy data here", {
-                    gasLimit: BigNumber.from(10).pow(7)
-                })
-            ).to.be.reverted;
+            await expect(jpegMiner.mine("Dummy data here", tree.getProof(0))).to.be.reverted;
         });
 
-        const tokenId = Math.floor(Math.random() * Nscans);
-        let to;
-        while ((to = Math.floor(Math.random() * Nscans)) === tokenId);
+        const [from, fromFake, to] = await ethers.getSigners();
 
-        it("transfer of NFT copy fails", async function () {
-            await expect(
-                jpegMiner.connect(accounts[to]).transferFrom(accounts[tokenId].address, accounts[to].address, tokenId)
-            ).to.be.revertedWith("ERC721: transfer caller is not owner nor approved");
+        it("transfer of NFT fails", async function () {
+            await expect(jpegMiner.connect(to).transferFrom(fromFake.address, to.address, tokenId)).to.be.revertedWith(
+                "ERC721: transfer caller is not owner nor approved"
+            );
         });
 
-        it("transfer of NFT copy succeed", async function () {
-            await expect(
-                jpegMiner
-                    .connect(accounts[tokenId])
-                    .transferFrom(accounts[tokenId].address, accounts[to].address, tokenId)
-            ).to.emit(jpegMiner, "Transfer");
+        it("transfer of NFT succeed", async function () {
+            await expect(jpegMiner.transferFrom(from.address, to.address, tokenId)).to.emit(jpegMiner, "Transfer");
         });
     });
 });
