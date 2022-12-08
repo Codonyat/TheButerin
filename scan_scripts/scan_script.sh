@@ -1,3 +1,7 @@
+# Max total scans is 100 by the program
+# Could I go up to 3x64x12 = 2304 scans ?
+# Perhaps better order phases as B&W, Resolution, Color ?
+
 # From B&W to grey image
 0: 0-0,   0, 10;
 0: 0-0,   10, 9;

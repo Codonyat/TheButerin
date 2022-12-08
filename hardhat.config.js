@@ -1,6 +1,6 @@
 require("@nomiclabs/hardhat-waffle");
 
-require("./tasks/faucet");
+require("./tasks/scans");
 require("hardhat-gas-reporter");
 
 module.exports = {

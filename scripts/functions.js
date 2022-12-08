@@ -1,19 +1,26 @@
 const { execSync } = require("child_process");
 const fs = require("fs");
 const math = require("mathjs");
-const { ethers } = require("hardhat");
+// const { ethers } = require("hardhat");
 const _ = require("lodash");
 
 module.exports = {
-    toProgressiveJPEG: function (fromBMP, toJPG) {
+    toProgressiveJPEG: function (fromBMP, scanScriptName) {
         execSync(
-            `${__dirname}\\..\\libjpeg-turbo\\bin\\cjpeg.exe -quality 85 -optimize -progressive -sample 1x1 -outfile ${__dirname}\\..\\images\\${toJPG}.jpg -scans ${__dirname}\\..\\images\\scan_script.sh ${__dirname}\\..\\images\\${fromBMP}.bmp`
+            `if not exist "${__dirname}\\..\\images\\${scanScriptName}" mkdir ${__dirname}\\..\\images\\${scanScriptName}`
+        );
+
+        // console.log(
+        //     `${__dirname}\\..\\libjpeg-turbo\\bin\\cjpeg.exe -quality 85 -optimize -progressive -sample 1x1 -outfile ${__dirname}\\..\\images\\${scanScriptName}\\${fromBMP}.progr.jpg -scans ${__dirname}\\..\\scan_scripts\\${scanScriptName}.sh ${__dirname}\\..\\images\\${fromBMP}.bmp`
+        // );
+        execSync(
+            `${__dirname}\\..\\libjpeg-turbo\\bin\\cjpeg.exe -quality 85 -optimize -progressive -sample 1x1 -outfile ${__dirname}\\..\\images\\${scanScriptName}\\${fromBMP}.progr.jpg -scans ${__dirname}\\..\\scan_scripts\\${scanScriptName}.sh ${__dirname}\\..\\images\\${fromBMP}.bmp`
         );
     },
 
-    getScans: function (imageName) {
+    getScans: function (imageName, folderName) {
         // Open JPEG in binary
-        let JPEG = fs.readFileSync(`${__dirname}/../images/${imageName}.jpg`);
+        let JPEG = fs.readFileSync(`${__dirname}\\..\\images\\${folderName}\\${imageName}.progr.jpg`);
 
         // Store as many JPEGS as scans exist in the progressive JPEG.
         function search2Bytes(buffer, byte1, byte2, start = 0) {
@@ -66,16 +73,6 @@ module.exports = {
         };
     },
 
-    saveShardedJPEGs: function ({ JpegHeader, JpegScans, JpegFooter }) {
-        JpegScans.reduce((prevScans, currShard, ind) => {
-            const currScans = Buffer.concat([prevScans, currShard]);
-            const data = Buffer.concat([JpegHeader, currScans, JpegFooter]);
-            fs.writeFileSync(`${__dirname}/../images/shards/test${String(ind).padStart(3, "0")}.jpg`, data);
-
-            return currScans;
-        }, Buffer.alloc(0));
-    },
-
     convertScansToB64: function ({ JpegHeader, JpegScans, JpegFooter }) {
         function addTrailingBytes(buf) {
             if (buf.length % 3 === 0) {
@@ -89,10 +86,6 @@ module.exports = {
         const JpegFooterB64 = JpegFooter.toString("base64");
         const JpegScansB64 = JpegScans.map((shard) => addTrailingBytes(shard).toString("base64"));
 
-        JpegScansB64.forEach((scan, id) => {
-            if (scan.length > 24576) throw `Scan ${id} is ${scan.length} bytes`;
-        });
-
         return {
             JpegHeaderB64,
             JpegScansB64,
@@ -100,12 +93,28 @@ module.exports = {
         };
     },
 
-    saveShardedJPEGSinB64: function ({ JpegHeaderB64, JpegScansB64, JpegFooterB64 }) {
+    saveShardedJPEGs: function ({ JpegHeader, JpegScans, JpegFooter }, imageName, folderName) {
+        JpegScans.reduce((prevScans, currShard, ind) => {
+            const currScans = Buffer.concat([prevScans, currShard]);
+            const data = Buffer.concat([JpegHeader, currScans, JpegFooter]);
+            fs.writeFileSync(
+                `${__dirname}/../images/${folderName}/${imageName}${String(ind).padStart(3, "0")}.jpg`,
+                data
+            );
+
+            return currScans;
+        }, Buffer.alloc(0));
+    },
+
+    saveShardedJPEGSinB64: function ({ JpegHeaderB64, JpegScansB64, JpegFooterB64 }, imageName, folderName) {
         // console.log("");
         JpegScansB64.reduce((prevScans, currShard, ind) => {
             const currScansB64 = `${prevScans}${currShard}`;
             const dataB64 = `${JpegHeaderB64}${currScansB64}${JpegFooterB64}`;
-            fs.writeFileSync(`${__dirname}/../images/shards/test${String(ind).padStart(3, "0")}B64.txt`, dataB64);
+            fs.writeFileSync(
+                `${__dirname}/../images/${folderName}/${imageName}${String(ind).padStart(3, "0")}.txt`,
+                dataB64
+            );
 
             // console.log(`Scan ${ind} is ${JpegScans[ind].length} bytes.`);
             // console.log(`Scan ${ind} in B64 is ${currShard.length} bytes.`);
