@@ -60,11 +60,6 @@ contract JPEGminer is ERC721Enumerable, Ownable {
         _IMAGE_FOOTER = bytes(imageFooterB64);
     }
 
-    function _verifyDataChunk(bytes32[] calldata proof, string calldata imageScanB64) private view {
-        bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(totalSupply(), imageScanB64))));
-        require(MerkleProof.verifyCalldata(proof, _ROOT, leaf), "Invalid data");
-    }
-
     /// @return JSON with properties
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         require(_exists(tokenId), "Token does not exist");
@@ -109,5 +104,10 @@ contract JPEGminer is ERC721Enumerable, Ownable {
         _mint(msg.sender, tokenId);
 
         emit Mined(msg.sender, getPhase(tokenId));
+    }
+
+    function _verifyDataChunk(bytes32[] calldata proof, string calldata imageScanB64) private view {
+        bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(totalSupply(), imageScanB64))));
+        require(MerkleProof.verifyCalldata(proof, _ROOT, leaf), "Invalid data");
     }
 }

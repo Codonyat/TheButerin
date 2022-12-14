@@ -7,10 +7,10 @@ task("scans", "Generate scans and saves them")
         utils.toProgressiveJPEG(imageName, scanName);
 
         // Open JPEG in binary
-        const scans = utils.getScans(imageName, scanName);
+        const jpegChunks = utils.getScans(imageName, scanName);
 
         // Convert scans to B64
-        const jpegChunksB64 = utils.convertScansToB64(scans);
+        const jpegChunksB64 = utils.convertScansToB64(jpegChunks);
 
         // jpegChunksB64.JpegScansB64.forEach((scan, id) => {
         //     if (scan.length > 24576) {
@@ -23,7 +23,7 @@ task("scans", "Generate scans and saves them")
         utils.saveShardedJPEGSinB64(jpegChunksB64, imageName, scanName);
 
         // Save JPEGs
-        utils.saveShardedJPEGs(jpegChunksB64, imageName, scanName);
+        utils.saveShardedJPEGs(jpegChunks, imageName, scanName);
 
         console.log("Files generated and saved");
     });

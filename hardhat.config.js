@@ -28,12 +28,14 @@ module.exports = {
     },
     networks: {
         hardhat: {
-            gasPrice: 1e11, // 100 gwei
-            initialBaseFeePerGas: 1e11,
-            accounts: {
-                count: 102,
-                mnemonic: "test test test test test test test test test test test junk"
-            }
+            // gasPrice: 1e9, // 100 gwei
+            // initialBaseFeePerGas: 1e9,
+            gasLimit: 3e7,
+            blockGasLimit: 3e7
+            // accounts: {
+            //     count: 102,
+            //     mnemonic: "test test test test test test test test test test test junk"
+            // }
             // chainId: 1337
         },
         rinkeby: {
