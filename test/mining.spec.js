@@ -12,41 +12,71 @@ const fs = require("fs");
 const { mean } = require("mathjs");
 const { StandardMerkleTree } = require("@openzeppelin/merkle-tree");
 
+const chunkTargetSize = 11527; // [Bytes]
+
 describe("The Buterin Card", async function () {
-    this.timeout(1000000);
+    this.timeout(100000000);
 
     let jpegMiner;
-    let scansB64;
+    let chunks;
     let tree;
 
     before(async () => {
         // Compress image to progressive JPEG
-        utils.toProgressiveJPEG("Logan_3000x1000", "scan_script");
+        utils.toProgressiveJPEG("Buterin", "scan_script");
 
         // Open JPEG in binary
-        const scans = utils.getScans("Logan_3000x1000", "scan_script");
+        const scans = utils.getScans("Buterin", "scan_script");
 
-        // Save JPEGs
-        utils.saveShardedJPEGs(scans, "Logan_3000x1000", "scan_script");
+        // // Save JPEGs
+        // utils.saveShardedJPEGs(scans, "Buterin", "scan_script");
 
         // Convert scans to B64
         scansB64 = utils.convertScansToB64(scans);
 
         // Save Base64 links
-        utils.saveShardedJPEGSinB64(scansB64, "Logan_3000x1000", "scan_script");
+        utils.saveShardedJPEGSinB64(scansB64, "Buterin", "scan_script");
 
-        // // TEST
-        // let temp = [];
-        // for (let index = 0; index < 10; index++) {
-        //     temp = temp.concat(...scansB64.JpegScansB64);
-        // }
-        // scansB64.JpegScansB64 = temp;
-        // // TEST
+        // Aggregator function with memory
+        const agg = (function () {
+            let x = 0;
+            return (y) => {
+                x += y;
+                return x;
+            };
+        })();
+
+        // Further split scans to 'chunkTargetSize' bytes chunks
+        chunks = scansB64.JpegScansB64.map((scanB64, index) => {
+            let Nchunks = Math.round(scanB64.length / chunkTargetSize);
+            if (Nchunks === 0) Nchunks = 1;
+            const tokenIdLastInScan = agg(Nchunks) - 1;
+            const tokenIdFirstInScan = tokenIdLastInScan + 1 - Nchunks;
+
+            const chunkSize = Math.round(scanB64.length / Nchunks);
+
+            const chunks = [];
+            for (let i = 0; i < Nchunks - 1; i++) {
+                chunks.push({
+                    dataB64: scanB64.slice(i * chunkSize, (i + 1) * chunkSize),
+                    tokenIdFirstInScan,
+                    tokenIdLastInScan
+                });
+            }
+            chunks.push({
+                dataB64: scanB64.slice((Nchunks - 1) * chunkSize),
+                tokenIdFirstInScan,
+                tokenIdLastInScan
+            });
+            return chunks;
+        }).flat();
+
+        console.log("Number of chunks:", chunks.length);
 
         // Compute Merkle tree
         tree = StandardMerkleTree.of(
-            scansB64.JpegScansB64.map((scanB64, index) => [index, scanB64]),
-            ["uint256", "string"]
+            chunks.map(({ dataB64, tokenIdLastInScan }, index) => [index, tokenIdLastInScan, dataB64]),
+            ["uint256", "uint256", "string"]
         );
         console.log("Merkle Root:", tree.root);
 
@@ -56,26 +86,22 @@ describe("The Buterin Card", async function () {
     });
 
     it(`Mining`, async function () {
-        for (let i = 0; i < scansB64.JpegScansB64.length; i++) {
-            console.log(`Mining scan ${i} of length ${scansB64.JpegScansB64[i].length / 1024} kB`);
+        for (let i = 0; i < chunks.length; i++) {
+            console.log(`Chunk ${i}, ${Math.round(chunks[i].length / 2 ** 10)} KB`);
 
-            // // Wrong mining tests
-            // let indScan;
-            // while ((indScan = Math.floor(scansB64.JpegScansB64.length * Math.random())) === i);
-
-            // await expect(jpegMiner.mine(scansB64.JpegScansB64[indScan], tree.getProof(indScan))).to.be.reverted;
+            // Wrong mining tests
+            let indScan;
+            while ((indScan = Math.floor(chunks.length * Math.random())) === i);
+            await expect(jpegMiner.mine(chunks[indScan], tree.getProof(indScan))).to.be.reverted;
 
             // Right mining tests
-            await expect(jpegMiner.mine(scansB64.JpegScansB64[i], tree.getProof(i))).to.emit(jpegMiner, "Mined");
-        }
-    });
+            await expect(jpegMiner.mine(chunks[i], tree.getProof(i))).to.emit(jpegMiner, "Mined");
 
-    it(`TokenURI`, async function () {
-        const start = Date.now();
-        await jpegMiner.tokenURI(scansB64.JpegScansB64.length - 1);
-        const end = Date.now();
-        console.log(`Token URI took ${(end - start) / 1e3} s`);
-        expect(1).to.equal(1);
+            const start = Date.now();
+            await jpegMiner.tokenURI(i);
+            const end = Date.now();
+            console.log(`tokenURI: ${(end - start) / 60e3} min`);
+        }
     });
 
     it(`Mining fails cuz it is over`, async function () {

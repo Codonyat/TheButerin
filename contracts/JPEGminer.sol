@@ -27,9 +27,18 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 contract JPEGminer is ERC721Enumerable, Ownable {
     event Mined(address indexed minerAddress, string indexed phase); // ALSO RECORD BYTES
 
+    // Packed into 256 bits
+    struct Chunk {
+        address chunkPointer; // I can get kB from this
+        uint24 tokenIdFirstInScan;
+        uint24 tokenIdLastInScan;
+        uint24 scanId;
+        uint24 frameColor; // 3 bytes is what RGB needs
+    }
+
     bytes32 private immutable _ROOT;
 
-    string private constant _NAME = "The Buterin";
+    string private constant _NAME = "Buterin Card";
     string private constant _SYMBOL = "VIT";
     string private constant _DESCRIPTION =
         "JPEG Mining is a collaborative effort to store %2a%2athe largest on-chain image%2a%2a %281.5MB in Base64 format %26 1.1MB in binary%29. "
@@ -45,7 +54,7 @@ contract JPEGminer is ERC721Enumerable, Ownable {
 
     // Image data
     address private immutable _IMAGE_HEADER_POINTER;
-    address[] private _IMAGE_SCANS_POINTERS;
+    address[] private _IMAGE_CHUNKS_POINTERS;
     bytes private _IMAGE_FOOTER;
 
     // bytes("/9k=");
@@ -68,14 +77,28 @@ contract JPEGminer is ERC721Enumerable, Ownable {
 
         // Create big array of bytes and copy necessary segments
         bytes[] memory bytesSegments = new bytes[](Nscans + 4);
-        bytesSegments[0] = "TEXT BEFORE IMAGE ";
+        bytesSegments[0] = bytes(
+            string.concat(
+                "data:application/json;charset=UTF-8,\x7B\x22name\x22\x3A\x22",
+                _NAME,
+                "\x22,\x22description\x22\x3A\x22",
+                _DESCRIPTION,
+                "\x22,\x22image\x22\x3A\x22data:image/jpeg;base64,"
+            )
+        );
         bytesSegments[1] = SSTORE2.read(_IMAGE_HEADER_POINTER);
         bytesSegments[Nscans + 2] = _IMAGE_FOOTER;
-        bytesSegments[Nscans + 3] = " TEXT AFTER IMAGE";
+        bytesSegments[Nscans + 3] = bytes(
+            string.concat(
+                "\x7D, \x7B\x22trait_type\x22\x3A \x22phase\x22, \x22value\x22\x3A \x22",
+                getPhase(tokenId),
+                "\x22\x7D\x5D\x7D"
+            )
+        );
 
         // Copy scans
         for (uint256 i = 0; i < Nscans; i++) {
-            bytesSegments[i + 2] = SSTORE2.read(_IMAGE_SCANS_POINTERS[i]);
+            bytesSegments[i + 2] = SSTORE2.read(_IMAGE_CHUNKS_POINTERS[i]);
         }
 
         bytes memory URI = Array.join(bytesSegments);
@@ -97,7 +120,7 @@ contract JPEGminer is ERC721Enumerable, Ownable {
         _verifyDataChunk(proof, imageScanB64);
 
         // SSTORE2 scan
-        _IMAGE_SCANS_POINTERS.push(SSTORE2.write(bytes(imageScanB64)));
+        _IMAGE_CHUNKS_POINTERS.push(SSTORE2.write(bytes(imageScanB64)));
 
         // Mint scan
         uint256 tokenId = totalSupply();
