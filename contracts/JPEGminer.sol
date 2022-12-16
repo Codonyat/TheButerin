@@ -28,8 +28,9 @@ contract JPEGminer is ERC721Enumerable, Ownable {
     event Mined(address indexed minerAddress, string indexed phase); // ALSO RECORD BYTES
 
     // Packed into 256 bits
+    // THESE ARE UPDATED BY MINERS
     struct Chunk {
-        address chunkPointer; // I can get kB from this
+        address dataPointer; // I can get kB from this
         uint24 tokenIdFirstInScan;
         uint24 tokenIdLastInScan;
         uint24 scanId;
@@ -54,7 +55,7 @@ contract JPEGminer is ERC721Enumerable, Ownable {
 
     // Image data
     address private immutable _IMAGE_HEADER_POINTER;
-    address[] private _IMAGE_CHUNKS_POINTERS;
+    Chunk[] private _CHUNKS;
     bytes private _IMAGE_FOOTER;
 
     // bytes("/9k=");
@@ -98,7 +99,7 @@ contract JPEGminer is ERC721Enumerable, Ownable {
 
         // Copy scans
         for (uint256 i = 0; i < Nscans; i++) {
-            bytesSegments[i + 2] = SSTORE2.read(_IMAGE_CHUNKS_POINTERS[i]);
+            bytesSegments[i + 2] = SSTORE2.read(_CHUNKS[i].dataPointer);
         }
 
         bytes memory URI = Array.join(bytesSegments);
@@ -114,13 +115,13 @@ contract JPEGminer is ERC721Enumerable, Ownable {
         else return "Resolution";
     }
 
-    /// @param imageScanB64 Piece of image data in base64
-    function mine(string calldata imageScanB64, bytes32[] calldata proof) external {
+    /// @param imageChunkB64 Piece of image data in base64
+    function mine(string calldata imageChunkB64, bytes32[] calldata proof) external {
         // Check hash matches
-        _verifyDataChunk(proof, imageScanB64);
+        _verifyDataChunk(proof, imageChunkB64);
 
         // SSTORE2 scan
-        _IMAGE_CHUNKS_POINTERS.push(SSTORE2.write(bytes(imageScanB64)));
+        _CHUNKS.push(Chunk({dataPointer: SSTORE2.write(bytes(imageChunkB64))}));
 
         // Mint scan
         uint256 tokenId = totalSupply();
@@ -129,8 +130,8 @@ contract JPEGminer is ERC721Enumerable, Ownable {
         emit Mined(msg.sender, getPhase(tokenId));
     }
 
-    function _verifyDataChunk(bytes32[] calldata proof, string calldata imageScanB64) private view {
-        bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(totalSupply(), imageScanB64))));
+    function _verifyDataChunk(bytes32[] calldata proof, string calldata imageChunkB64) private view {
+        bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(totalSupply(), imageChunkB64))));
         require(MerkleProof.verifyCalldata(proof, _ROOT, leaf), "Invalid data");
     }
 }

@@ -1,7 +1,11 @@
 {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true,
-    "editor.insertSpaces": false
+    "editor.insertSpaces": false,
+
+    "files.associations": {
+        "*.svg": "html"
+    }
 
     // "files.associations": {
     //     "*.tsv": "tsv"
