@@ -2,7 +2,7 @@ node_modules
 .idea
 images
 libjpeg-turbo
-svg\card-images
+svg/card-images
 
 #Hardhat files
 cache
