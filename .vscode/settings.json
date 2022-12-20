@@ -4,8 +4,12 @@
     "editor.insertSpaces": false,
 
     "files.associations": {
-        "*.svg": "html"
+        "*.svg": "xml"
     }
+
+    // "files.associations": {
+    //     "*.svg": "html"
+    // }
 
     // "files.associations": {
     //     "*.tsv": "tsv"

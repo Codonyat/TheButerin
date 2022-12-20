@@ -83,7 +83,7 @@ library Array {
 
             mstore(tempBytes, add(stringLength, mul(sub(inputLength, 1), glueLength)))
             mstore(0x40, and(add(memoryPointer, 31), not(31)))
-        }
+        } 
         return tempBytes;
     }
 }
