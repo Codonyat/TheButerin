@@ -25,49 +25,63 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 */
 
 contract JPEGminer is ERC721Enumerable, Ownable {
-    event Mined(address indexed minerAddress, string indexed phase); // ALSO RECORD BYTES
+    event Mined(
+        address indexed minerAddress,
+        uint tokenId,
+        uint8 indexed phase,
+        uint8 indexed scanId,
+        uint cumulativeKiloBytes
+    );
 
-    // Packed into 256 bits
-    // THESE ARE UPDATED BY MINERS
+    // Tightly packed data structure
     struct Chunk {
         address dataPointer; // I can get kB from this
-        uint24 tokenIdFirstInScan;
-        uint24 tokenIdLastInScan;
-        uint24 scanId;
-        uint24 frameColor; // 3 bytes is what RGB needs
+        uint8 phase; // 0 = B&W, 1 = Color - Blue, 2 = Color - Red, 3 = Resolution
+        uint8 tokenIdWithinPhase;
+        uint8 scanId;
+        uint8 lastTokenIdWithinScan; // Useful for identifying when the scan will be available during mining
+        uint8 textLegendId; // Random at mining.
+        uint24 frameColor; // 3 bytes is what RGB needs. Random at mining.
     }
 
     bytes32 private immutable _ROOT;
 
     string private constant _NAME = "Buterin Card";
     string private constant _SYMBOL = "VIT";
-    string private constant _DESCRIPTION =
-        "JPEG Mining is a collaborative effort to store %2a%2athe largest on-chain image%2a%2a %281.5MB in Base64 format %26 1.1MB in binary%29. "
-        "The image is split into 100 pieces which are uploaded by every wallet that calls the function mine%28%29. "
-        "Thanks to the %2a%2aprogressive JPEG%2a%2a technology the image is viewable since its first piece is mined, "
-        "and its quality gradually improves until the last piece is mined.  %5Cr  %5Cr"
-        "As the image's quality improves over each successive mining, it goes through 3 different clear phases%3A  %5Cr"
-        "1. image is %2a%2black & white%2a%2 only,  %5Cr2. %2a%2color%2a%2 is added, and  %5Cr3. %2a%2resolution%2a%2 improves until the final version.  %5Cr"
-        "The B&W phase is the shortest and only lasts 11 uploads, "
-        "the color phase last 22 uploads, and the resolution phase is the longest with 67 uploads.  %5Cr  %5Cr"
-        "Every JPEG miner gets an NFT of the image with the quality at the time of minting.  %5Cr  %5Cr"
-        "Art by Logan Turner. Idea and code by Xatarrer.";
+    string private constant _DESCRIPTION = "bla bla bla";
 
     // Image data
-    address private immutable _IMAGE_HEADER_POINTER;
-    Chunk[] private _CHUNKS;
-    bytes private _IMAGE_FOOTER;
+    address public immutable IMAGE_HEADER_POINTER;
+    Chunk[] public CHUNKS;
+    bytes public IMAGE_FOOTER;
+
+    // Other data
+    address public TEXT_LEGENDS_POINTER; // To be uploaded by the 1st miner
+    string[] public FRAME_COLORS = [
+        "#DB4F54",
+        "#D12A2F",
+        "#E57D32",
+        "#FCBC19",
+        "#FCD265",
+        "#29A691",
+        "#7CA9BF",
+        "#315F8C",
+        "#543E2E",
+        "#1F335D",
+        "#3B2B20",
+        "#121A33",
+        "#261C15",
+        "#F7B1A1",
+        "#B8D9CE",
+        "#E0D7C5"
+    ]; // Fidenza palette (HEX coding)
 
     // bytes("/9k=");
 
-    constructor(
-        bytes32 root,
-        string memory imageHeaderB64,
-        string memory imageFooterB64
-    ) ERC721(_NAME, _SYMBOL) {
+    constructor(bytes32 root, string memory imageHeaderB64, string memory imageFooterB64) ERC721(_NAME, _SYMBOL) {
         _ROOT = root;
-        _IMAGE_HEADER_POINTER = SSTORE2.write(bytes(imageHeaderB64));
-        _IMAGE_FOOTER = bytes(imageFooterB64);
+        IMAGE_HEADER_POINTER = SSTORE2.write(bytes(imageHeaderB64));
+        IMAGE_FOOTER = bytes(imageFooterB64);
     }
 
     /// @return JSON with properties
@@ -87,8 +101,8 @@ contract JPEGminer is ERC721Enumerable, Ownable {
                 "\x22,\x22image\x22\x3A\x22data:image/jpeg;base64,"
             )
         );
-        bytesSegments[1] = SSTORE2.read(_IMAGE_HEADER_POINTER);
-        bytesSegments[Nscans + 2] = _IMAGE_FOOTER;
+        bytesSegments[1] = SSTORE2.read(IMAGE_HEADER_POINTER);
+        bytesSegments[Nscans + 2] = IMAGE_FOOTER;
         bytesSegments[Nscans + 3] = bytes(
             string.concat(
                 "\x7D, \x7B\x22trait_type\x22\x3A \x22phase\x22, \x22value\x22\x3A \x22",
@@ -99,7 +113,7 @@ contract JPEGminer is ERC721Enumerable, Ownable {
 
         // Copy scans
         for (uint256 i = 0; i < Nscans; i++) {
-            bytesSegments[i + 2] = SSTORE2.read(_CHUNKS[i].dataPointer);
+            bytesSegments[i + 2] = SSTORE2.read(CHUNKS[i].dataPointer);
         }
 
         bytes memory URI = Array.join(bytesSegments);
@@ -121,7 +135,7 @@ contract JPEGminer is ERC721Enumerable, Ownable {
         _verifyDataChunk(proof, imageChunkB64);
 
         // SSTORE2 scan
-        _CHUNKS.push(Chunk({dataPointer: SSTORE2.write(bytes(imageChunkB64))}));
+        CHUNKS.push(Chunk({dataPointer: SSTORE2.write(bytes(imageChunkB64))}));
 
         // Mint scan
         uint256 tokenId = totalSupply();

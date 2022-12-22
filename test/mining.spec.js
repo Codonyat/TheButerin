@@ -14,6 +14,13 @@ const { StandardMerkleTree } = require("@openzeppelin/merkle-tree");
 
 const chunkTargetSize = 11527; // [Bytes]
 
+// const vitalikQuotes = [
+//     "I happily played World of Warcraft during 2007-2010, but one day Blizzard removed the damage component from my beloved warlock's Siphon Life spell. I cried myself to sleep, and on that day I realized what horrors centralized services can bring. I soon decided to quit.",
+//     "I came up with the idea behind Ethereum. This idea of a blockchain with a built-in programming language as, kind of, what I thought was the simplest and kind of most logical way to actually build a platform that can be used for many more kinds of applications.",
+//     "Whereas most technologies tend to automate workers on the periphery doing menial tasks, blockchains automate away the center. Instead of putting the taxi driver out of a job, blockchain puts Uber out of a job and lets the taxi drivers work with the customer directly.",
+//     "If crypto succeeds, it's not because it empowers better people, it's because to empowers better institutions."
+// ];
+
 describe("The Buterin Card", async function () {
     this.timeout(100000000);
 
