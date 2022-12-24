@@ -29,8 +29,8 @@ describe("The Buterin Card", async function () {
     let tree;
 
     before(async () => {
-        // Compress image to progressive JPEG
-        utils.toProgressiveJPEG("Buterin", "scan_script");
+        // // Compress image to progressive JPEG
+        // utils.toProgressiveJPEG("Buterin", "scan_script");
 
         // Open JPEG in binary
         const scans = utils.getScans("Buterin", "scan_script");
@@ -40,6 +40,8 @@ describe("The Buterin Card", async function () {
 
         // Convert scans to B64
         scansB64 = utils.convertScansToB64(scans);
+
+        const quotes = utils.getQuotes();
 
         // Save Base64 links
         utils.saveShardedJPEGSinB64(scansB64, "Buterin", "scan_script");

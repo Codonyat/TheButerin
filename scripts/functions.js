@@ -73,6 +73,13 @@ module.exports = {
         };
     },
 
+    getQuotes: function () {
+        // Open JPEG in binary
+        const data = fs.readFileSync(`${__dirname}\\..\\vitalikQuotes.md`, "utf8");
+
+        return data.split("\n");
+    },
+
     convertScansToB64: function ({ JpegHeader, JpegScans, JpegFooter }) {
         function addTrailingBytes(buf) {
             if (buf.length % 3 === 0) {
