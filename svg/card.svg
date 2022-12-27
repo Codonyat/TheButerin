@@ -30,12 +30,9 @@
     </defs>
 
     <!-- Javascript script to wrap text in legend -->
-    <script type="text/javascript">
-        const legendText = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc accumsan nulla et dui
-        efficitur, nec sagittis orci vestibulum.'; 
-        const legendElement = document.getElementById("legend").setAttribute("width", "100");
-        alert("GeeksforGeeks");
-    </script>
+    <!-- <script type="text/javascript"> -->
+
+    <!-- </script> -->
 
     <!-- Black rounded frame -->
     <rect width="100" height="140" rx="5" fill="black" />
@@ -55,9 +52,24 @@
     <!-- Legend text area -->
     <g id="legend">
         <rect x="9" y="101" width="82" height="29" fill="white" opacity="0.8" />
-        <text x="12" y="105" dominant-baseline="mathematical" font-size="3" class="fontBody">
+        <!-- <text x="12" y="105" dominant-baseline="mathematical" font-size="3" class="fontBody">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc accumsan nulla et dui efficitur, nec sagittis
             orci vestibulum.
-        </text>
+        </text> -->
     </g>
+
+    <script>
+        <![CDATA[
+        const legendElement = document.getElementById("legend");
+        const legendElementText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        legendElementText.setAttribute("x", "12");
+        legendElementText.setAttribute("y", "105");
+        legendElementText.setAttribute("dominant-baseline", "mathematical");
+        legendElementText.setAttribute("font-size", "3");
+        legendElementText.setAttribute("class", "fontBody");
+        const textNode = document.createTextNode("Test");
+        legendElementText.appendChild(textNode);
+        legendElement.appendChild(legendElementText);
+        ]]>
+    </script>
 </svg>
