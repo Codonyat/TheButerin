@@ -41,7 +41,7 @@ contract JPEGminer is ERC721Enumerable, Ownable {
         uint8 scanId;
         uint8 lastTokenIdWithinScan; // Useful for identifying when the scan will be available during mining
         uint8 textLegendId; // Random at mining.
-        uint24 frameColor; // 3 bytes is what RGB needs. Random at mining.
+        uint8 frameColorId; // 3 bytes is what RGB needs. Random at mining.
     }
 
     bytes32 private immutable _ROOT;
@@ -57,24 +57,6 @@ contract JPEGminer is ERC721Enumerable, Ownable {
 
     // Other data
     address public TEXT_LEGENDS_POINTER; // To be uploaded by the 1st miner
-    string[] public FRAME_COLORS = [
-        "#DB4F54",
-        "#D12A2F",
-        "#E57D32",
-        "#FCBC19",
-        "#FCD265",
-        "#29A691",
-        "#7CA9BF",
-        "#315F8C",
-        "#543E2E",
-        "#1F335D",
-        "#3B2B20",
-        "#121A33",
-        "#261C15",
-        "#F7B1A1",
-        "#B8D9CE",
-        "#E0D7C5"
-    ]; // Fidenza palette (HEX coding)
 
     // bytes("/9k=");
 
