@@ -23,14 +23,11 @@
         </style>
         <style type="text/css">
             <![CDATA[
-             .fontTitle {font-family:'Cyber Dyne'}
-             .fontBody {font-family:'Eurostile'}
+                .fontTitle {font-family:'Cyber Dyne'}
+                .fontBody {font-family:'Eurostile'; font-size:3px}
             ]]>
         </style>
     </defs>
-
-    <!-- Javascript script to wrap text in legend -->
-    <!-- <script type="text/javascript"> -->
 
     <!-- </script> -->
 
@@ -58,18 +55,25 @@
         </text> -->
     </g>
 
+    <!-- Javascript script to wrap text in legend -->
     <script>
         <![CDATA[
-        const legendElement = document.getElementById("legend");
-        const legendElementText = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        legendElementText.setAttribute("x", "12");
-        legendElementText.setAttribute("y", "105");
-        legendElementText.setAttribute("dominant-baseline", "mathematical");
-        legendElementText.setAttribute("font-size", "3");
-        legendElementText.setAttribute("class", "fontBody");
-        const textNode = document.createTextNode("Test");
-        legendElementText.appendChild(textNode);
-        legendElement.appendChild(legendElementText);
+            const legendText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.\nNunc accumsan nulla et dui efficitur, nec sagittis orci vestibulum.";
+            let y = 105;
+            const legendElement = document.getElementById("legend");
+            const newLineOfText = function(text){
+                const legendElementText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                legendElementText.setAttribute("x", 12);
+                legendElementText.setAttribute("y", y);
+                legendElementText.setAttribute("font-size", 3);
+                legendElementText.setAttribute("dominant-baseline",'mathematical');
+                legendElementText.setAttribute("class", "fontBody");
+                legendElementText.appendChild(document.createTextNode(text));
+                legendElement.appendChild(legendElementText);
+                y += 4;
+            };
+            const lines = legendText.split("\n");
+            lines.forEach(line => newLineOfText(line));
         ]]>
     </script>
 </svg>
