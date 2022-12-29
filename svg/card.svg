@@ -27,8 +27,9 @@
                 font-weight: normal;
                 font-style: italic;
             }
-            .fontTitle {font-family:'Cyber Dyne'}
-            .fontBody {font-family:'EB Garamond'; font-style:italic; font-size:1em}
+            .fontTitle {font-family:'Cyber Dyne'; text-shadow: white .2em .2em;}
+            .fontTitleDark {font-family:'Cyber Dyne'; fill:white; text-shadow: black .2em .2em;}
+            .fontBody {font-family:'EB Garamond'; font-style:italic; font-size:1em;}
         </style>
     </defs>
 
@@ -41,13 +42,13 @@
     <rect id="frame" x="5" y="5" width="90" height="130" fill="#DB4F54" />
 
     <!-- Title -->
-    <text x="9" y="9" font-size="2em" class="fontTitle">Buterin Card</text>
+    <text x="9" y="9" font-size="1.8em" class="fontTitle">Buterin Card</text>
 
     <!-- Buterin image -->
     <image x="9" y="10" width="82" xlink:href="card-images\Buterin.progr.small.jpg" />
 
     <!-- Title -->
-    <text x="9" y="100" font-size="1.5em" class="fontTitle">Trustless</text>
+    <text x="9" y="100" font-size="1.4em" class="fontTitle">Trustless</text>
 
     <!-- Legend text area -->
     <g id="legend">
@@ -66,11 +67,11 @@
             if(frameColorId === undefined) frameColorId = randomColorId();
             document.getElementById("frame").setAttribute("fill", fidenzaPalette[frameColorId]);
 
-            // Set the titles color
+            // Dark theme
             const elements = document.getElementsByClassName("fontTitle");
             if(frameColorId>10){
-                for(let i=0; i<document.getElementsByClassName("fontTitle").length; i++){
-                    elements[i].setAttribute("fill", "white");
+                for(let i=elements.length-1; i<elements.length; i--){
+                    elements[i].setAttribute("class", "fontTitleDark");
                 }
             }
             // CHANGE OUTERFRAME COLOR ACCORDING TO TITLE COLOR???
