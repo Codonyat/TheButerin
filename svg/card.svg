@@ -6,14 +6,13 @@
     xmlns="http://www.w3.org/2000/svg"
     xmlns:xlink="http://www.w3.org/1999/xlink"
     style="font-size: 18%"
-    filter="url(#roughpaper)"
 >
     <defs>
         <style>
             @font-face {
-                font-family: 'Cyber Dyne';
-                src: url(data:application/font-woff;charset=utf-8;base64,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) format('woff');
-                font-weight: normal;
+                font-family: 'Neogrey';
+                src: url(data:application/font-woff;charset=utf-8;base64,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) format('woff');
+                font-weight: medium;
                 font-style: normal;
             }
             @font-face {
@@ -28,10 +27,16 @@
                 font-weight: normal;
                 font-style: italic;
             }
-            .fontTitle {font-family:'Cyber Dyne'; text-shadow: white .2em .2em .2em;}
-            .fontTitleDark {font-family:'Cyber Dyne'; fill:white; text-shadow: black .2em .2em .2em;}
+            .fontTitle {font-family:'Neogrey'; text-shadow: white .1em .1em;}
+            .fontTitleDark {font-family:'Neogrey'; fill:white; text-shadow: black .1em .1em;}
             .fontBody {font-family:'EB Garamond'; font-style:italic; font-size:1em;}
         </style>
+        <pattern id="circuit" viewBox="0 0 304 304" width="304" height="304">
+            <path
+                fill="#000"
+                d="M44.1 224a5 5 0 1 1 0 2H0v-2h44.1zm160 48a5 5 0 1 1 0 2H82v-2h122.1zm57.8-46a5 5 0 1 1 0-2H304v2h-42.1zm0 16a5 5 0 1 1 0-2H304v2h-42.1zm6.2-114a5 5 0 1 1 0 2h-86.2a5 5 0 1 1 0-2h86.2zm-256-48a5 5 0 1 1 0 2H0v-2h12.1zm185.8 34a5 5 0 1 1 0-2h86.2a5 5 0 1 1 0 2h-86.2zM258 12.1a5 5 0 1 1-2 0V0h2v12.1zm-64 208a5 5 0 1 1-2 0v-54.2a5 5 0 1 1 2 0v54.2zm48-198.2V80h62v2h-64V21.9a5 5 0 1 1 2 0zm16 16V64h46v2h-48V37.9a5 5 0 1 1 2 0zm-128 96V208h16v12.1a5 5 0 1 1-2 0V210h-16v-76.1a5 5 0 1 1 2 0zm-5.9-21.9a5 5 0 1 1 0 2H114v48H85.9a5 5 0 1 1 0-2H112v-48h12.1zm-6.2 130a5 5 0 1 1 0-2H176v-74.1a5 5 0 1 1 2 0V242h-60.1zm-16-64a5 5 0 1 1 0-2H114v48h10.1a5 5 0 1 1 0 2H112v-48h-10.1zM66 284.1a5 5 0 1 1-2 0V274H50v30h-2v-32h18v12.1zM236.1 176a5 5 0 1 1 0 2H226v94h48v32h-2v-30h-48v-98h12.1zm25.8-30a5 5 0 1 1 0-2H274v44.1a5 5 0 1 1-2 0V146h-10.1zm-64 96a5 5 0 1 1 0-2H208v-80h16v-14h-42.1a5 5 0 1 1 0-2H226v18h-16v80h-12.1zm86.2-210a5 5 0 1 1 0 2H272V0h2v32h10.1zM98 101.9V146H53.9a5 5 0 1 1 0-2H96v-42.1a5 5 0 1 1 2 0zM53.9 34a5 5 0 1 1 0-2H80V0h2v34H53.9zm60.1 3.9V66H82v64H69.9a5 5 0 1 1 0-2H80V64h32V37.9a5 5 0 1 1 2 0zM101.9 82a5 5 0 1 1 0-2H128V37.9a5 5 0 1 1 2 0V82h-28.1zm16-64a5 5 0 1 1 0-2H146v44.1a5 5 0 1 1-2 0V18h-26.1zm102.2 270a5 5 0 1 1 0 2H98v14h-2v-16h124.1zM242 149.9V160h16v34h-16v62h48v48h-2v-46h-48v-66h16v-30h-16v-12.1a5 5 0 1 1 2 0zM53.9 18a5 5 0 1 1 0-2H64V2H48V0h18v18H53.9zm112 32a5 5 0 1 1 0-2H192V0h50v2h-48v48h-28.1zm-48-48a5 5 0 0 1-9.8-2h2.07a3 3 0 1 0 5.66 0H178v34h-18V21.9a5 5 0 1 1 2 0V32h14V2h-58.1zm0 96a5 5 0 1 1 0-2H137l32-32h39V21.9a5 5 0 1 1 2 0V66h-40.17l-32 32H117.9zm28.1 90.1a5 5 0 1 1-2 0v-76.51L175.59 80H224V21.9a5 5 0 1 1 2 0V82h-49.59L146 112.41v75.69zm16 32a5 5 0 1 1-2 0v-99.51L184.59 96H300.1a5 5 0 0 1 3.9-3.9v2.07a3 3 0 0 0 0 5.66v2.07a5 5 0 0 1-3.9-3.9H185.41L162 121.41v98.69zm-144-64a5 5 0 1 1-2 0v-3.51l48-48V48h32V0h2v50H66v55.41l-48 48v2.69zM50 53.9v43.51l-48 48V208h26.1a5 5 0 1 1 0 2H0v-65.41l48-48V53.9a5 5 0 1 1 2 0zm-16 16V89.41l-34 34v-2.82l32-32V69.9a5 5 0 1 1 2 0zM12.1 32a5 5 0 1 1 0 2H9.41L0 43.41V40.6L8.59 32h3.51zm265.8 18a5 5 0 1 1 0-2h18.69l7.41-7.41v2.82L297.41 50H277.9zm-16 160a5 5 0 1 1 0-2H288v-71.41l16-16v2.82l-14 14V210h-28.1zm-208 32a5 5 0 1 1 0-2H64v-22.59L40.59 194H21.9a5 5 0 1 1 0-2H41.41L66 216.59V242H53.9zm150.2 14a5 5 0 1 1 0 2H96v-56.6L56.6 162H37.9a5 5 0 1 1 0-2h19.5L98 200.6V256h106.1zm-150.2 2a5 5 0 1 1 0-2H80v-46.59L48.59 178H21.9a5 5 0 1 1 0-2H49.41L82 208.59V258H53.9zM34 39.8v1.61L9.41 66H0v-2h8.59L32 40.59V0h2v39.8zM2 300.1a5 5 0 0 1 3.9 3.9H3.83A3 3 0 0 0 0 302.17V256h18v48h-2v-46H2v42.1zM34 241v63h-2v-62H0v-2h34v1zM17 18H0v-2h16V0h2v18h-1zm273-2h14v2h-16V0h2v16zm-32 273v15h-2v-14h-14v14h-2v-16h18v1zM0 92.1A5.02 5.02 0 0 1 6 97a5 5 0 0 1-6 4.9v-2.07a3 3 0 1 0 0-5.66V92.1zM80 272h2v32h-2v-32zm37.9 32h-2.07a3 3 0 0 0-5.66 0h-2.07a5 5 0 0 1 9.8 0zM5.9 0A5.02 5.02 0 0 1 0 5.9V3.83A3 3 0 0 0 3.83 0H5.9zm294.2 0h2.07A3 3 0 0 0 304 3.83V5.9a5 5 0 0 1-3.9-5.9zm3.9 300.1v2.07a3 3 0 0 0-1.83 1.83h-2.07a5 5 0 0 1 3.9-3.9zM97 100a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-48 32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32 48a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16-64a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 96a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-144a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-96 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm96 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16-64a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-32 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM49 36a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-32 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM33 68a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-48a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 240a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16-64a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm80-176a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32 48a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm112 176a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM17 180a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM17 84a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32 64a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"
+            />
+        </pattern>
     </defs>
 
     <!-- Bevel filter I AM NOT YET CONVINCED BY THIS EFFECT -->
@@ -60,43 +65,42 @@
         />
     </filter>
 
-    <filter id='roughpaper'>
-        <feTurbulence type="fractalNoise" baseFrequency='0.04' result='noise' numOctaves="5" />
+    <!-- <filter id="bevel">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="blur" />
+        <feSpecularLighting
+            in="blur"
+            surfaceScale="5"
+            specularConstant=".75"
+            specularExponent="20"
+            lighting-color="#bbbbbb"
+            result="specOut"
+        >
+            <fePointLight x="-5000" y="-10000" z="20000" />
+        </feSpecularLighting>
+        <feComposite in="specOut" in2="SourceAlpha" operator="in" result="spec" />
+        <feComposite in="SourceGraphic" in2="spec" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" />
+    </filter> -->
 
-        <feDiffuseLighting in='noise' lighting-color='#fff' surfaceScale='2' result="paper">
-            <feDistantLight azimuth='45' elevation='60' />
-        </feDiffuseLighting>
-
-        <feComposite
-            in="SourceGraphic"
-            in2="paper"
-            operator="arithmetic"
-            k1="0"
-            k2="1"
-            k3="1"
-            k4="0"
-            result="litPaint"
-        />
-    </filter>
+    <!-- USE THE CIRCUIT PATTERN -->
 
     <!-- Black rounded frame -->
     <rect width="100" height="140" rx="5" fill="black" />
 
     <!-- Colored inner rectangular frame / To be changed according to tokenId -->
-    <rect id="frame" x="5" y="5" width="90" height="130" filter="url(#Bevel2)" />
+    <rect id="frame" x="5" y="5" width="90" height="130" fill="url(#circuit)" />
 
     <!-- Title -->
-    <text x="9" y="9" font-size="1.8em" class="fontTitle">Buterin Card</text>
+    <text x="9" y="9" font-size="1.5em" class="fontTitle">Buterin Card</text>
 
     <!-- Buterin image -->
     <image x="9" y="10" width="82" xlink:href="card-images\Buterin.progr.small.jpg" />
 
     <!-- Title -->
-    <text x="9" y="100" font-size="1.4em" class="fontTitle">Trustless</text>
+    <text x="9" y="100" font-size="1.2em" class="fontTitle">Trustless</text>
 
     <!-- Legend text area -->
     <g id="legend">
-        <rect x="9" y="101" width="82" height="29" fill="white" opacity="0.8" filter="url(#Bevel2)" />
+        <rect x="9" y="101" width="82" height="29" fill="white" opacity="0.8" />
     </g>
 
     <script>
@@ -109,7 +113,7 @@
             // Setting the frame color
             const randomColorId = () => Math.floor(Math.random() * fidenzaPalette.length);
             if(frameColorId === undefined) frameColorId = randomColorId();
-            document.getElementById("frame").setAttribute("fill", fidenzaPalette[frameColorId]);
+            // document.getElementById("frame").setAttribute("fill", fidenzaPalette[frameColorId]);
 
             // Dark theme
             const elements = document.getElementsByClassName("fontTitle");
