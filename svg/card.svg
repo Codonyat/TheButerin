@@ -27,8 +27,16 @@
                 font-weight: normal;
                 font-style: italic;
             }
-            .fontTitle {font-family:'Neogrey'; text-shadow: white .1em .1em;}
-            .fontTitleDark {font-family:'Neogrey'; fill:white; text-shadow: black .1em .1em;}
+        </style>
+        <filter id="text-shadow-white">
+            <feDropShadow dx=".1" dy=".1" stdDeviation="0" flood-color="white" />
+        </filter>
+        <filter id="text-shadow-black">
+            <feDropShadow dx=".1" dy=".1" stdDeviation="0" flood-color="black" />
+        </filter>
+        <style>
+            .fontTitle {font-family:'Neogrey'; fill:black; filter: url(#text-shadow-white);}
+            .fontTitleDark {font-family:'Neogrey'; fill:white; filter: url(#text-shadow-black);}
             .fontBody {font-family:'EB Garamond'; font-style:italic; font-size:1em;}
         </style>
         <pattern id="circuit" viewBox="0 0 304 304" width="304" height="304">
@@ -90,13 +98,13 @@
     <rect id="frame" x="5" y="5" width="90" height="130" fill="url(#circuit)" />
 
     <!-- Title -->
-    <text x="9" y="9" font-size="1.5em" class="fontTitle">Buterin Card</text>
+    <text x="9" y="9" font-size="1.4em" class="fontTitle">Buterin Card</text>
 
     <!-- Buterin image -->
     <image x="9" y="10" width="82" xlink:href="card-images\Buterin.progr.small.jpg" />
 
     <!-- Title -->
-    <text x="9" y="100" font-size="1.2em" class="fontTitle">Trustless</text>
+    <text x="9" y="100" font-size="1.1em" class="fontTitle">Trustless</text>
 
     <!-- Legend text area -->
     <g id="legend">
@@ -113,7 +121,7 @@
             // Setting the frame color
             const randomColorId = () => Math.floor(Math.random() * fidenzaPalette.length);
             if(frameColorId === undefined) frameColorId = randomColorId();
-            // document.getElementById("frame").setAttribute("fill", fidenzaPalette[frameColorId]);
+            document.getElementById("frame").setAttribute("fill", fidenzaPalette[frameColorId]);
 
             // Dark theme
             const elements = document.getElementsByClassName("fontTitle");
