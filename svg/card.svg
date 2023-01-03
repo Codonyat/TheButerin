@@ -28,15 +28,14 @@
                 font-style: normal;
             }
         </style>
-        <filter id="text-shadow-white">
+        <!-- <filter id="text-shadow-white">
             <feDropShadow dx=".1" dy=".1" stdDeviation="0" flood-color="white" />
         </filter>
         <filter id="text-shadow-black">
             <feDropShadow dx=".1" dy=".1" stdDeviation="0" flood-color="black" />
-        </filter>
+        </filter> -->
         <style>
-            .fontTitle {font-family:'Orbitron'; fill:black; filter: url(#text-shadow-white);}
-            .fontTitleDark {font-family:'Orbitron'; fill:white; filter: url(#text-shadow-black);}
+            .fontTitle {font-family:'Orbitron'; fill:black;}
             .fontBody {font-family:'Baskervville'; font-style:italic; font-size:1em;}
         </style>
         <pattern
@@ -58,7 +57,7 @@
     </defs>
 
     <!-- Bevel filter I AM NOT YET CONVINCED BY THIS EFFECT -->
-    <filter id="Bevel2" x="-10%" y="-10%" width="150%" height="150%">
+    <filter id="bevel" x="-10%" y="-10%" width="150%" height="150%">
         <feGaussianBlur in="SourceAlpha" stdDeviation="0.2" result="blur" />
         <feSpecularLighting
             in="blur"
@@ -80,6 +79,15 @@
             k3="1"
             k4="0"
             result="litPaint"
+        />
+        <path
+            id="title-frame"
+            fill="white"
+            d="M8 0
+            Q5 3 8 6
+            H92
+            Q95 3 92 0
+            Z"
         />
     </filter>
 
@@ -105,17 +113,28 @@
     <rect width="100" height="140" rx="5" fill="black" />
 
     <!-- Colored inner rectangular frame / To be changed according to tokenId -->
-    <rect id="frame" x="4" y="4" width="92" height="132" />
-    <rect x="4" y="4" width="92" height="132" fill="url(#circuit)" />
+    <rect id="frame" x="4" y="4" width="92" height="132" rx="2" />
+    <rect x="4" y="4" width="92" height="132" fill="url(#circuit)" rx="2" />
 
     <!-- Title -->
-    <text x="10" y="8.8" font-size="1.4em" class="fontTitle">Buterin Card</text>
+    <path fill="white" d="M8 7
+            Q5 10 8 13
+            H92
+            Q95 10 92 7
+            Z" />
+    <text x="9" y="11.5" font-size="1.3em" class="fontTitle">Buterin Card</text>
 
     <!-- Buterin image -->
-    <image x="10" y="10" width="80" xlink:href="card-images\Buterin.progr.small.jpg" />
+    <image x="8" y="14" width="84" href="card-images\Buterin.small.jpg" />
+    <rect x="8" y="14" width="84" height="67.5" stroke="black" fill-opacity="0" stroke-width=".3%" />
 
-    <!-- Title -->
-    <text x="10" y="99" font-size="1.1em" class="fontTitle">Trustless</text>
+    <!-- Subtitle -->
+    <path fill="white" d="M8 82.5
+            Q5 85.5 8 88.5
+            H92
+            Q95 85.5 92 82.5
+            Z" />
+    <text x="9" y="86.7" font-size="1.1em" class="fontTitle">Trustless</text>
 
     <!-- Legend text area -->
     <g id="legend">
@@ -133,15 +152,6 @@
             const randomColorId = () => Math.floor(Math.random() * fidenzaPalette.length);
             if(frameColorId === undefined) frameColorId = randomColorId();
             document.getElementById("frame").setAttribute("fill", fidenzaPalette[frameColorId]);
-
-            // Dark theme
-            const elements = document.getElementsByClassName("fontTitle");
-            if(frameColorId>10){
-                for(let i=elements.length-1; i>=0; i--){
-                    elements[i].setAttribute("class", "fontTitleDark");
-                }
-            }
-            // CHANGE OUTERFRAME COLOR ACCORDING TO TITLE COLOR???
 
             // Javascript script to wrap text in legend
             const legendText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.\nNunc accumsan nulla et dui efficitur, nec sagittis orci vestibulum.";
