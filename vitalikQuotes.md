@@ -101,3 +101,5 @@ Two eyes for an eye will make the whole world blind in O(log(n)) time.
 Remember that section in the game theory textbook that talks about how being credibly insane can actually give you a strategic advantage?
 
 Doge is E-God spelled backwards.
+
+I think Bitcoin really feels empowering in a sense.
