@@ -174,14 +174,24 @@
     <text x="9" y="86.7" font-size=".9em" class="fontTitle">Trustless</text>
 
     <!-- Legend text area -->
-    <g id="legend" />
+    <g id="legend">
+        <text id="line1" x="9" y="93">line 1</text>
+        <text id="line2" x="9" y="98">line 2</text>
+        <text id="line3" x="9" y="103">line 3</text>
+        <text id="line4" x="9" y="108">line 4</text>
+        <text id="line5" x="9" y="113">line 5</text>
+        <text id="line6" x="9" y="118">line 6</text>
+        <text id="line7" x="9" y="123">line 7</text>
+        <text id="line8" x="9" y="128">line 8</text>
+        <text id="line9" x="9" y="133">line 9</text>
+    </g>
 
     <script>
         <![CDATA[
             const fidenzaPalette = ["#DB4F54","#D12A2F","#E57D32","#FCBC19","#FCD265","#29A691","#7CA9BF","#315F8C","#F7B1A1","#B8D9CE","#E0D7C5","#543E2E","#1F335D","#3B2B20","#121A33","#261C15"];
 
             // Parameters unique to each tokenId
-            let [frameColorId] = [];
+            let [frameColorId,legendText] = [,"“Lorem ipsum dolor sit amet, consectetur\nadipiscing elit.Nunc accumsan nulla et dui\nefficitur, nec sagittis orci vestibulum.”"];
 
             // Setting the frame color
             const randomColorId = () => Math.floor(Math.random() * fidenzaPalette.length);
@@ -190,22 +200,8 @@
             document.getElementById("wrapper").setAttribute("fill", fidenzaPalette[frameColorId]);
 
             // Javascript script to wrap text in legend
-            const legendText = "“Lorem ipsum dolor sit amet, consectetur\nadipiscing elit.Nunc accumsan nulla et dui\nefficitur, nec sagittis orci vestibulum.”";
-            let y = 92;
-            const legendElement = document.getElementById("legend");
-            const newLineOfText = function(text){
-                const legendElementText = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                legendElementText.setAttribute("x", 9);
-                legendElementText.setAttribute("y", y);
-                legendElementText.setAttribute("font-size", 3);
-                legendElementText.setAttribute("dominant-baseline",'mathematical');
-                legendElementText.setAttribute("class", "fontBody");
-                legendElementText.appendChild(document.createTextNode(text));
-                legendElement.appendChild(legendElementText);
-                y += 5;
-            };
-            const lines = legendText.split("\n");
-            lines.forEach(line => newLineOfText(line));
+            // const lines = legendText.split("\n");
+            // lines.forEach(line => newLineOfText(line));
         ]]>
     </script>
 </svg>
