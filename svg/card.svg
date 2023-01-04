@@ -30,7 +30,9 @@
         </style>
         <!-- ADD A 2ND SHADOW AND BLEND THEM -->
         <filter id="shadow">
-            <feDropShadow dx="-1" dy="1" stdDeviation="1" flood-color="black" />
+            <feDropShadow dx="-.7" dy=".7" stdDeviation=".5" flood-color="black" result="shadow1" />
+            <feDropShadow in="SourceGraphic" dx=".25" dy=".7" stdDeviation=".5" flood-color="black" result="shadow2" />
+            <feBlend in="shadow1" in2="shadow2" mode="multiply" />
         </filter>
         <style>
             .fontTitle {font-family:'Orbitron'; fill:black;}
@@ -116,9 +118,23 @@
 
     <!-- Wrapping frame -->
     <path
-        fill="white"
-        fill-opacity=".8"
+        id="wrapper"
         filter="url(#shadow)"
+        d="M7.7 6
+            Q3.8 9.6 7 13.4
+            V82.1
+            Q4 85.5 7 88.9
+            V136
+            H93
+            V88.9
+            Q96 85.5 93 82.1
+            V13.4
+            Q96.2 9.6 92.3 6
+            Z"
+    />
+    <path
+        fill="white"
+        fill-opacity="0.9"
         d="M7.7 6
             Q3.8 9.6 7 13.4
             V82.1
@@ -176,6 +192,7 @@
             const randomColorId = () => Math.floor(Math.random() * fidenzaPalette.length);
             if(frameColorId === undefined) frameColorId = randomColorId();
             document.getElementById("frame").setAttribute("fill", fidenzaPalette[frameColorId]);
+            document.getElementById("wrapper").setAttribute("fill", fidenzaPalette[frameColorId]);
 
             // Javascript script to wrap text in legend
             const legendText = "“Lorem ipsum dolor sit amet, consectetur\nadipiscing elit.Nunc accumsan nulla et dui\nefficitur, nec sagittis orci vestibulum.”";
