@@ -90,68 +90,77 @@
         filter="url(#shadow)"
         fill="white"
         fill-opacity="0.3"
-        d="M7.7 6
-            Q3.8 9.6 7 13.4
-            V82.1
-            Q4 85.5 7 88.9
-            V136
-            H93
-            V88.9
-            Q96 85.5 93 82.1
-            V13.4
-            Q96.2 9.6 92.3 6
+        d="M6 6
+            V13.82842712475
+            l2 2
+            V80.3639610307
+            l -1.46446609407 1.46446609407
+            v5
+            l 1.46446609407 1.46446609407
+            V134
+            H92
+            V88.2928932188
+            l 1.46446609407 -1.46446609407
+            v -5
+            l -1.46446609407 -1.46446609407
+            V16.2928932188
+            l 2 -2
+            V6
             Z"
     />
 
     <!-- Title -->
     <path
+        id="title-label"
         fill="white"
         fill-opacity="0.8"
         stroke="black"
         stroke-width=".3%"
-        d="M8 7
-            l -1.75735931288 1.75735931288
-            v 2.48528137424
-            l 1.75735931288 1.75735931288
-            H92
-            l 1.75735931288 -1.75735931288
-            v -2.48528137424
-            l -1.75735931288 -1.75735931288
+        d="M9 7
+           L7 9
+            v 2.82842712475
+            L 9 13.82842712475
+            H91
+            l 2 -2
+            v -2.82842712475
+            l -2 -2
             Z"
     />
-    <text x="9" y="11.5" font-size="1em" class="fontTitle">Buterin Card</text>
+    <text x="10" y="11.7" font-size="1em" class="fontTitle">Buterin Card</text>
 
     <!-- Buterin image -->
-    <image x="8" y="14" width="84" href="card-images\Buterin.small.jpg" />
-    <rect x="8" y="14" width="84" height="67.5" stroke="black" fill-opacity="0" stroke-width=".3%" />
+    <image x="9" y="14.82842712475" width="82" href="card-images\Buterin.small.jpg" />
+    <rect x="9" y="14.82842712475" width="82" height="66" stroke="black" fill-opacity="0" stroke-width=".3%" />
 
     <!-- Subtitle -->
     <path
         fill="white"
         stroke="black"
         stroke-width=".3%"
-        d="M8 82.5
+        d="M9 81.82842712475
             l -1.46446609407 1.46446609407
             v 2.07106781187
             l 1.46446609407 1.46446609407
-            H92
+            H91
             l 1.46446609407 -1.46446609407
             v -2.07106781187
             l -1.46446609407 -1.46446609407
             Z"
     />
-    <text x="9" y="86.4" font-size=".9em" class="fontTitle">Trustless</text>
+    <text x="10" y="85.8" font-size=".9em" class="fontTitle">Trustless</text>
 
     <!-- Legend text area -->
+    <path fill="white" stroke="black" stroke-width=".3%" d="M9 87.8284271248 V133 
+        H91 V87.8284271248 Z" />
     <g id="legend">
-        <text id="line1" x="9" y="95">line 1</text>
-        <text id="line2" x="9" y="100">line 2</text>
-        <text id="line3" x="9" y="105">line 3</text>
-        <text id="line4" x="9" y="110">line 4</text>
-        <text id="line5" x="9" y="115">line 5</text>
-        <text id="line6" x="9" y="120">line 6</text>
-        <text id="line7" x="9" y="125">line 7</text>
-        <text id="line8" x="9" y="130">line 8</text>
+        <text id="line1" x="11" y="95">line 1</text>
+        <text id="line2" x="11" y="100">line 2</text>
+        <text id="line3" x="11" y="105">line 3</text>
+        <text id="line4" x="11" y="110">line 4</text>
+        <text id="line5" x="11" y="115">line 5</text>
+        <text id="line6" x="11" y="120">line 6</text>
+        <text id="line7" x="11" y="125">line 7</text>
+        <text id="line8" x="11" y="130">line 8</text>
     </g>
 
     <script>
@@ -165,7 +174,9 @@
             const randomColorId = () => Math.floor(Math.random() * fidenzaPalette.length);
             if(frameColorId === undefined) frameColorId = randomColorId();
             document.getElementById("frame").setAttribute("fill", fidenzaPalette[frameColorId]);
-            // document.getElementById("wrapper").setAttribute("fill", fidenzaPalette[frameColorId]);
+
+            // Setting random corners
+            // document.getElementById("title-label").setAttribute("d", fidenzaPalette[frameColorId]);
 
             // Javascript script to wrap text in legend
             // const lines = legendText.split("\n");
