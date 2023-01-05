@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html>
     <script>
-        /* The variables that depend on tokenId are stored at the beginning so it's easy to assemble the SVG */
+        /* The variables that depend on tokenId are stored at the beginning so it's easy to assemble the SVG 
+		ANYTHING BETWEEN THE SQUARE BRACKETS WILL NOT BE PART OF THE FINAL HTML */
         var [seed, quotes] = [
-            0x9e3779b9,
+            (Math.random() * 4294967296) >>> 0,
             [
                 "If crypto succeeds, it's not because it empowers better people, it's because to empowers better institutions.",
                 "Institutional",
@@ -135,22 +136,7 @@
             />
 
             <!-- Title -->
-            <path
-                id="title-label"
-                fill="white"
-                fill-opacity="0.8"
-                stroke="black"
-                stroke-width=".3%"
-                d="M9 7
-			   L7 9
-				v 2.82842712475
-				L 9 13.82842712475
-				H91
-				l 2 -2
-				v -2.82842712475
-				l -2 -2
-				Z"
-            />
+            <path id="title-label" fill="white" fill-opacity="0.8" stroke="black" stroke-width=".3%" />
             <text x="10" y="11.7" font-size="1em" class="fontTitle">Buterin Card</text>
 
             <!-- Buterin image -->
@@ -233,7 +219,17 @@
             document.getElementById("frame").setAttribute("fill", fidenzaPalette[frameColorId]);
 
             // Setting random corners
-            // document.getElementById("title-label").setAttribute("d", fidenzaPalette[frameColorId]);
+            // SHRINK INNER COMPONENTS SO THERE IS MORE GLASS SPACE!!
+            document
+                .getElementById("title-label")
+                .setAttribute(
+                    "d",
+                    `M9 7 L${rnd() < 0.5 ? "7 7" : "7 9"} V${
+                        rnd() < 0.5 ? "11.82842712475" : "13.82842712475"
+                    } L9 13.82842712475 H${rnd() < 0.5 ? "91" : "93"} L93 11.82842712475 V${
+                        rnd() < 0.5 ? "9" : "7"
+                    } L91 7 z`
+                );
 
             // Javascript script to wrap text in legend
             // const lines = legendText.split("\n");
