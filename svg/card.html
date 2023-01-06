@@ -129,13 +129,13 @@
 				l2 2
                 V78.1084271247
 				l-2 2
-				v6
+				v8
 				l2 2
 				V134
 				H92
-                V88.1084271247
+                V90.1084271247
                 l2 -2
-                v-6
+                v-8
                 l-2 -2
                 V17.82842712475
                 l2 -2
@@ -161,7 +161,7 @@
 
             <!-- Subtitle -->
             <path id="subtitleLabel" class="element" />
-            <text x="11" y="84.5" font-size=".8em" class="fontTitle">Trustless</text>
+            <text x="11" y="85.4" font-size=".8em" class="fontTitle">Trustless</text>
 
             <!-- Legend text area -->
             <path
@@ -171,14 +171,14 @@
 			H90 V86.1084271247 Z"
             />
             <g id="legend">
-                <text id="line1" x="11" y="95">line 1</text>
-                <text id="line2" x="11" y="100">line 2</text>
-                <text id="line3" x="11" y="105">line 3</text>
-                <text id="line4" x="11" y="110">line 4</text>
-                <text id="line5" x="11" y="115">line 5</text>
-                <text id="line6" x="11" y="120">line 6</text>
-                <text id="line7" x="11" y="125">line 7</text>
-                <text id="line8" x="11" y="130">line 8</text>
+                <text id="line1" x="12" y="95">line 1</text>
+                <text id="line2" x="12" y="100">line 2</text>
+                <text id="line3" x="12" y="105">line 3</text>
+                <text id="line4" x="12" y="110">line 4</text>
+                <text id="line5" x="12" y="115">line 5</text>
+                <text id="line6" x="12" y="120">line 6</text>
+                <text id="line7" x="12" y="125">line 7</text>
+                <text id="line8" x="12" y="130">line 8</text>
             </g>
         </svg>
 
@@ -238,9 +238,9 @@
                 .getElementById("subtitleLabel")
                 .setAttribute(
                     "d",
-                    `M10 81.1084271247 l-2 ${rnd() < 0.5 ? "0" : "2"} V83.1084271247 l${
-                        rnd() < 0.5 ? "0" : "2"
-                    } 2 H90 l2 ${rnd() < 0.5 ? "0" : "-2"} V83.1084271247 l${rnd() < 0.5 ? "0" : "-2"} -2 z`
+                    `M10 81.1084271247 l-3 ${rnd() < 0.5 ? "0" : "3"} V84.1084271247 l${
+                        rnd() < 0.5 ? "0" : "3"
+                    } 3 H90 l3 ${rnd() < 0.5 ? "0" : "-3"} V84.1084271247 l${rnd() < 0.5 ? "0" : "-3"} -3 z`
                 );
 
             // Setting the protrusions for the image element
@@ -277,7 +277,7 @@
             document.getElementById("imagePath").setAttribute("d", d);
             document.getElementById("imageClipPath").setAttribute("d", d);
 
-            d = generateProtrudedPath(86.1084271247, 45.8915728753);
+            d = generateProtrudedPath(88.1084271247, 43.8915728753);
             document.getElementById("descriptionArea").setAttribute("d", d);
 
             // Javascript script to wrap text in legend
