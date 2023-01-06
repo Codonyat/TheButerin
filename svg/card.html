@@ -90,6 +90,11 @@
                         font-style: italic;
                         font-size: 1em;
                     }
+                    .element {
+                        fill: white;
+                        fill-opacity: 0.9;
+                        filter: url(#shadow);
+                    }
                 </style>
             </defs>
 
@@ -115,58 +120,43 @@
             <path
                 filter="url(#shadow)"
                 fill="white"
-                fill-opacity="0.3"
+                fill-opacity="0.2"
                 d="M6 6
-				V13.82842712475
+				V15.82842712475
 				l2 2
-				V80.3639610307
-				l -1.46446609407 1.46446609407
-				v5
-				l 1.46446609407 1.46446609407
+                V78.1084271247
+				l-2 2
+				v6
+				l2 2
 				V134
 				H92
-				V88.2928932188
-				l 1.46446609407 -1.46446609407
-				v -5
-				l -1.46446609407 -1.46446609407
-				V16.2928932188
-				l 2 -2
-				V6
+                V88.1084271247
+                l2 -2
+                v-6
+                l-2 -2
+                V17.82842712475
+                l2 -2
+                V6
 				Z"
             />
 
             <!-- Title -->
-            <path id="title-label" fill="white" fill-opacity="0.8" stroke="black" stroke-width=".3%" />
-            <text x="10" y="11.7" font-size="1em" class="fontTitle">Buterin Card</text>
+            <path id="title-label" class="element" />
+            <text x="11" y="12.8" font-size="1em" class="fontTitle">Buterin Card</text>
 
             <!-- Buterin image -->
-            <image x="9" y="14.82842712475" width="82" href="card-images\Buterin.small.jpg" />
-            <rect x="9" y="14.82842712475" width="82" height="66" stroke="black" fill-opacity="0" stroke-width=".3%" />
+            <rect x="10" y="15.82842712475" width="80" height="64.28" class="element" />
+            <image x="10" y="15.82842712475" width="80" href="card-images\Buterin.small.jpg" />
 
             <!-- Subtitle -->
-            <path
-                fill="white"
-                stroke="black"
-                stroke-width=".3%"
-                d="M9 81.82842712475
-				l -1.46446609407 1.46446609407
-				v 2.07106781187
-				l 1.46446609407 1.46446609407
-				H91
-				l 1.46446609407 -1.46446609407
-				v -2.07106781187
-				l -1.46446609407 -1.46446609407
-				Z"
-            />
-            <text x="10" y="85.8" font-size=".9em" class="fontTitle">Trustless</text>
+            <path id="subtitle-label" class="element" />
+            <text x="11" y="84.5" font-size=".8em" class="fontTitle">Trustless</text>
 
             <!-- Legend text area -->
             <path
-                fill="white"
-                stroke="black"
-                stroke-width=".3%"
-                d="M9 87.8284271248 V133 
-			H91 V87.8284271248 Z"
+                class="element"
+                d="M10 86.1084271247 V132
+			H90 V86.1084271247 Z"
             />
             <g id="legend">
                 <text id="line1" x="11" y="95">line 1</text>
@@ -224,11 +214,17 @@
                 .getElementById("title-label")
                 .setAttribute(
                     "d",
-                    `M9 7 L${rnd() < 0.5 ? "7 7" : "7 9"} V${
-                        rnd() < 0.5 ? "11.82842712475" : "13.82842712475"
-                    } L9 13.82842712475 H${rnd() < 0.5 ? "91" : "93"} L93 11.82842712475 V${
-                        rnd() < 0.5 ? "9" : "7"
-                    } L91 7 z`
+                    `M10 8 l-2 ${rnd() < 0.5 ? "0" : "2"} V12.82842712475 l${rnd() < 0.5 ? "0" : "2"} 2 H90 l2 ${
+                        rnd() < 0.5 ? "0" : "-2"
+                    } V10 l${rnd() < 0.5 ? "0" : "-2"} -2 z`
+                );
+            document
+                .getElementById("subtitle-label")
+                .setAttribute(
+                    "d",
+                    `M10 81.1084271247 l-2 ${rnd() < 0.5 ? "0" : "2"} V83.1084271247 l${
+                        rnd() < 0.5 ? "0" : "2"
+                    } 2 H90 l2 ${rnd() < 0.5 ? "0" : "-2"} V83.1084271247 l${rnd() < 0.5 ? "0" : "-2"} -2 z`
                 );
 
             // Javascript script to wrap text in legend
