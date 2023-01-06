@@ -6,9 +6,9 @@
         var [seed, quotes] = [
             (Math.random() * 4294967296) >>> 0,
             [
-                "If crypto succeeds, it's not because it empowers better people, it's because to empowers better institutions.",
+                "If crypto succeeds,\nit's not because it empowers better people,\nit's because to empowers better institutions.",
                 "Institutional",
-                "Bitcoin is great as a form of digital money, but its scripting language is too weak for any kind of serious advanced applications to be built on top.",
+                "Bitcoin is great as a form of digital money,\nbut its scripting language is too weak for any kind\nof serious advanced applications to be built on top.",
                 "Scripter"
             ]
         ];
@@ -128,15 +128,15 @@
 				V15.82842712475
 				l2 2
                 V78.1084271247
-				l-2 2
-				v8
-				l2 2
+				l-3 3
+				v6
+				l3 3
 				V134
 				H92
                 V90.1084271247
-                l2 -2
-                v-8
-                l-2 -2
+                l3 -3
+                v-6
+                l-3 -3
                 V17.82842712475
                 l2 -2
                 V6
@@ -144,12 +144,10 @@
             />
 
             <!-- Title -->
-            <!-- DO CLASS EFFECTS FOR ELEMENTS -->
             <path id="titleLabel" class="element" />
             <text x="11" y="12.8" font-size="1em" class="fontTitle">Buterin Card</text>
 
             <!-- Buterin image -->
-            <!-- <rect x="10" y="15.82842712475" width="80" height="64.28" class="element" /> -->
             <path id="imagePath" class="element" />
             <image
                 x="10"
@@ -170,15 +168,15 @@
                 d="M10 86.1084271247 V132
 			H90 V86.1084271247 Z"
             />
-            <g id="legend">
-                <text id="line1" x="12" y="95">line 1</text>
-                <text id="line2" x="12" y="100">line 2</text>
-                <text id="line3" x="12" y="105">line 3</text>
-                <text id="line4" x="12" y="110">line 4</text>
-                <text id="line5" x="12" y="115">line 5</text>
-                <text id="line6" x="12" y="120">line 6</text>
-                <text id="line7" x="12" y="125">line 7</text>
-                <text id="line8" x="12" y="130">line 8</text>
+            <g id="description">
+                <text id="line1" x="12" y="94"></text>
+                <text id="line2" x="12" y="99"></text>
+                <text id="line3" x="12" y="104"></text>
+                <text id="line4" x="12" y="109"></text>
+                <text id="line5" x="12" y="114"></text>
+                <text id="line6" x="12" y="119"></text>
+                <text id="line7" x="12" y="124"></text>
+                <text id="line8" x="12" y="129"></text>
             </g>
         </svg>
 
@@ -193,7 +191,7 @@
 
             // Exponential PRNG
             const rndExp = function () {
-                return -Math.log(1.0 - rnd()) * 15;
+                return -Math.log(1.0 - rnd()) * 20;
             };
 
             const fidenzaPalette = [
@@ -215,14 +213,8 @@
                 "#261C15"
             ];
 
-            // Parameters unique to each tokenId
-            let [frameColorId, legendText] = [
-                ,
-                "“Lorem ipsum dolor sit amet, consectetur\nadipiscing elit.Nunc accumsan nulla et dui\nefficitur, nec sagittis orci vestibulum.”"
-            ];
-
             // Setting the frame color
-            frameColorId = Math.floor(rnd() * fidenzaPalette.length);
+            const frameColorId = Math.floor(rnd() * fidenzaPalette.length);
             document.getElementById("frame").setAttribute("fill", fidenzaPalette[frameColorId]);
 
             // Setting random corners
@@ -280,9 +272,18 @@
             d = generateProtrudedPath(88.1084271247, 43.8915728753);
             document.getElementById("descriptionArea").setAttribute("d", d);
 
-            // Javascript script to wrap text in legend
-            // const lines = legendText.split("\n");
-            // lines.forEach(line => newLineOfText(line));
+            // Javascript script to wrap text in description
+            const index = Math.floor((rnd() * quotes.length) / 2);
+            const descriptionText = quotes[index * 2];
+            const subtitleText = quotes[index * 2 + 1];
+            const lines = descriptionText.split("\n");
+            lines[0] = "\u201c" + lines[0];
+            lines[lines.length - 1] = lines[lines.length - 1] + "\u201d";
+            lines.forEach((line, ind) => {
+                const textNode = document.createTextNode(line);
+                document.getElementById(`line${ind + 1}`).appendChild(textNode);
+                // ALSO SET CLASS TO IT'S ITALIC
+            });
         </script>
     </body>
 </html>
