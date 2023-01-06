@@ -8,7 +8,7 @@
             [
                 "If crypto succeeds,\nit's not because it empowers better people,\nit's because to empowers better institutions.",
                 "Institutional",
-                "Bitcoin is great as a form of digital money,\nbut its scripting language is too weak for any kind\nof serious advanced applications to be built on top.",
+                "Bitcoin is great as a form of digital money,\nbut its scripting language is too weak\nfor any kind of serious advanced applications\nto be built on top.",
                 "Scripter"
             ]
         ];
@@ -85,7 +85,7 @@
                         font-family: "Orbitron";
                         fill: black;
                     }
-                    .fontBody {
+                    .fontQuote {
                         font-family: "Baskervville";
                         font-style: italic;
                         font-size: 1em;
@@ -159,7 +159,7 @@
 
             <!-- Subtitle -->
             <path id="subtitleLabel" class="element" />
-            <text x="11" y="85.4" font-size=".8em" class="fontTitle">Trustless</text>
+            <text id="subtitleText" x="11" y="85.4" font-size=".8em" class="fontTitle"></text>
 
             <!-- Legend text area -->
             <path
@@ -169,14 +169,14 @@
 			H90 V86.1084271247 Z"
             />
             <g id="description">
-                <text id="line1" x="12" y="94"></text>
-                <text id="line2" x="12" y="99"></text>
-                <text id="line3" x="12" y="104"></text>
-                <text id="line4" x="12" y="109"></text>
-                <text id="line5" x="12" y="114"></text>
-                <text id="line6" x="12" y="119"></text>
-                <text id="line7" x="12" y="124"></text>
-                <text id="line8" x="12" y="129"></text>
+                <text id="line1" x="50%" y="94" text-anchor="middle"></text>
+                <text id="line2" x="50%" y="99" text-anchor="middle"></text>
+                <text id="line3" x="50%" y="104" text-anchor="middle"></text>
+                <text id="line4" x="50%" y="109" text-anchor="middle"></text>
+                <text id="line5" x="50%" y="114" text-anchor="middle"></text>
+                <text id="line6" x="50%" y="119" text-anchor="middle"></text>
+                <text id="line7" x="50%" y="124" text-anchor="middle"></text>
+                <text id="line8" x="50%" y="129" text-anchor="middle"></text>
             </g>
         </svg>
 
@@ -280,10 +280,14 @@
             lines[0] = "\u201c" + lines[0];
             lines[lines.length - 1] = lines[lines.length - 1] + "\u201d";
             lines.forEach((line, ind) => {
-                const textNode = document.createTextNode(line);
-                document.getElementById(`line${ind + 1}`).appendChild(textNode);
-                // ALSO SET CLASS TO IT'S ITALIC
+                const lineElement = document.getElementById(`line${ind + 1}`);
+                lineElement.appendChild(document.createTextNode(line));
+                lineElement.setAttribute("class", "fontQuote");
             });
+
+            // Setting the subtitle
+            const subtitleElement = document.getElementById("subtitleText");
+            subtitleElement.appendChild(document.createTextNode(subtitleText));
         </script>
     </body>
 </html>
