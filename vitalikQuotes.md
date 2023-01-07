@@ -4,7 +4,7 @@ I came up with the idea behind Ethereum. This idea of a blockchain with a built-
 
 Whereas most technologies tend to automate workers on the periphery doing menial tasks, blockchains automate away the center. Instead of putting the taxi driver out of a job, blockchain puts Uber out of a job and lets the taxi drivers work with the customer directly.
 
-If crypto succeeds, it's not because it empowers better people, it's because to empowers better institutions.
+If crypto succeeds, it's not because it empowers better people, it's because it empowers better institutions.
 
 Bitcoin is great as a form of digital money, but its scripting language is too weak for any kind of serious advanced applications to be built on top.
 
