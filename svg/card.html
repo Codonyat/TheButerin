@@ -50,7 +50,7 @@
                     width="304"
                     height="304"
                     patternUnits="userSpaceOnUse"
-                    patternTransform="scale(.1 0.1)"
+                    patternTransform="scale(.1 .1)"
                 >
                     >
                     <rect id="circuitFill" width="304" height="304" />
@@ -77,6 +77,9 @@
                     <feDropShadow dx=".5" dy=".5" stdDeviation=".3" flood-color="black" flood-opacity="1" />
                 </filter>
                 <filter id="blur">
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="3" />
+                </filter>
+                <filter id="3d">
                     <feGaussianBlur in="SourceGraphic" stdDeviation="3" />
                 </filter>
                 <!-- <filter id="glow">
@@ -149,7 +152,9 @@
                 </clipPath>
                 <path
                     id="frameWrap"
-                    d="M6 6
+                    stroke-linejoin="round"
+                    d="M94 6
+                    H6
                     V15.82842712475
                     l2 2
                     V78.1084271247
@@ -164,7 +169,6 @@
                     l-3 -3
                     V17.82842712475
                     l2 -2
-                    V6
                     Z"
                 />
             </defs>
@@ -190,7 +194,16 @@
             <!-- Wrapping frame -->
             <g filter="url(#shadow)">
                 <use href="#frameWrap" fill="url(#circuitBlurry)" />
-                <use href="#frameWrap" fill="white" fill-opacity=".4" />
+                <use href="#frameWrap" fill="white" fill-opacity=".5" />
+                <use href="#frameWrap" fill="transparent" stroke="white" stroke-width=".5" stroke-opacity=".2" />
+                <use
+                    href="#frameWrap"
+                    fill="transparent"
+                    stroke="white"
+                    stroke-width=".5"
+                    stroke-opacity=".1"
+                    stroke-dasharray="0 219.313708499 219.313708499"
+                />
             </g>
 
             <!-- Title -->
