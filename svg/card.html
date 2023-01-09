@@ -79,57 +79,19 @@
                 <filter id="blur">
                     <feGaussianBlur in="SourceGraphic" stdDeviation="3" />
                 </filter>
-                <filter id="3d">
-                    <feGaussianBlur in="SourceGraphic" stdDeviation="3" />
-                </filter>
-                <!-- <filter id="glow">
-                    <feGaussianBlur in="SourceAlpha " stdDeviation=".2" />
-                    <feColorMatrix
-                        type="matrix"
-                        values="0 0 0 0 1
-                                0 0 0 0 0
-                                0 0 0 0 0
-                                1 1 1 1 0"
+                <!-- <filter id="emboss" w>
+                    <feConvolveMatrix
+                        order="5 5"
+                        preserveAlpha="true"
+                        kernelMatrix="-1 0 0 0 0 0 -2 0 0 0 0 0 3 0 0 0 0 0 0 0 0 0 0 0 0"
                     />
-                    <feMerge>
-                        <feMergeNode />
-                        <feMergeNode in="SourceGraphic" />
-                    </feMerge>
                 </filter> -->
-                <!-- <filter id="3d">
-                    <feMorphology operator="dilate" radius=".2" in="SourceAlpha" result="dark_edge_01" />
-                    <feOffset dx=".25" dy=".25" in="dark_edge_01" result="dark_edge_03" />
-                    <feFlood flood-color="black" result="dark_edge_04" />
-                    <feComposite in="dark_edge_04" in2="dark_edge_03" operator="in" result="dark_edge" />
-
-                    <feMorphology operator="dilate" radius=".2" in="SourceAlpha" result="light_edge_01" />
-                    <feOffset dx="-.1" dy="-.1" in="light_edge_01" result="light_edge_03" />
-                    <feFlood flood-color="white" result="light_edge_04" />
-                    <feComposite in="light_edge_04" in2="light_edge_03" operator="in" result="light_edge" />
-       
-                    <feMerge result="edges">
-                        <feMergeNode in="dark_edge" />
-                        <feMergeNode in="light_edge" />
-                    </feMerge>
-                    <feComposite in="edges" in2="SourceGraphic" operator="out" result="edges_complete" />
-       
-                    <feGaussianBlur stdDeviation="5" result="bevel_blur" />
-                    <feSpecularLighting
-                        result="bevel_lighting"
-                        in="bevel_blur"
-                        specularConstant="2.4"
-                        specularExponent="13"
-                        lighting-color="rgba(60,60,60,.4)"
-                    >
-                        <feDistantLight azimuth="25" elevation="40" />
-                    </feSpecularLighting>
-                    <feComposite in="bevel_lighting" in2="SourceGraphic" operator="in" result="bevel_complete" />
-
-                    <feMerge result="complete">
-                        <feMergeNode in="edges_complete" />
-                        <feMergeNode in="bevel_complete" />
-                        <feMergeNode in="SourceGraphic" />
-                    </feMerge>
+                <!-- <filter id="glow">
+                    <fegaussianblur class="blur" result="coloredBlur" stddeviation=".2"></fegaussianblur>
+                    <femerge>
+                        <femergenode in="coloredBlur"></femergenode>
+                        <femergenode in="SourceGraphic"></femergenode>
+                    </femerge>
                 </filter> -->
                 <style>
                     .fontTitle {
@@ -208,8 +170,9 @@
 
             <!-- Title -->
             <g>
-                <path id="titleLabel" class="element" />
-                <text x="11" y="13.4" font-size="1.3em" stroke-fill="red" class="fontTitle">Buterin Card</text>
+                <path id="titleLabel" fill="white" opacity=".8" stroke="green" stroke-width=".3" />
+                <!-- ADD GRADIENT IN THE FILL ? ADD GLOW?? -->
+                <text x="11" y="13.4" font-size="1.3em" class="fontTitle">Buterin Card</text>
             </g>
 
             <!-- Buterin image -->
@@ -299,14 +262,14 @@
             document.getElementById("circuitFill").setAttribute("fill", fidenzaPalette[frameColorId]);
 
             // Setting random corners
-            document
-                .getElementById("titleLabel")
-                .setAttribute(
-                    "d",
-                    `M10 8 l-2 ${rnd() < 0.5 ? "0" : "2"} V12.82842712475 l${rnd() < 0.5 ? "0" : "2"} 2 H90 l2 ${
-                        rnd() < 0.5 ? "0" : "-2"
-                    } V10 l${rnd() < 0.5 ? "0" : "-2"} -2 z`
-                );
+            const titleLabelElement = document.getElementById("titleLabel");
+            titleLabelElement.setAttribute(
+                "d",
+                `M10 8 l-2 ${rnd() < 0.5 ? "0" : "2"} V12.82842712475 l${rnd() < 0.5 ? "0" : "2"} 2 H90 l2 ${
+                    rnd() < 0.5 ? "0" : "-2"
+                } V10 l${rnd() < 0.5 ? "0" : "-2"} -2 z`
+            );
+            titleLabelElement.setAttribute("stroke", fidenzaPalette[frameColorId]);
             document
                 .getElementById("subtitleLabel")
                 .setAttribute(
