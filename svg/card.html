@@ -83,7 +83,7 @@
                     patternTransform="scale(.1 0.1)"
                 >
                     >
-                    <rect id="circuitFill2" width="304" height="304" />
+                    <rect id="circuitFill2" fill="white" width="304" height="304" />
                     <use href="#circuitPath" filter="url(#blur)" />
                 </pattern>
                 <filter id="shadow">
@@ -100,11 +100,12 @@
                     />
                 </filter> -->
                 <filter id="glow">
-                    <fegaussianblur in="SourceGraphic" stddeviation=".5" result="blurred"></fegaussianblur>
-                    <fegaussianblur in="SourceAlpha" stddeviation=".5" result="blurredAlpha"></fegaussianblur>
-                    <feBlend in="shine" in2="blurred" mode="lighten" result="glowy" />
+                    <fegaussianblur in="SourceGraphic" stddeviation=".5" result="blurredColor"></fegaussianblur>
+                    <fegaussianblur in="SourceAlpha" stddeviation=".25" result="blurredAlpha"></fegaussianblur>
                     <femerge>
-                        <femergenode in="glowy"></femergenode>
+                        <femergenode in="blurredColor"></femergenode>
+                        <femergenode in="blurredAlpha"></femergenode>
+                        <femergenode in="blurredColor"></femergenode>
                         <femergenode in="blurredAlpha"></femergenode>
                         <femergenode in="SourceGraphic"></femergenode>
                     </femerge>
@@ -120,9 +121,8 @@
                         font-size: 1em;
                     }
                     .element {
-                        stroke: black;
-                        stroke-width: 0.2;
-                        stroke-opacity: 0.5;
+                        stroke-width: 0.4;
+                        stroke-opacity: 0.7;
                         fill-opacity: 0.7;
                         fill: white;
                     }
@@ -190,10 +190,12 @@
             </g>
 
             <!-- Title -->
-            <!-- MAKE A GROOVE AS CONTOUR!! -->
-            <g filter="url(#glow)">
-                <use href="#titlePath" fill="url(#circuitBlurry2)" />
+            <g>
+                <!-- <use href="#titlePath" fill="url(#circuitBlurry2)" /> -->
                 <use id="titleLabel" href="#titlePath" class="element" />
+                <use href="#titlePath" stroke="black" stroke-width=".3" stroke-opacity=".2" fill="transparent" />
+                <use href="#titlePath" stroke="black" stroke-width=".2" stroke-opacity=".2" fill="transparent" />
+                <use href="#titlePath" stroke="black" stroke-width=".1" stroke-opacity=".2" fill="transparent" />
                 <text x="11" y="13.4" font-size="1.3em" class="fontTitle">Buterin Card</text>
             </g>
 
@@ -210,15 +212,21 @@
             </g>
 
             <!-- Subtitle -->
-            <g filter="url(#glow)">
-                <use href="#subtitlePath" fill="url(#circuitBlurry2)" />
+            <g>
+                <!-- <use href="#subtitlePath" fill="url(#circuitBlurry2)" /> -->
                 <use id="subtitleLabel" href="#subtitlePath" class="element" />
+                <use href="#subtitlePath" stroke="black" stroke-width=".3" stroke-opacity=".2" fill="transparent" />
+                <use href="#subtitlePath" stroke="black" stroke-width=".2" stroke-opacity=".2" fill="transparent" />
+                <use href="#subtitlePath" stroke="black" stroke-width=".1" stroke-opacity=".2" fill="transparent" />
                 <text id="subtitleText" x="11" y="85.6" font-size="1em" class="fontTitle"></text>
             </g>
 
             <!-- Description text area -->
-            <g filter="url(#glow)">
-                <use href="#descriptionPath" class="element" />
+            <g>
+                <use id="description" href="#descriptionPath" class="element" />
+                <use href="#descriptionPath" stroke="black" stroke-width=".3" stroke-opacity=".2" fill="transparent" />
+                <use href="#descriptionPath" stroke="black" stroke-width=".2" stroke-opacity=".2" fill="transparent" />
+                <use href="#descriptionPath" stroke="black" stroke-width=".1" stroke-opacity=".2" fill="transparent" />
                 <g id="description">
                     <text id="line1" x="50%" y="94" text-anchor="middle"></text>
                     <text id="line2" x="50%" y="99" text-anchor="middle"></text>
@@ -281,7 +289,9 @@
             const frameColorId = Math.floor(rnd() * fidenzaPalette.length);
             const frameColorId2 = Math.floor(rnd() * fidenzaPalette.length);
             document.getElementById("circuitFill").setAttribute("fill", fidenzaPalette[frameColorId]);
-            document.getElementById("circuitFill2").setAttribute("fill", "white");
+            document.getElementById("titleLabel").setAttribute("stroke", fidenzaPalette[frameColorId]);
+            document.getElementById("subtitleLabel").setAttribute("stroke", fidenzaPalette[frameColorId]);
+            document.getElementById("description").setAttribute("stroke", fidenzaPalette[frameColorId]);
 
             // Setting random corners
             document
@@ -292,7 +302,7 @@
                         rnd() < 0.5 ? "0" : "-2"
                     } V10 l${rnd() < 0.5 ? "0" : "-2"} -2 z`
                 );
-            // document.getElementById("titleLabel").setAttribute("fill", fidenzaPalette[frameColorId2]);
+
             document
                 .getElementById("subtitlePath")
                 .setAttribute(
@@ -301,7 +311,6 @@
                         rnd() < 0.5 ? "0" : "3"
                     } 3 H90 l3 ${rnd() < 0.5 ? "0" : "-3"} V84.1084271247 l${rnd() < 0.5 ? "0" : "-3"} -3 z`
                 );
-            // document.getElementById("subtitleLabel").setAttribute("stroke", fidenzaPalette[frameColorId]);
 
             // Setting the protrusions for the image element
             const generateProtrudedPath = function (y0, height) {
