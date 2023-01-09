@@ -73,6 +73,19 @@
                     <use href="#circuitFill" />
                     <use href="#circuitPath" filter="url(#blur)" />
                 </pattern>
+                <pattern
+                    id="circuitBlurry2"
+                    x="0"
+                    y="0"
+                    width="304"
+                    height="304"
+                    patternUnits="userSpaceOnUse"
+                    patternTransform="scale(.1 0.1)"
+                >
+                    >
+                    <rect id="circuitFill2" width="304" height="304" />
+                    <use href="#circuitPath" filter="url(#blur)" />
+                </pattern>
                 <filter id="shadow">
                     <feDropShadow dx=".5" dy=".5" stdDeviation=".3" flood-color="black" flood-opacity="1" />
                 </filter>
@@ -86,13 +99,16 @@
                         kernelMatrix="-1 0 0 0 0 0 -2 0 0 0 0 0 3 0 0 0 0 0 0 0 0 0 0 0 0"
                     />
                 </filter> -->
-                <!-- <filter id="glow">
-                    <fegaussianblur class="blur" result="coloredBlur" stddeviation=".2"></fegaussianblur>
+                <filter id="glow">
+                    <fegaussianblur in="SourceGraphic" stddeviation=".5" result="blurred"></fegaussianblur>
+                    <fegaussianblur in="SourceAlpha" stddeviation=".5" result="blurredAlpha"></fegaussianblur>
+                    <feBlend in="shine" in2="blurred" mode="lighten" result="glowy" />
                     <femerge>
-                        <femergenode in="coloredBlur"></femergenode>
+                        <femergenode in="glowy"></femergenode>
+                        <femergenode in="blurredAlpha"></femergenode>
                         <femergenode in="SourceGraphic"></femergenode>
                     </femerge>
-                </filter> -->
+                </filter>
                 <style>
                     .fontTitle {
                         font-family: "Orbitron";
@@ -104,16 +120,18 @@
                         font-size: 1em;
                     }
                     .element {
+                        stroke: black;
+                        stroke-width: 0.2;
+                        stroke-opacity: 0.5;
+                        fill-opacity: 0.7;
                         fill: white;
-                        fill-opacity: 0.6;
-                        filter: url(#shadow);
                     }
                 </style>
                 <clipPath id="imageClip">
                     <path id="imageClipPath" />
                 </clipPath>
                 <path
-                    id="frameWrap"
+                    id="framePath"
                     stroke-linejoin="round"
                     d="M94 6
                     H6
@@ -133,6 +151,9 @@
                     l2 -2
                     Z"
                 />
+                <path id="titlePath" stroke-linejoin="round" />
+                <path id="subtitlePath" stroke-linejoin="round" />
+                <path id="descriptionPath" stroke-linejoin="round" />
             </defs>
 
             <!-- Black rounded frame -->
@@ -155,11 +176,11 @@
 
             <!-- Wrapping frame -->
             <g filter="url(#shadow)">
-                <use href="#frameWrap" fill="url(#circuitBlurry)" />
-                <use href="#frameWrap" fill="white" fill-opacity=".5" />
-                <use href="#frameWrap" fill="transparent" stroke="white" stroke-width=".5" stroke-opacity=".2" />
+                <use href="#framePath" fill="url(#circuitBlurry)" />
+                <use href="#framePath" fill="white" fill-opacity=".5" />
+                <use href="#framePath" fill="transparent" stroke="white" stroke-width=".5" stroke-opacity=".2" />
                 <use
-                    href="#frameWrap"
+                    href="#framePath"
                     fill="transparent"
                     stroke="white"
                     stroke-width=".5"
@@ -169,15 +190,15 @@
             </g>
 
             <!-- Title -->
-            <g>
-                <path id="titleLabel" fill="white" opacity=".8" stroke="green" stroke-width=".3" />
-                <!-- ADD GRADIENT IN THE FILL ? ADD GLOW?? -->
+            <!-- MAKE A GROOVE AS CONTOUR!! -->
+            <g filter="url(#glow)">
+                <use href="#titlePath" fill="url(#circuitBlurry2)" />
+                <use id="titleLabel" href="#titlePath" class="element" />
                 <text x="11" y="13.4" font-size="1.3em" class="fontTitle">Buterin Card</text>
             </g>
 
             <!-- Buterin image -->
-            <g>
-                <path id="imagePath" class="element" />
+            <g filter="url(#glow)">
                 <image
                     x="10"
                     y="15.82842712475"
@@ -185,30 +206,29 @@
                     href="card-images\Buterin.small.jpg"
                     clip-path="url(#imageClip)"
                 />
+                <use href="#imageClipPath" stroke="black" stroke-width=".2" stroke-opacity=".2" fill="transparent" />
             </g>
 
             <!-- Subtitle -->
-            <g>
-                <path id="subtitleLabel" class="element" />
+            <g filter="url(#glow)">
+                <use href="#subtitlePath" fill="url(#circuitBlurry2)" />
+                <use id="subtitleLabel" href="#subtitlePath" class="element" />
                 <text id="subtitleText" x="11" y="85.6" font-size="1em" class="fontTitle"></text>
             </g>
 
-            <!-- Legend text area -->
-            <path
-                id="descriptionArea"
-                class="element"
-                d="M10 86.1084271247 V132
-			    H90 V86.1084271247 Z"
-            />
-            <g id="description">
-                <text id="line1" x="50%" y="94" text-anchor="middle"></text>
-                <text id="line2" x="50%" y="99" text-anchor="middle"></text>
-                <text id="line3" x="50%" y="104" text-anchor="middle"></text>
-                <text id="line4" x="50%" y="109" text-anchor="middle"></text>
-                <text id="line5" x="50%" y="114" text-anchor="middle"></text>
-                <text id="line6" x="50%" y="119" text-anchor="middle"></text>
-                <text id="line7" x="50%" y="124" text-anchor="middle"></text>
-                <text id="line8" x="50%" y="129" text-anchor="middle"></text>
+            <!-- Description text area -->
+            <g filter="url(#glow)">
+                <use href="#descriptionPath" class="element" />
+                <g id="description">
+                    <text id="line1" x="50%" y="94" text-anchor="middle"></text>
+                    <text id="line2" x="50%" y="99" text-anchor="middle"></text>
+                    <text id="line3" x="50%" y="104" text-anchor="middle"></text>
+                    <text id="line4" x="50%" y="109" text-anchor="middle"></text>
+                    <text id="line5" x="50%" y="114" text-anchor="middle"></text>
+                    <text id="line6" x="50%" y="119" text-anchor="middle"></text>
+                    <text id="line7" x="50%" y="124" text-anchor="middle"></text>
+                    <text id="line8" x="50%" y="129" text-anchor="middle"></text>
+                </g>
             </g>
         </svg>
 
@@ -259,25 +279,29 @@
 
             // Setting the frame color
             const frameColorId = Math.floor(rnd() * fidenzaPalette.length);
+            const frameColorId2 = Math.floor(rnd() * fidenzaPalette.length);
             document.getElementById("circuitFill").setAttribute("fill", fidenzaPalette[frameColorId]);
+            document.getElementById("circuitFill2").setAttribute("fill", "white");
 
             // Setting random corners
-            const titleLabelElement = document.getElementById("titleLabel");
-            titleLabelElement.setAttribute(
-                "d",
-                `M10 8 l-2 ${rnd() < 0.5 ? "0" : "2"} V12.82842712475 l${rnd() < 0.5 ? "0" : "2"} 2 H90 l2 ${
-                    rnd() < 0.5 ? "0" : "-2"
-                } V10 l${rnd() < 0.5 ? "0" : "-2"} -2 z`
-            );
-            titleLabelElement.setAttribute("stroke", fidenzaPalette[frameColorId]);
             document
-                .getElementById("subtitleLabel")
+                .getElementById("titlePath")
+                .setAttribute(
+                    "d",
+                    `M10 8 l-2 ${rnd() < 0.5 ? "0" : "2"} V12.82842712475 l${rnd() < 0.5 ? "0" : "2"} 2 H90 l2 ${
+                        rnd() < 0.5 ? "0" : "-2"
+                    } V10 l${rnd() < 0.5 ? "0" : "-2"} -2 z`
+                );
+            // document.getElementById("titleLabel").setAttribute("fill", fidenzaPalette[frameColorId2]);
+            document
+                .getElementById("subtitlePath")
                 .setAttribute(
                     "d",
                     `M10 81.1084271247 l-3 ${rnd() < 0.5 ? "0" : "3"} V84.1084271247 l${
                         rnd() < 0.5 ? "0" : "3"
                     } 3 H90 l3 ${rnd() < 0.5 ? "0" : "-3"} V84.1084271247 l${rnd() < 0.5 ? "0" : "-3"} -3 z`
                 );
+            // document.getElementById("subtitleLabel").setAttribute("stroke", fidenzaPalette[frameColorId]);
 
             // Setting the protrusions for the image element
             const generateProtrudedPath = function (y0, height) {
@@ -310,11 +334,11 @@
             };
 
             let d = generateProtrudedPath(15.82842712475, 64.28);
-            document.getElementById("imagePath").setAttribute("d", d);
+            // document.getElementById("imagePath").setAttribute("d", d);
             document.getElementById("imageClipPath").setAttribute("d", d);
 
             d = generateProtrudedPath(88.1084271247, 43.8915728753);
-            document.getElementById("descriptionArea").setAttribute("d", d);
+            document.getElementById("descriptionPath").setAttribute("d", d);
 
             // Javascript script to wrap text in description
             const index = Math.floor((rnd() * quotes.length) / 2);
