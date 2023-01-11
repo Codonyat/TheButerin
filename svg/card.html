@@ -112,13 +112,6 @@
                 <filter id="blur">
                     <feGaussianBlur in="SourceGraphic" stdDeviation="3" />
                 </filter>
-                <!-- <filter id="emboss" w>
-                    <feConvolveMatrix
-                        order="5 5"
-                        preserveAlpha="true"
-                        kernelMatrix="-1 0 0 0 0 0 -2 0 0 0 0 0 3 0 0 0 0 0 0 0 0 0 0 0 0"
-                    />
-                </filter> -->
                 <filter id="glow">
                     <fegaussianblur in="SourceGraphic" stddeviation=".5" result="blurredColor"></fegaussianblur>
                     <fegaussianblur in="SourceAlpha" stddeviation=".25" result="blurredAlpha"></fegaussianblur>
@@ -210,9 +203,7 @@
                 Z"
             />
             <!-- ADD SHININESS -->
-            <!-- BEVEL TITLE BOXES. MAKE INSET SHADOW BY REVERTING INSIDE OUT -->
-            <!-- EDGES ARE NOT SHAMFERED WITH THE RANDOM PROFILE -->
-
+            <!-- USE NOISE FILTER TO MAKER DESCRIPTION PATTERN -->
             <!-- Wrapping frame -->
             <g filter="url(#shadow)">
                 <use href="#framePath" fill="url(#circuitBlurry)" />
@@ -303,18 +294,6 @@
             // Exponential PRNG
             const rndExp = function () {
                 return -Math.log(1.0 - rnd()) * 20;
-            };
-
-            const hexToRgbA = function (hex, alpha) {
-                let c;
-                if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
-                    c = hex.substring(1).split("");
-                    if (c.length == 3) {
-                        c = [c[0], c[0], c[1], c[1], c[2], c[2]];
-                    }
-                    c = "0x" + c.join("");
-                    return "rgba(" + [(c >> 16) & 255, (c >> 8) & 255, c & 255].join(",") + "," + alpha + ")";
-                }
             };
 
             const fidenzaPalette = [
