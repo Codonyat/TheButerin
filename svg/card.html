@@ -81,11 +81,33 @@
                     <use href="#circuitFill" />
                     <use href="#circuitPath" filter="url(#blur)" />
                 </pattern>
-                <filter id="shadowText">
+                <filter id="textWhite">
                     <feDropShadow dx=".2" dy=".2" stdDeviation="0" flood-color="white" flood-opacity="1" />
                 </filter>
                 <filter id="shadow">
                     <feDropShadow dx=".5" dy=".5" stdDeviation=".3" flood-color="black" flood-opacity="1" />
+                </filter>
+                <filter id="bevel">
+                    <feDropShadow
+                        dx="-.3"
+                        dy="-.3"
+                        stdDeviation=".3"
+                        flood-color="white"
+                        flood-opacity=".7"
+                        result="whiteBevel"
+                    />
+                    <feDropShadow
+                        dx=".3"
+                        dy=".3"
+                        stdDeviation=".3"
+                        flood-color="black"
+                        flood-opacity=".7"
+                        result="blackBevel"
+                    />
+                    <femerge>
+                        <femergenode in="whiteBevel"></femergenode>
+                        <femergenode in="blackBevel"></femergenode>
+                    </femerge>
                 </filter>
                 <filter id="blur">
                     <feGaussianBlur in="SourceGraphic" stdDeviation="3" />
@@ -102,7 +124,6 @@
                     <fegaussianblur in="SourceAlpha" stddeviation=".25" result="blurredAlpha"></fegaussianblur>
                     <femerge>
                         <femergenode in="blurredColor"></femergenode>
-                        <femergenode in="blurredAlpha"></femergenode>
                         <femergenode in="blurredColor"></femergenode>
                         <femergenode in="blurredAlpha"></femergenode>
                         <femergenode in="SourceGraphic"></femergenode>
@@ -112,18 +133,12 @@
                     .fontTitle {
                         font-family: "Orbitron";
                         fill: black;
-                        filter: url(#shadowText);
+                        filter: url(#textWhite);
                     }
                     .fontQuote {
                         font-family: "Ubuntu Mono";
                         font-style: italic;
                         font-size: 1em;
-                    }
-                    .element {
-                        stroke-width: 0.4;
-                        stroke-opacity: 0.7;
-                        fill-opacity: 0.7;
-                        fill: white;
                     }
                 </style>
                 <path
@@ -147,13 +162,34 @@
                     l2 -2
                     Z"
                 />
-                <path id="titlePath" stroke-linejoin="round" />
-                <path id="titlePathReverse" stroke-linejoin="round" />
-                <path id="subtitlePath" stroke-linejoin="round" />
-                <path id="descriptionPath" stroke-linejoin="round" />
                 <clipPath id="imageClip">
                     <path id="imagePath" />
                 </clipPath>
+                <mask id="imageMask">
+                    <rect width="100" height="140" fill="white" />
+                    <use href="#imagePath" />
+                </mask>
+                <clipPath id="titleClip">
+                    <path id="titlePath" />
+                </clipPath>
+                <mask id="titleMask">
+                    <rect width="100" height="140" fill="white" />
+                    <use href="#titlePath" />
+                </mask>
+                <clipPath id="subtitleClip">
+                    <path id="subtitlePath" />
+                </clipPath>
+                <mask id="subtitleMask">
+                    <rect width="100" height="140" fill="white" />
+                    <use href="#subtitlePath" />
+                </mask>
+                <clipPath id="descriptionClip">
+                    <path id="descriptionPath" />
+                </clipPath>
+                <mask id="descriptionMask">
+                    <rect width="100" height="140" fill="white" />
+                    <use href="#descriptionPath" />
+                </mask>
             </defs>
 
             <!-- Black rounded frame -->
@@ -194,10 +230,13 @@
 
             <!-- Title -->
             <g>
-                <use id="titleLabel" href="#titlePath" class="element" />
-                <use href="#titlePath" stroke="black" stroke-width=".3" stroke-opacity=".2" fill="transparent" />
-                <use href="#titlePath" stroke="black" stroke-width=".2" stroke-opacity=".2" fill="transparent" />
-                <use href="#titlePath" stroke="black" stroke-width=".1" stroke-opacity=".2" fill="transparent" />
+                <use id="titleLabel" href="#titlePath" filter="url(#glow)" />
+                <use href="#titlePath" fill="white" opacity=".8" />
+                <g width="100" height="140" clip-path="url(#titleClip)">
+                    <g filter="url(#bevel)">
+                        <rect width="100" height="140" mask="url(#titleMask)" />
+                    </g>
+                </g>
                 <text x="11" y="13.4" font-size="1.3em" class="fontTitle" font-weight="bold">Buterin Card</text>
             </g>
 
@@ -210,24 +249,35 @@
                     href="card-images\Buterin.small.jpg"
                     clip-path="url(#imageClip)"
                 />
-                <use href="#imagePath" stroke="black" stroke-width=".2" stroke-opacity=".2" fill="transparent" />
+                <!-- <use href="#imagePath" stroke="black" stroke-width=".2" stroke-opacity=".2" fill="transparent" /> -->
+                <g width="100" height="140" clip-path="url(#imageClip)">
+                    <g filter="url(#bevel)">
+                        <rect width="100" height="140" mask="url(#imageMask)" />
+                    </g>
+                </g>
             </g>
 
             <!-- Subtitle -->
             <g>
-                <use id="subtitleLabel" href="#subtitlePath" class="element" />
-                <use href="#subtitlePath" stroke="black" stroke-width=".3" stroke-opacity=".2" fill="transparent" />
-                <use href="#subtitlePath" stroke="black" stroke-width=".2" stroke-opacity=".2" fill="transparent" />
-                <use href="#subtitlePath" stroke="black" stroke-width=".1" stroke-opacity=".2" fill="transparent" />
+                <use id="subtitleLabel" href="#subtitlePath" filter="url(#glow)" />
+                <use href="#subtitlePath" fill="white" opacity=".8" />
+                <g width="100" height="140" clip-path="url(#subtitleClip)">
+                    <g filter="url(#bevel)">
+                        <rect width="100" height="140" mask="url(#subtitleMask)" />
+                    </g>
+                </g>
                 <text id="subtitleText" x="11" y="85.6" font-size="1em" class="fontTitle" font-weight="normal"></text>
             </g>
 
             <!-- Description text area -->
             <g>
-                <use id="description" href="#descriptionPath" class="element" />
-                <use href="#descriptionPath" stroke="black" stroke-width=".3" stroke-opacity=".2" fill="transparent" />
-                <use href="#descriptionPath" stroke="black" stroke-width=".2" stroke-opacity=".2" fill="transparent" />
-                <use href="#descriptionPath" stroke="black" stroke-width=".1" stroke-opacity=".2" fill="transparent" />
+                <use id="description" href="#descriptionPath" filter="url(#glow)" />
+                <use href="#descriptionPath" fill="white" opacity=".8" />
+                <g width="100" height="140" clip-path="url(#descriptionClip)">
+                    <g filter="url(#bevel)">
+                        <rect width="100" height="140" mask="url(#descriptionMask)" />
+                    </g>
+                </g>
                 <g id="description">
                     <text id="line1" x="13" y="94"></text>
                     <text id="line2" x="13" y="98"></text>
@@ -290,9 +340,9 @@
             const frameColorId = Math.floor(rnd() * fidenzaPalette.length);
             const frameColorId2 = Math.floor(rnd() * fidenzaPalette.length);
             document.getElementById("circuitFill").setAttribute("fill", fidenzaPalette[frameColorId]);
-            document.getElementById("titleLabel").setAttribute("stroke", fidenzaPalette[frameColorId]);
-            document.getElementById("subtitleLabel").setAttribute("stroke", fidenzaPalette[frameColorId]);
-            document.getElementById("description").setAttribute("stroke", fidenzaPalette[frameColorId]);
+            document.getElementById("titleLabel").setAttribute("fill", fidenzaPalette[frameColorId]);
+            document.getElementById("subtitleLabel").setAttribute("fill", fidenzaPalette[frameColorId]);
+            document.getElementById("description").setAttribute("fill", fidenzaPalette[frameColorId]);
 
             // Changing the background
             const trans = `scale(.1 .1) rotate(${rnd() * 360})`;
@@ -300,12 +350,14 @@
             document.getElementById("circuitBlurry").setAttribute("patternTransform", trans);
 
             // Setting random corners
-            let d = `M10 8 l-2 ${rnd() < 0.5 ? "0" : "2"} V12.82842712475 l${rnd() < 0.5 ? "0" : "2"} 2 H90 l2 ${
-                rnd() < 0.5 ? "0" : "-2"
-            } V10 l${rnd() < 0.5 ? "0" : "-2"} -2 H10`;
-            document.getElementById("titlePath").setAttribute("d", d);
-            d += "M0 0 V140 H100 V0 H0";
-            document.getElementById("titlePathReverse").setAttribute("d", d);
+            document
+                .getElementById("titlePath")
+                .setAttribute(
+                    "d",
+                    `M10 8 l-2 ${rnd() < 0.5 ? "0" : "2"} V12.82842712475 l${rnd() < 0.5 ? "0" : "2"} 2 H90 l2 ${
+                        rnd() < 0.5 ? "0" : "-2"
+                    } V10 l${rnd() < 0.5 ? "0" : "-2"} -2 Z`
+                );
 
             document
                 .getElementById("subtitlePath")
@@ -346,7 +398,7 @@
                 return d;
             };
 
-            d = generateProtrudedPath(15.82842712475, 64.28);
+            let d = generateProtrudedPath(15.82842712475, 64.28);
             document.getElementById("imagePath").setAttribute("d", d);
 
             d = generateProtrudedPath(88.1084271247, 43.8915728753);
