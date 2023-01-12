@@ -74,7 +74,7 @@
             <feDropShadow dx=".2" dy=".2" stdDeviation="0" flood-color="white" flood-opacity="1" />
         </filter>
         <filter id="descriptionShadow">
-            <feDropShadow dx=".1" dy=".1" stdDeviation="0" flood-color="white" flood-opacity="1" result="whiteShadow" />
+            <feDropShadow dx=".1" dy=".1" stdDeviation="0" flood-color="white" flood-opacity="1" />
         </filter>
         <!-- <filter id="descriptionGlow">
             <feFlood flood-color="black" result="white" />
@@ -288,6 +288,8 @@
         <text id="line6" x="12" y="115" />
         <text id="line7" x="12" y="119" />
         <text id="line8" x="12" y="123" />
+        <text id="line9" x="12" y="127" />
+        <text id="line10" x="12" y="131" />
     </g>
 
     <script>
