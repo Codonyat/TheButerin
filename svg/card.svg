@@ -156,7 +156,7 @@
 				font-style: italic;
 				font-size: 1em;
 				fill: black;
-				opacity: .8;
+				opacity: .9;
 				filter: url(#descriptionShadow);
 			}
         </style>
@@ -167,13 +167,13 @@
 			H6
 			V15.82842712475
 			l2 2
-			V78.1084271247
+			V80.1084271247
 			l-3 3
 			v6
 			l3 3
 			V134
 			H92
-			V90.1084271247
+			V92.1084271247
 			l3 -3
 			v-6
 			l-3 -3
@@ -258,7 +258,7 @@
 
     <!-- Buterin image -->
     <g filter="url(#glow)">
-        <image x="10" y="15.82842712475" width="80" href="card-images\Buterin.small.jpg" clip-path="url(#imageClip)" />
+        <image x="10" y="16.82842712475" width="80" href="card-images\Buterin.small.jpg" clip-path="url(#imageClip)" />
         <g width="100" height="140" clip-path="url(#imageClip)">
             <g filter="url(#bevel)">
                 <rect width="100" height="140" mask="url(#imageMask)" />
@@ -275,21 +275,19 @@
                 <rect width="100" height="140" mask="url(#subtitleMask)" />
             </g>
         </g>
-        <text id="subtitleText" x="11" y="85.6" font-size="1em" class="fontTitle" font-weight="normal" />
+        <text id="subtitleText" x="11" y="87.6" font-size="1em" class="fontTitle" font-weight="normal" />
     </g>
 
     <!-- Description text area -->
-    <g>
-        <g id="description">
-            <text id="line1" x="13" y="94" />
-            <text id="line2" x="13" y="98" />
-            <text id="line3" x="13" y="102" />
-            <text id="line4" x="13" y="106" />
-            <text id="line5" x="13" y="110" />
-            <text id="line6" x="13" y="114" />
-            <text id="line7" x="13" y="118" />
-            <text id="line8" x="13" y="122" />
-        </g>
+    <g id="description">
+        <text id="line1" x="12" y="95" />
+        <text id="line2" x="12" y="99" />
+        <text id="line3" x="12" y="103" />
+        <text id="line4" x="12" y="107" />
+        <text id="line5" x="12" y="111" />
+        <text id="line6" x="12" y="115" />
+        <text id="line7" x="12" y="119" />
+        <text id="line8" x="12" y="123" />
     </g>
 
     <script>
@@ -351,9 +349,9 @@
 			.getElementById("subtitlePath")
 			.setAttribute(
 				"d",
-				`M10 81.1084271247 l-3 ${rnd() < 0.5 ? "0" : "3"} V84.1084271247 l${
+				`M10 83.1084271247 l-3 ${rnd() < 0.5 ? "0" : "3"} V86.1084271247 l${
 					rnd() < 0.5 ? "0" : "3"
-				} 3 H90 l3 ${rnd() < 0.5 ? "0" : "-3"} V84.1084271247 l${rnd() < 0.5 ? "0" : "-3"} -3 z`
+				} 3 H90 l3 ${rnd() < 0.5 ? "0" : "-3"} V86.1084271247 l${rnd() < 0.5 ? "0" : "-3"} -3 z`
 			);
 
 		// Setting the protrusions for the image element
@@ -386,11 +384,8 @@
 			return d;
 		};
 
-		let d = generateProtrudedPath(15.82842712475, 64.28);
+		let d = generateProtrudedPath(16.82842712475, 64.28);
 		document.getElementById("imagePath").setAttribute("d", d);
-
-		// d = generateProtrudedPath(88.1084271247, 43.8915728753);
-		// document.getElementById("descriptionPath").setAttribute("d", d);
 
 		// Javascript script to wrap text in description
 		const index = Math.floor((rnd() * quotes.length) / 2);
