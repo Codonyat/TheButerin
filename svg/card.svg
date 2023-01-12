@@ -302,11 +302,6 @@
 			return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
 		};
 
-		// Exponential PRNG
-		const rndExp = function () {
-			return -Math.log(1.0 - rnd()) * 20;
-		};
-
 		const fidenzaPalette = [
 			"#DB4F54",
 			"#D12A2F",
@@ -356,45 +351,55 @@
 				} 3 H90 l3 ${rnd() < 0.5 ? "0" : "-3"} V86.1084271247 l${rnd() < 0.5 ? "0" : "-3"} -3 z`
 			);
 
+		const rnd3 = function () {
+			return rnd() < 1 / 3 ? 0 : (rnd() < 1/2 ? 1 : 2);
+		};
+
+		const transition = function(pos){
+			let posNew = (pos + 1 + rnd())%3;
+			let posInc =  Math.abs(posNew - pos);
+			let lenInc = rnd()*80;
+			if(lenInc < posInc) lenInc = posInc;
+			return [posNew, posInc, lenInc];
+		};
+
 		// Setting the protrusions for the image element
 		const generateProtrudedPath = function (y0, height) {
 			// Left side
-			let left = rnd() < 0.5;
-			let lenInc = rnd()*80;
-			if(lenInc < 1) lenInc = 1;
+			let pos = rnd3();
+			let [posNew, posInc, lenInc] = transition(pos);
+			console.log(lenInc,height);
 			let len = lenInc
-			let d = `M${left ? "10" : "11"} ${y0}`;
+			let d = `M${pos + 10} ${y0}`;
 			while (len <= height) {
-				d += ` v${lenInc - 1}`;
-				d += ` l${left ? "" : "-"}1 1`;
-				left = !left;
+				d += ` v${lenInc - posInc}`;
+				d += ` l${posNew-pos} ${posInc}`;
+				pos = posNew;
 
-				lenInc = rnd()*80;
-				if(lenInc < 1) lenInc = 1;
+				[posNew, posInc, lenInc] = transition(pos);
 				len += lenInc;
 			}
-			if(len - lenInc <= height - 1 && len <= height + 1)
-				d += ` V${y0 + height - 1} l${left ? "" : "-"}1 1`;
+			if(len - lenInc <= height - posInc && len <= height + posInc)
+				d += ` V${y0 + height - posInc} l${posNew-pos} ${posInc}`;
 			else
 				d += ` V${y0 + height}`;
 
 			// Right side
-			left = rnd() < 0.5;
-			lenInc = rnd()*80;
-			if(lenInc < 1) lenInc = 1;
+			pos = rnd3();
+			[posNew, posInc, lenInc] = transition(pos);
+			console.log(lenInc,height);
 			len = lenInc;
-			d += ` H${left ? "89" : "90"}`;
+			d += ` H${pos + 88}`;
 			while (len <= height) {
-				d += ` v-${lenInc-1}`;
-				d += ` l${left ? "" : "-"}1 -1`;
-				left = !left;
+				d += ` v-${lenInc - posInc}`;
+				d += ` l${posNew-pos} -${posInc}`;
+				pos = posNew;
 
-				lenInc = rnd()*80;
-				if(lenInc < 1) lenInc = 1;
-				len += lenInc + 1;
+				[posNew, posInc, lenInc] = transition(pos);
+				len += lenInc;
 			}
-			if(len - lenInc <= height - 1 && len <= height + 1)
-				d += ` V${y0 + 1} l${left ? "" : "-"}1 -1`;
+			if(len - lenInc <= height - posInc && len <= height + posInc)
+				d += ` V${y0 + posInc} l${posNew-pos} -${posInc}`;
 			else
 				d += ` V${y0}`;
 
