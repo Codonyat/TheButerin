@@ -359,11 +359,10 @@
 		// Setting the protrusions for the image element
 		const generateProtrudedPath = function (y0, height) {
 			// Left side
-			let lenInc = rnd()*80;
-			console.log(lenInc);
-			if(lenInc < 1) lenInc = 1;
-			let len = lenInc;
 			let left = rnd() < 0.5;
+			let lenInc = rnd()*80;
+			if(lenInc < 1) lenInc = 1;
+			let len = lenInc
 			let d = `M${left ? "10" : "11"} ${y0}`;
 			while (len <= height) {
 				d += ` v${lenInc - 1}`;
@@ -378,22 +377,28 @@
 				d += ` V${y0 + height - 1} l${left ? "" : "-"}1 1`;
 			else
 				d += ` V${y0 + height}`;
-			
 
 			// Right side
 			left = rnd() < 0.5;
-			d += ` H${left ? "89" : "90"}`;
 			lenInc = rnd()*80;
-			len = lenInc + 1;
+			if(lenInc < 1) lenInc = 1;
+			len = lenInc;
+			d += ` H${left ? "89" : "90"}`;
 			while (len <= height) {
-				d += ` v-${lenInc}`;
+				d += ` v-${lenInc-1}`;
 				d += ` l${left ? "" : "-"}1 -1`;
 				left = !left;
 
 				lenInc = rnd()*80;
+				if(lenInc < 1) lenInc = 1;
 				len += lenInc + 1;
 			}
-			d += ` V${y0} Z`;
+			if(len - lenInc <= height - 1 && len <= height + 1)
+				d += ` V${y0 + 1} l${left ? "" : "-"}1 -1`;
+			else
+				d += ` V${y0}`;
+
+			d += ` Z`;
 			return d;
 		};
 
